@@ -1,6 +1,8 @@
 # Notes
 
-Proteus ver 8.9 or over. It include STM32F1 and many other
+Posibilidades para simular el BluePill Stm32f103c8t6:
+  -Proteus ver 8.9 or over. It include STM32F1 and many other.
+  -Keil V5
 
 
 # TProfesional_EEG
