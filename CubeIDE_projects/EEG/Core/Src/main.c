@@ -89,23 +89,38 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	uint16_t DevAddress = 0x16;
-	uint8_t Data_High = 0xF4;
-	uint8_t Data_Low = 0x00;
-	uint16_t Size = 0x0C;
-	uint32_t Timeout = 12;
+	uint16_t DevAddress = (0x16 << 1);
+
+	uint8_t package_size = 3;
+	uint8_t data_high[package_size]; // 3 bytes of high data to send
+	data_high[0] = 3 << 4;
+	data_high[1] = 255;
+	data_high[2] = 15 << 4;
+
+	uint8_t data_low[package_size]; // 3 bytes of low data to send
+	data_low[0] = 3 << 4;
+	data_low[1] = 0;
+	data_low[2] = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		for(int i= 0; i<10000000; i++){
-			HAL_I2C_Master_Transmit (&hi2c1, DevAddress, &Data_High, Size, HAL_MAX_DELAY);
+  	// Master to slave -> send 1 byte, 7 bits of address, 1 bit (LSB) of read (1) or write (0)
+  	// Slave acknowledges it (Should we check this?)
+  	// Master to slave -> send 3 bytes:
+  	//										First byte is the command. 00110000 to write to and update DAC (I believe this is the one we need to use)
+  	// 										Second and third bytes are data bytes, what we want to convert to analog
+
+		for(int i = 0; i < 10000000; ++i)
+		{
+			HAL_Delay(100);
+			HAL_I2C_Master_Transmit (&hi2c1, DevAddress, data_high, package_size, HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_I2C_Master_Transmit (&hi2c1, DevAddress, data_low, package_size, HAL_MAX_DELAY);
 		}
-		for(int i= 0; i<10000000; i++){
-			HAL_I2C_Master_Transmit (&hi2c1, DevAddress, &Data_Low, Size, HAL_MAX_DELAY);
-		}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
