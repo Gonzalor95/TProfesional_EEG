@@ -14,6 +14,10 @@ Este repositorio contiene los archivos de software (codigo fuente y simulacion) 
 
 # Notes
 
-Posibilidades para simular el BluePill Stm32f103c8t6:
-  -Proteus ver 8.9 or over. It include STM32F1 and many other.
-  -Keil V5
+## 23/9/2021
+
+Simular alternativas
+
+
+
+
