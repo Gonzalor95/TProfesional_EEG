@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <WORKSPACE>
  <FRAME activewindow="0">
-  <PLACEMENT>2c00000002000000030000000083ffff0083ffffffffffffffffffff8300000009000000d3040000cf020000</PLACEMENT>
+  <PLACEMENT>2c0000000200000003000000ffffffffffffffffffffffffffffffff8300000009000000d3040000cf020000</PLACEMENT>
   <WINDOW type="default" module="ISIS"/>
  </FRAME>
  <MODULE name="VSMDEBUG">
   <PWI>
    <POPUP w="800" x="68" flags="00000002" y="129" h="200" pid="0" iid="-1">
     <PROPERTIES>
-     <ITEM name="Message Column Width">663</ITEM>
+     <ITEM name="Message Column Width">542</ITEM>
      <ITEM name="ShowGrid">No</ITEM>
      <ITEM name="Source Column Width">100</ITEM>
      <ITEM name="Time Column Width">120</ITEM>
@@ -366,18 +366,34 @@
    <POPUP w="22" x="728" flags="00000008" y="710" h="18" pid="191" iid="4">
     <PROPERTIES/>
    </POPUP>
-   <POPUP w="861" x="307" flags="00000022" y="113" h="450" pid="0" iid="1">
+   <POPUP w="861" x="302" flags="00000022" y="229" h="450" pid="0" iid="1">
     <PROPERTIES>
-     <ITEM name="ComboBox1000">s 00</ITEM>
-     <ITEM name="ComboBox1001">A</ITEM>
-     <ITEM name="ComboBox1002">s 0x00</ITEM>
-     <ITEM name="ComboBox1003">s</ITEM>
-     <ITEM name="ComboBox1004">S</ITEM>
-     <ITEM name="ComboBox1005">Sr</ITEM>
-     <ITEM name="ComboBox1006">P</ITEM>
-     <ITEM name="ComboBox1007">N</ITEM>
-     <ITEM name="ComboBox1008">S</ITEM>
-     <ITEM name="ComboBox1009">Sr</ITEM>
+     <ITEM name="ComboBox1000">s 0x00</ITEM>
+     <ITEM name="ComboBox1001">0x00</ITEM>
+     <ITEM name="ComboBox1002">s</ITEM>
+     <ITEM name="ComboBox1003">A</ITEM>
+     <ITEM name="ComboBox1004">s</ITEM>
+     <ITEM name="ComboBox1005">S</ITEM>
+     <ITEM name="ComboBox1006">Sr</ITEM>
+     <ITEM name="ComboBox1007">P</ITEM>
+     <ITEM name="ComboBox1008">N</ITEM>
+     <ITEM name="ComboBox1009">S</ITEM>
+     <ITEM name="HSplitter1Pos">100</ITEM>
+     <ITEM name="VSplitter1Pos">238</ITEM>
+    </PROPERTIES>
+   </POPUP>
+   <POPUP w="695" x="68" flags="00000000" y="129" h="453" pid="0" iid="10">
+    <PROPERTIES>
+     <ITEM name="ComboBox1000">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1001">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1002">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1003">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1004">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1005">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1006">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1007">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1008">0x00 0xff</ITEM>
+     <ITEM name="ComboBox1009">0x00 0xff</ITEM>
      <ITEM name="HSplitter1Pos">100</ITEM>
      <ITEM name="VSplitter1Pos">238</ITEM>
     </PROPERTIES>
