@@ -233,3 +233,281 @@ Finished building: SPI_con_DAC.list
  
 arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
  
+20:58:55 **** Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6112	     20	   1660	   7792	   1e70	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:04:02 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6112	     20	   1660	   7792	   1e70	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+Finished building: SPI_con_DAC.list
+ 
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:05:24 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6112	     20	   1660	   7792	   1e70	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:16:41 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6132	     20	   1660	   7812	   1e84	SPI_con_DAC.elf
+Finished building: default.size.stdout
+Finished building: SPI_con_DAC.bin
+ 
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:17:16 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-size   SPI_con_DAC.elf 
+   text	   data	    bss	    dec	    hex	filename
+   6132	     20	   1660	   7812	   1e84	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:19:00 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6128	     20	   1660	   7808	   1e80	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:19:46 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-size   SPI_con_DAC.elf 
+   text	   data	    bss	    dec	    hex	filename
+   6128	     20	   1660	   7808	   1e80	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:26:41 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6128	     20	   1660	   7808	   1e80	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+Finished building: SPI_con_DAC.list
+ 
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+21:28:39 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6128	     20	   1660	   7808	   1e80	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+22:37:44 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6128	     20	   1660	   7808	   1e80	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+22:49:07 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:93:38: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                      ^~~~
+../Core/Src/main.c:93:38: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:93:44: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                            ^~~~
+../Core/Src/main.c:93:44: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:93:49: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                                 ^~~~
+../Core/Src/main.c:93:49: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:93:55: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                                       ^~~~
+../Core/Src/main.c:93:55: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:93:60: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                                            ^~~~
+../Core/Src/main.c:93:60: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:93:66: warning: excess elements in array initializer
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |                                                                  ^~~~
+../Core/Src/main.c:93:66: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:11: error: conflicting types for 'bufferTx1'
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |           ^~~~~~~~~
+../Core/Src/main.c:93:11: note: previous definition of 'bufferTx1' was here
+   93 |   uint8_t bufferTx1[2] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+      |           ^~~~~~~~~
+../Core/Src/main.c:94:33: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                 ^~~~
+../Core/Src/main.c:94:33: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:38: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                      ^~~~
+../Core/Src/main.c:94:38: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:44: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                            ^~~~
+../Core/Src/main.c:94:44: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:49: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                                 ^~~~
+../Core/Src/main.c:94:49: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:55: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                                       ^~~~
+../Core/Src/main.c:94:55: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:60: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                                            ^~~~
+../Core/Src/main.c:94:60: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:94:66: warning: excess elements in array initializer
+   94 |   uint8_t bufferTx1[1] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+      |                                                                  ^~~~
+../Core/Src/main.c:94:66: note: (near initialization for 'bufferTx1')
+../Core/Src/main.c:109:29: error: 'bufferTx2' undeclared (first use in this function); did you mean 'bufferTx1'?
+  109 |    HAL_SPI_Transmit(&hspi1, bufferTx2, 4, 0);
+      |                             ^~~~~~~~~
+      |                             bufferTx1
+../Core/Src/main.c:109:29: note: each undeclared identifier is reported only once for each function it appears in
+make[1]: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+make: *** [makefile:59: all] Error 2
+"make -j4 all" terminated with exit code 2. Build might be incomplete.
+22:49:52 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6168	     20	   1660	   7848	   1ea8	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+22:54:52 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: SPI_con_DAC.elf
+ 
+arm-none-eabi-size   SPI_con_DAC.elf 
+arm-none-eabi-objdump -h -S  SPI_con_DAC.elf  > "SPI_con_DAC.list"
+arm-none-eabi-objcopy  -O binary  SPI_con_DAC.elf  "SPI_con_DAC.bin"
+   text	   data	    bss	    dec	    hex	filename
+   6088	     20	   1660	   7768	   1e58	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+Finished building: SPI_con_DAC.bin
+ 
+Finished building: SPI_con_DAC.list
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 

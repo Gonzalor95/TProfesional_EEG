@@ -90,7 +90,9 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t bufferTx[2] = {0x3F,0xff};
+  uint8_t bufferTx1[8] = {0xff, 0x3F,0x7F, 0x3A,0xff, 0x3F,0xff, 0x3F};
+  uint8_t bufferTx2[8] = {0xff, 0x3F,0x00, 0x30,0xff, 0x3f,0x00, 0x30};
+
 
   /* USER CODE END 2 */
 
@@ -99,11 +101,12 @@ int main(void)
   while (1)
   {
 	 HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_1);
-	 //HAL_Delay(1);
+	// HAL_Delay(1);
     /* USER CODE END WHILE */
 
 
-	  HAL_SPI_Transmit(&hspi1, bufferTx, 2, HAL_MAX_DELAY);
+	  HAL_SPI_Transmit(&hspi1, bufferTx1, 4, 0);
+	  HAL_SPI_Transmit(&hspi1, bufferTx2, 4, 0);
 
 
     /* USER CODE BEGIN 3 */
