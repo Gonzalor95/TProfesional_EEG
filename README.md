@@ -14,6 +14,23 @@ Este repositorio contiene los archivos de software (codigo fuente y simulacion) 
 
 # Notas de reuniones
 
+## 21/10/2021
+
+Objetivo final: reproducción de muestras de 1 hora en total.
+ * Agregar en la GUI la posibilidad de elegir el tiempo de reproducción
+ * Considerar para el tema de la alimentación
+
+Otras cuestiones:
+* Analizar alternativas del BluePill. Capaz algo más potente, tiene más documentación, etc.
+* Evaluar alternativa de mandar los datos de la PC al micro es utilizar en vez de USB, usar un protocolo inalámbrico. (ver si se puede realizar una adaptación para utilizar el celular para mandar los datos)
+* Analizar Nice-to-have la utilización del celular para usar el dispositivo. Para este caso, es conveniente desarrollar la comunicación inalámbrica con el Microcontrolador.
+* Analizar Linux driver: https://wiki.analog.com/resources/tools-software/linux-drivers/iio-dac/ad5360
+ ** La familia de Nano puede ser que los drivers no sean solamente de Linux (investigar).
+* Analizar el pin de LATCH en los DACs para sacar los datos de forma sincrónica. Si no hay Latch, investigar alternativa de como solucionarlo (enviar todos los canales de forma sincrónica).
+* Analizar tambien que como el STM32 transmite a palabras de 16bits. Evaluar si podemos disminuir la resolución para lograr aprovechar esos 16 bits (en vez de enviar 2 palabras)
+* Datasheet del DAC normalmente tiene la configuracion necesaria y podemos generar las funciones requeridas nosotros mismos para mejorar la performance.
+
+
 ## 23/9/2021
 
 Microprocesador para experimentar: STM32F103c8t6 (BluePill)  
