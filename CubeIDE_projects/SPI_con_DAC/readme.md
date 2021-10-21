@@ -86,7 +86,7 @@ Datasheet del STM32F103C6 = https://www.st.com/resource/en/datasheet/stm32f103t6
   
 # Ejemplo Senoidal con Tabla armada previamente (se usa un solo HAL_SPI_Transmit())
   
-    ```c
+```c
     /* USER CODE BEGIN WHILE */
   uint8_t  sine_wave[256*2] = {
 	        0x0, 0x20,0xc0, 0x20,0x80, 0x21,0x40, 0x22,0x0, 0x23,0x0, 0x24,0xc0, 0x24,0x80, 0x25,0x40, 0x26,
@@ -129,4 +129,4 @@ Datasheet del STM32F103C6 = https://www.st.com/resource/en/datasheet/stm32f103t6
 
     /* USER CODE BEGIN 3 */
   }
-  ```
+```
