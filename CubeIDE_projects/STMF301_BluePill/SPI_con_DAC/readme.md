@@ -5,7 +5,7 @@ Datasheet del AD5601 = https://www.analog.com/media/en/technical-documentation/d
 Datasheet del STM32F103C6 = https://www.st.com/resource/en/datasheet/stm32f103t6.pdf
 
 
-Para crear el .hex en STM32CubeIDE:
+- Para crear el .hex en STM32CubeIDE:
 
 Ir a "Project Properties > C/C++ Build > Settings > Build steps > Post-build steps > Command":
 
@@ -13,7 +13,6 @@ Ir a "Project Properties > C/C++ Build > Settings > Build steps > Post-build ste
 _arm-none-eabi-objcopy -O ihex ${ProjName}.elf ${ProjName}.hex_
  
 
-arm-none-eabi-objcopy -O ihex ${ProjName}.elf ${ProjName}.hex
 
 # Ejemplo Triangular:
 
