@@ -199,8 +199,11 @@ class EDFSimulator(QWidget):
         raw_selected_channels_string = self.channel_select_line_edit.text()
         selected_channels = self.parseSelectedChannelsString(
             raw_selected_channels_string)
+        if not selected_channels:
+            print("Error when parsing input into channels")
         if(self.edf_worker.setSelectedChannels(selected_channels) == False):
             print("Error when trying to set the selected channels in the EDF worker")
+        self.selected_channels_value.setText(",".join([str(int) for int in selected_channels]))
 
     def deleteBoxFromLayout(self, layout, box):
         """
@@ -230,11 +233,50 @@ class EDFSimulator(QWidget):
         """
         Method to parse the user input selected channel string into an array of ints
         """
+        return_list = []
+        aux_list = raw_selected_channels_string.split(",")
+        for value in aux_list:
+            if value.isdigit() and int(value) not in return_list:
+                return_list.append(int(value))
+            elif "-" in value:
+                dash_subarray = parse_dash_separated_values(value)
+                for value in dash_subarray:
+                    if value not in return_list:
+                        return_list.append(value)
+            elif not value.isdigit():
+                print("Wrong input format for channel selection")
+                return []
+        return return_list
+
 
 def main():
     app = QApplication(sys.argv)
     ex = EDFSimulator()
     sys.exit(app.exec_())
+
+
+def parse_dash_separated_values(dash_string):
+    """
+    Aux method to parse the dash separated values into an array of ints
+    """
+    aux_list = dash_string.split("-")
+    return_list = []
+    if len(aux_list) != 2:
+        print(
+            "Error when parsing '-' separated values, more than two values found")
+        return []
+    if (not aux_list[0].isdigit()) or (not aux_list[1].isdigit()):
+        print(
+            "Error when parsing '-' separated values, values are not digits")
+        return []
+    if int(aux_list[0]) > int(aux_list[1]):
+        print(
+            "Error when parsing '-' separated values, first value bigger than the second one")
+        return []
+    for i in range(int(aux_list[1]) - int(aux_list[0])):
+        return_list.append(int(aux_list[0]) + i)
+    return_list.append(int(aux_list[1]))
+    return return_list
 
 
 if __name__ == '__main__':

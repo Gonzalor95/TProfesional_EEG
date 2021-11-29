@@ -113,11 +113,12 @@ class EDFWorker():
                 axis[index].get_yaxis().set_ticks([])
                 axis[index].set_title(
                     "Channel " + str(self.selected_channels[index]))
-            # Make it fullscreen
-            plot_figure_manager = plt.get_current_fig_manager()
-            plot_figure_manager.resize(*plot_figure_manager.window.maxsize())
+            # Make it fullscreen # TODO: check that maxsize() does not work on windows
+            #plot_figure_manager = plt.get_current_fig_manager()
+            #plot_figure_manager.resize(*plot_figure_manager.window.maxsize())
             plt.show()
         else:
+            print("EDF file not loaded, cannot preview signals")
             return False
 
     def physicalToDigital(self, signal, dmin, dmax, pmin, pmax):
