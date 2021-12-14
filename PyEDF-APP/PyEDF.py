@@ -3,13 +3,15 @@
 import sys
 import os
 import time
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from qtrangeslider import QLabeledRangeSlider
 from EDFWorker import EDFWorker
 
 
 class EDFSimulator(QWidget):
+    big_int_ = 9999999999
 
     def __init__(self):
         super().__init__()
@@ -33,78 +35,107 @@ class EDFSimulator(QWidget):
         self.browse_button.clicked.connect(self.browseEDFFiles)
 
         # ==================================== VERTICAL SEPARATOR LINE ====================================
-        self.separator_line = QFrame()
-        self.separator_line.setFrameShape(QFrame.VLine)
+        separator_line = QFrame()
+        separator_line.setFrameShape(QFrame.VLine)
+        separator_line.setStyleSheet("border:2px; border-style:solid")
 
         # ==================================== RIGHT COLUMN ====================================
-        self.current_file_label = QLabel("Current EDF file: ")
+        current_file_label = QLabel("Current EDF file: ")
+        current_file_label.setFont(self.info_key_font)
         self.current_file_name_label = QLabel("")
-        self.current_file_h_layout = QHBoxLayout()
-        self.current_file_h_layout.addWidget(self.current_file_label)
-        self.current_file_h_layout.addWidget(
+        current_file_h_layout = QHBoxLayout()
+        current_file_h_layout.addWidget(current_file_label)
+        current_file_h_layout.addWidget(
             self.current_file_name_label, stretch=1)
 
-        self.separator_line_2a = QFrame()
-        self.separator_line_2a.setFrameShape(QFrame.HLine)
+        separator_line_2a = QFrame()
+        separator_line_2a.setFrameShape(QFrame.HLine)
+        separator_line_2a.setStyleSheet("border:1px; border-style:dashed")
 
         # Information vertical layout
-        self.information_title_label = QLabel("Signal information:")
-        self.information_title_label.setFont(self.title_font)
+        information_title_label = QLabel("Signal information:")
+        information_title_label.setFont(self.title_font)
         self.information_labels_layout = QVBoxLayout()
-        self.info_v_layout = QVBoxLayout()
-        self.info_v_layout.addWidget(
-            self.information_title_label, alignment=Qt.AlignHCenter)
-        self.info_v_layout.addLayout(
+        dotted_separator_line = QFrame()
+        dotted_separator_line.setFrameShape(QFrame.HLine)
+        dotted_separator_line.setFrameShadow(QFrame.Sunken)
+        dotted_separator_line.setStyleSheet("border:1px; border-style:dashed")
+        info_v_layout = QVBoxLayout()
+        info_v_layout.addWidget(
+            information_title_label, alignment=Qt.AlignHCenter)
+        info_v_layout.addLayout(
             self.information_labels_layout)
-        self.info_v_layout.addStretch()
+        info_v_layout.addWidget(dotted_separator_line)
+        info_v_layout.addStretch()
 
         # Config vertical layout
         # Title
-        self.config_v_layout = QVBoxLayout()
-        self.configuration_title_label = QLabel("Configuration:")
-        self.configuration_title_label.setFont(self.title_font)
-        self.config_v_layout.addWidget(
-            self.configuration_title_label, alignment=Qt.AlignHCenter)
+        config_v_layout = QVBoxLayout()
+        configuration_title_label = QLabel("Configuration:")
+        configuration_title_label.setFont(self.title_font)
+        config_v_layout.addWidget(
+            configuration_title_label, alignment=Qt.AlignHCenter)
         # Selected channels
-        self.selected_channels_key = QLabel("Selected channels: ")
-        self.selected_channels_key.setFont(self.info_key_font)
+        selected_channels_key = QLabel("Selected channels: ")
+        selected_channels_key.setFont(self.info_key_font)
         self.selected_channels_value = QLabel("")
         selected_channels_h_box = QHBoxLayout()
-        selected_channels_h_box.addWidget(self.selected_channels_key)
+        selected_channels_h_box.addWidget(selected_channels_key)
         selected_channels_h_box.addWidget(
             self.selected_channels_value, stretch=1)
-        self.config_v_layout.addLayout(selected_channels_h_box)
         channel_selector_h_box = QHBoxLayout()
         self.select_channels_button = QPushButton("Select")
         self.select_channels_button.clicked.connect(self.selectChannels)
         self.channel_select_line_edit = QLineEdit()
+        self.channel_select_line_edit.setPlaceholderText("1, 2, 5 - 6,...")
         channel_selector_h_box.addWidget(self.channel_select_line_edit)
         channel_selector_h_box.addWidget(self.select_channels_button)
-        self.config_v_layout.addLayout(channel_selector_h_box)
+        config_v_layout.addLayout(selected_channels_h_box)
+        config_v_layout.addLayout(channel_selector_h_box)
+        # Time slider
+        selected_sim_time_key = QLabel("Simulation time: ")
+        selected_sim_time_key.setFont(self.info_key_font)
+        self.selected_sim_time_value = QLabel("")
+        selected_sim_time_h_box = QHBoxLayout()
+        selected_sim_time_h_box.addWidget(selected_sim_time_key)
+        selected_sim_time_h_box.addWidget(self.selected_sim_time_value)
+        self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
+        self.range_slider.setHandleLabelPosition(
+            QLabeledRangeSlider.LabelPosition.LabelsBelow)
+        self.range_slider.setValue([0, 99])
+        self.range_slider.valueChanged.connect(self.timeSliderChanged)
+        config_v_layout.addLayout(selected_sim_time_h_box)
+        config_v_layout.addWidget(self.range_slider)
         # Placeholders
-        self.placeholder_label_2 = QLabel("asd2")
         self.placeholder_label_3 = QLabel("asd3")
-        self.config_v_layout.addWidget(
-            self.placeholder_label_2, alignment=Qt.AlignTop)
-        self.config_v_layout.addWidget(
+        self.placeholder_label_4 = QLabel("asd4")
+        config_v_layout.addWidget(
             self.placeholder_label_3, alignment=Qt.AlignTop)
-        self.config_v_layout.addStretch()
+        config_v_layout.addWidget(
+            self.placeholder_label_4, alignment=Qt.AlignTop)
+        config_v_layout.addStretch()
 
-        self.separator_line_2b = QFrame()
-        self.separator_line_2b.setFrameShape(QFrame.HLine)
+        separator_line_2b = QFrame()
+        separator_line_2b.setFrameShape(QFrame.HLine)
+        separator_line_2b.setStyleSheet("border:1px; border-style:dashed")
 
-        self.preview_button = QPushButton("PREVIEW")
+        self.preview_button = QPushButton("PREVIEW PHYSICAL")
         self.preview_button.setSizePolicy(
             QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.preview_button.clicked.connect(self.previewEDF)
+        self.preview_dig_button = QPushButton("PREVIEW DIGITAL")
+        self.preview_dig_button.setSizePolicy(
+            QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.preview_dig_button.clicked.connect(self.previewDigitalEDF)
         self.run_button = QPushButton("RUN")
         self.run_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.run_button.clicked.connect(self.runEDFSimulator)
-        self.run_preview_buttons_h_layout = QHBoxLayout()
-        self.run_preview_buttons_h_layout.addStretch(1)
-        self.run_preview_buttons_h_layout.addWidget(self.preview_button)
-        self.run_preview_buttons_h_layout.addWidget(self.run_button)
-        self.run_preview_buttons_h_layout.addStretch(1)
+        run_preview_buttons_h_layout = QHBoxLayout()
+        run_preview_buttons_h_layout.addStretch(1)
+        run_preview_buttons_h_layout.addWidget(self.preview_button)
+        run_preview_buttons_h_layout.addWidget(self.preview_dig_button)
+        run_preview_buttons_h_layout.addWidget(self.run_button)
+        run_preview_buttons_h_layout.addStretch(1)
 
         # ==================================== GRID ====================================
         main_grid = QGridLayout()
@@ -115,14 +146,14 @@ class EDFSimulator(QWidget):
         main_grid.setRowStretch(5, 1)
         main_grid.setRowStretch(6, 10)
         main_grid.addWidget(self.browse_button, 1, 1, alignment=Qt.AlignTop)
-        main_grid.addWidget(self.separator_line, 1, 2, 6, 1)
-        main_grid.addLayout(self.current_file_h_layout,
+        main_grid.addWidget(separator_line, 1, 2, 6, 1)
+        main_grid.addLayout(current_file_h_layout,
                             1, 3, alignment=Qt.AlignTop)
-        main_grid.addWidget(self.separator_line_2a, 2, 3)
-        main_grid.addLayout(self.info_v_layout, 3, 3)
-        main_grid.addLayout(self.config_v_layout, 4, 3)
-        main_grid.addWidget(self.separator_line_2b, 5, 3)
-        main_grid.addLayout(self.run_preview_buttons_h_layout, 6, 3)
+        main_grid.addWidget(separator_line_2a, 2, 3)
+        main_grid.addLayout(info_v_layout, 3, 3)
+        main_grid.addLayout(config_v_layout, 4, 3)
+        main_grid.addWidget(separator_line_2b, 5, 3)
+        main_grid.addLayout(run_preview_buttons_h_layout, 6, 3)
 
         self.setLayout(main_grid)
 
@@ -145,7 +176,6 @@ class EDFSimulator(QWidget):
     def browseEDFFiles(self):
         """
         Callback method for the "browse" button press.
-
         This method will try to load the EDF file clicked by the user
         into the system and display the corresponding information.
         """
@@ -157,6 +187,11 @@ class EDFSimulator(QWidget):
         if(self.edf_worker.readEDF(file_name)):
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
+            # Set the maximun time selector slider value to the signal duration
+            self.range_slider.setMaximum(self.edf_worker.getDuration())
+            self.range_slider.setValue([0, self.big_int_])
+            # Set selected channels to ALL
+            self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
                 self.deleteBoxFromLayout(
@@ -178,12 +213,20 @@ class EDFSimulator(QWidget):
 
     def previewEDF(self):
         """
-        Callback method for the "preview" button press.
-
+        Callback method for the "preview" button press. Used to preview the physical signals
         This method will plot the selected signal channels and show it to the user
         """
         print("Preview EDF requested")
-        if(self.edf_worker.previewSignals() == False):
+        if(self.edf_worker.previewSignals("physical") == False):
+            print("Error in preview EDF signal. Check if a file was loaded")
+
+    def previewDigitalEDF(self):
+        """
+        Callback method for the "preview" button press. Used to preview digital signals.
+        This method will plot the selected signal channels and show it to the user
+        """
+        print("Preview digital EDF requested")
+        if(self.edf_worker.previewSignals("digital") == False):
             print("Error in preview EDF signal. Check if a file was loaded")
 
     def runEDFSimulator(self):
@@ -192,18 +235,33 @@ class EDFSimulator(QWidget):
     def selectChannels(self):
         """
         Callback method for the select channels button
-
         This method reads the selected channels line edit, parses it into an array of
         integers and set the EDF worker with it
         """
-        raw_selected_channels_string = self.channel_select_line_edit.text()
-        selected_channels = self.parseSelectedChannelsString(
-            raw_selected_channels_string)
-        if not selected_channels:
-            print("Error when parsing input into channels")
-        if(self.edf_worker.setSelectedChannels(selected_channels) == False):
-            print("Error when trying to set the selected channels in the EDF worker")
-        self.selected_channels_value.setText(",".join([str(int) for int in selected_channels]))
+        raw_string = self.channel_select_line_edit.text()
+        if raw_string:
+            if raw_string == "ALL":
+                selected_channels = [i for i in range(
+                    0, self.edf_worker.getNumberOfChannels())]
+            else:
+                # Remove all whitespaces
+                raw_string = raw_string.replace(" ", "")
+                selected_channels = self.parseSelectedChannelsString(raw_string)
+            if not selected_channels:
+                print("Error when parsing input into channels")
+            if self.edf_worker.setSelectedChannels(selected_channels) == False:
+                print("Error when trying to set the selected channels in the EDF worker")
+            else:
+                self.selected_channels_value.setText(
+                    ",".join([str(int) for int in selected_channels]))
+        else:
+            print("Empty input in channel selector")
+        # Clear line edit
+        self.channel_select_line_edit.clear()
+
+    def timeSliderChanged(self):
+        if self.edf_worker.isFileLoaded():
+            self.edf_worker.setSelectedSimTime(self.range_slider.value())
 
     def deleteBoxFromLayout(self, layout, box):
         """
@@ -251,8 +309,20 @@ class EDFSimulator(QWidget):
 
 def main():
     app = QApplication(sys.argv)
+    # App icon
+    app_icon = QIcon()
+    app_icon.addFile('logo_fiuba.png', QSize(16, 16))
+    app_icon.addFile('logo_fiuba.png', QSize(24, 24))
+    app_icon.addFile('logo_fiuba.png', QSize(32, 32))
+    app_icon.addFile('logo_fiuba.png', QSize(48, 48))
+    app_icon.addFile('logo_fiuba.png', QSize(256, 256))
+    app.setWindowIcon(app_icon)
+    # Start EDF worker
     ex = EDFSimulator()
+    # Start app
     sys.exit(app.exec_())
+
+# Auxiliary methods =========================================
 
 
 def parse_dash_separated_values(dash_string):
