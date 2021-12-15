@@ -87,7 +87,7 @@ class EDFSimulator(QWidget):
         self.select_channels_button = QPushButton("Select")
         self.select_channels_button.clicked.connect(self.selectChannels)
         self.channel_select_line_edit = QLineEdit()
-        self.channel_select_line_edit.setPlaceholderText("1, 2, 5 - 6,...")
+        self.channel_select_line_edit.setPlaceholderText("0, 1, 5 - 6,...")
         channel_selector_h_box.addWidget(self.channel_select_line_edit)
         channel_selector_h_box.addWidget(self.select_channels_button)
         config_v_layout.addLayout(selected_channels_h_box)

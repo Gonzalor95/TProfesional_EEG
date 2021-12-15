@@ -134,20 +134,24 @@ class EDFWorker():
             print("EDF file not loaded, cannot preview signals")
             return False
 
-    def generateDigitalSignals(self): #TODO: When stacking, channels get disorder
+    def generateDigitalSignals(self):
         """
         Method to generate the digital signals from the physical ones
         """
         if not self.digital_signals_generated_:
             self.digital_signals = np.empty([1, len(self.physical_signals[1])])
             for i in range(self.physical_signals.shape[0]):
-                digital_signal = pyedflib.highlevel.phys2dig(self.physical_signals[i],
-                                                             self.signal_headers[i]["digital_min"],
-                                                             self.signal_headers[i]["digital_max"],
-                                                             self.signal_headers[i]["physical_min"],
-                                                             self.signal_headers[i]["physical_max"])
+                # Iterate backwards to get the correct order when stacking
+                digital_signal = pyedflib.highlevel.phys2dig(self.physical_signals[-1-i],
+                                                             self.signal_headers[-1-i]["digital_min"],
+                                                             self.signal_headers[-1-i]["digital_max"],
+                                                             self.signal_headers[-1-i]["physical_min"],
+                                                             self.signal_headers[-1-i]["physical_max"])
                 self.digital_signals = np.vstack(
                     (self.digital_signals, digital_signal))
+            # Re-arrange the rows because they got disordered when stacking
+            for i in range(int(self.physical_signals.shape[0] / 2)):
+                self.digital_signals[[i, -1-i]] = self.digital_signals[[-1-i, i]]
             self.digital_signals_generated_ = True
 
     def plotSignals(self, signal):
