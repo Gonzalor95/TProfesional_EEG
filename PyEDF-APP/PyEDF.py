@@ -2,16 +2,18 @@
 
 import sys
 import os
-import time
+import yaml
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from qtrangeslider import QLabeledRangeSlider
 from EDFWorker import EDFWorker
+from SerialComWorker import SerialComWorker
 
 
 class EDFSimulator(QWidget):
     big_int_ = 9999999999
+    max_channels = 0
 
     def __init__(self):
         super().__init__()
@@ -27,12 +29,23 @@ class EDFSimulator(QWidget):
         self.info_key_font.setPointSize(14)
         # EDF worker instance
         self.edf_worker = EDFWorker()
+        # Serial communication worker instance
+        self.serial_comm_worker = SerialComWorker()
+        # Read yaml config file and initialize values
+        self.readConfigFile()
         self.initUI()
 
     def initUI(self):
         # ==================================== LEFT COLUMN ====================================
-        self.browse_button = QPushButton("BROWSE")
-        self.browse_button.clicked.connect(self.browseEDFFiles)
+        self.browse_edf_button = QPushButton("Browse EDFs")
+        self.browse_edf_button.clicked.connect(self.browseEDFFiles)
+
+        self.browse_devices_button = QPushButton("Browse devices")
+        self.browse_devices_button.clicked.connect(self.browseDevices)
+
+        self.testing_signals_button = QPushButton("Testing signals")
+        self.testing_signals_button.clicked.connect(
+            self.changeToTestingSignals)
 
         # ==================================== VERTICAL SEPARATOR LINE ====================================
         separator_line = QFrame()
@@ -145,7 +158,12 @@ class EDFSimulator(QWidget):
         main_grid.setRowStretch(4, 100)
         main_grid.setRowStretch(5, 1)
         main_grid.setRowStretch(6, 10)
-        main_grid.addWidget(self.browse_button, 1, 1, alignment=Qt.AlignTop)
+        main_grid.addWidget(self.browse_edf_button, 1,
+                            1, alignment=Qt.AlignTop)
+        main_grid.addWidget(self.browse_devices_button,
+                            2, 1, alignment=Qt.AlignTop)
+        main_grid.addWidget(self.testing_signals_button,
+                            3, 1, alignment=Qt.AlignTop)
         main_grid.addWidget(separator_line, 1, 2, 6, 1)
         main_grid.addLayout(current_file_h_layout,
                             1, 3, alignment=Qt.AlignTop)
@@ -185,6 +203,13 @@ class EDFSimulator(QWidget):
             self, "Select EDF file", os.getcwd(), filter)[0]
         # Load EDF file into worker
         if(self.edf_worker.readEDF(file_name)):
+            # Check that the amount of channels doesn't exceed the configured one
+            if self.edf_worker.getNumberOfChannels() >= self.max_channels:
+                print(
+                    "Number of channels of the selected EDF file exceeds the max amount, "
+                    "please select a different EDF file")
+                self.edf_worker.resetWorker()
+                return
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
             # Set the maximun time selector slider value to the signal duration
@@ -210,6 +235,18 @@ class EDFSimulator(QWidget):
                 self.information_labels_layout.addLayout(h_box)
         else:
             print("Error when trying to load the EDF file")
+
+    def browseDevices(self):
+        """
+        Callback method for the "browse devices" button press. This method will look for the
+        connected serial communication devices and let the user choose the correct one
+        """
+        self.comm_ports_list = CommPortsPopUp(self.serial_comm_worker)
+        self.comm_ports_list.show()
+
+    def changeToTestingSignals(self):
+        """
+        """
 
     def previewEDF(self):
         """
@@ -246,7 +283,8 @@ class EDFSimulator(QWidget):
             else:
                 # Remove all whitespaces
                 raw_string = raw_string.replace(" ", "")
-                selected_channels = self.parseSelectedChannelsString(raw_string)
+                selected_channels = self.parseSelectedChannelsString(
+                    raw_string)
             if not selected_channels:
                 print("Error when parsing input into channels")
             if self.edf_worker.setSelectedChannels(selected_channels) == False:
@@ -305,6 +343,35 @@ class EDFSimulator(QWidget):
                 print("Wrong input format for channel selection")
                 return []
         return return_list
+
+    def readConfigFile(self):
+        """
+        Method to read the yaml configuration file and load it
+        """
+        with open('device_params.yaml', 'r') as file:
+            device_params = yaml.safe_load(file)
+            self.max_channels = device_params["max_channels"]
+
+
+class CommPortsPopUp(QListWidget):
+    """
+    Class to handle the browse devices pop up window
+    """
+
+    def __init__(self, serial_comm_worker):
+        super().__init__()
+        self.serial_comm_worker = serial_comm_worker
+        # Get this from the serial com worker:
+        comm_ports = self.serial_comm_worker.listSerialPorts()
+
+        for comm_port in comm_ports:
+            self.addItem(comm_port)
+
+        self.itemDoubleClicked.connect(self.doubleClicked)
+
+    def doubleClicked(self, item):
+        self.serial_comm_worker.selectCommPort(item.text())
+        self.close()
 
 
 def main():

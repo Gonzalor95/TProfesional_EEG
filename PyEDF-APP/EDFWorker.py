@@ -5,6 +5,9 @@ import pyedflib
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""
+Class used to work with the EDF files
+"""
 
 class EDFWorker():
     # Class variables
@@ -17,7 +20,7 @@ class EDFWorker():
     # Flag to indicate if digital signals were generated or not
     digital_signals_generated_ = False
 
-    def _init_(self):
+    def __init__(self):
         print("EDF Worker initialized")
 
     def isFileLoaded(self):
@@ -25,6 +28,15 @@ class EDFWorker():
         Method to know if a file was loaded into the worker or not
         """
         return self.file_loaded_
+
+    def resetWorker(self):
+        """
+        Method to reset the worker and return to it's default values
+        """
+        self.file_loaded_ = False
+        self.selected_channels_ = []
+        self.selected_sim_time_ = ()
+        self.digital_signals_generated_= False
 
     def getSelectedSimTime(self):
         """
