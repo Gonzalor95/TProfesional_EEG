@@ -13,7 +13,7 @@ from SerialComWorker import SerialComWorker
 
 class EDFSimulator(QWidget):
     big_int_ = 9999999999
-    max_channels = 0
+    max_channels = 0 # Max amount of channels of the signal generator
 
     def __init__(self):
         super().__init__()
@@ -241,11 +241,19 @@ class EDFSimulator(QWidget):
         Callback method for the "browse devices" button press. This method will look for the
         connected serial communication devices and let the user choose the correct one
         """
-        self.comm_ports_list = CommPortsPopUp(self.serial_comm_worker)
-        self.comm_ports_list.show()
+        comm_ports = self.serial_comm_worker.listSerialPorts()
+
+        if comm_ports:
+            self.comm_ports_list = CommPortsPopUp(
+                comm_ports, self.serial_comm_worker.selectCommPort)
+            self.comm_ports_list.show()
+        else:
+            PopUpWindow("Device selection", "No EDF signal generator found!",
+                        QMessageBox.Abort, QMessageBox.Critical)
 
     def changeToTestingSignals(self):
         """
+        Callback metho for the "Testing signals" button press.
         """
 
     def previewEDF(self):
@@ -350,28 +358,65 @@ class EDFSimulator(QWidget):
         """
         with open('device_params.yaml', 'r') as file:
             device_params = yaml.safe_load(file)
-            self.max_channels = device_params["max_channels"]
+            try:
+                self.max_channels = device_params["max_channels"]
+            except(KeyError):
+                PopUpWindow("Configuration file", "Error in configuration file",
+                            QMessageBox.Abort, QMessageBox.Critical)
+                sys.exit()
 
 
 class CommPortsPopUp(QListWidget):
     """
-    Class to handle the browse devices pop up window
+    Class to handle the pop window used to select between different items on a list
+
+    param[in] list_to_display: List of items to be listed
+    param[in] cb_method: Method to call when an item is double clicked
     """
 
-    def __init__(self, serial_comm_worker):
+    def __init__(self, list_to_display, cb_method):
         super().__init__()
-        self.serial_comm_worker = serial_comm_worker
-        # Get this from the serial com worker:
-        comm_ports = self.serial_comm_worker.listSerialPorts()
+        self.cb_method = cb_method
 
-        for comm_port in comm_ports:
-            self.addItem(comm_port)
+        for item in list_to_display:
+            self.addItem(item)
+
+        self.resize(400, 300)
+        self.setStyleSheet("font-size: 15px")
 
         self.itemDoubleClicked.connect(self.doubleClicked)
+        self.centerMainWindow()
+
+    def centerMainWindow(self):
+        """
+        Class method to center the main window in the user screen
+        """
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def doubleClicked(self, item):
-        self.serial_comm_worker.selectCommPort(item.text())
+        """
+        Callback method for when a user double clicks an item in the list
+        """
+        self.cb_method(item.text())
         self.close()
+
+
+class PopUpWindow(QMessageBox):
+    """
+    Class to handle the pop up msg windows for the user
+    """
+
+    def __init__(self, title, msg, button_type, icon):
+        super().__init__()
+        self.setWindowTitle(title)
+        self.setText(msg)
+        self.setIcon(icon)
+        self.setStandardButtons(button_type)
+        self.setDefaultButton(button_type)
+        self.exec_()
 
 
 def main():

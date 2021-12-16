@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 Class used to work with the EDF files
 """
 
+
 class EDFWorker():
     # Class variables
     # Flag to state if an EDF file is loaded in the system or not
@@ -36,7 +37,7 @@ class EDFWorker():
         self.file_loaded_ = False
         self.selected_channels_ = []
         self.selected_sim_time_ = ()
-        self.digital_signals_generated_= False
+        self.digital_signals_generated_ = False
 
     def getSelectedSimTime(self):
         """
@@ -155,15 +156,19 @@ class EDFWorker():
             for i in range(self.physical_signals.shape[0]):
                 # Iterate backwards to get the correct order when stacking
                 digital_signal = pyedflib.highlevel.phys2dig(self.physical_signals[-1-i],
-                                                             self.signal_headers[-1-i]["digital_min"],
-                                                             self.signal_headers[-1-i]["digital_max"],
-                                                             self.signal_headers[-1-i]["physical_min"],
+                                                             self.signal_headers[-1 -
+                                                                                 i]["digital_min"],
+                                                             self.signal_headers[-1 -
+                                                                                 i]["digital_max"],
+                                                             self.signal_headers[-1 -
+                                                                                 i]["physical_min"],
                                                              self.signal_headers[-1-i]["physical_max"])
                 self.digital_signals = np.vstack(
                     (self.digital_signals, digital_signal))
             # Re-arrange the rows because they got disordered when stacking
             for i in range(int(self.physical_signals.shape[0] / 2)):
-                self.digital_signals[[i, -1-i]] = self.digital_signals[[-1-i, i]]
+                self.digital_signals[[i, -1-i]
+                                     ] = self.digital_signals[[-1-i, i]]
             self.digital_signals_generated_ = True
 
     def plotSignals(self, signal):
