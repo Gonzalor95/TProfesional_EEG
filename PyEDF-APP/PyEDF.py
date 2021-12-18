@@ -13,7 +13,7 @@ from SerialComWorker import SerialComWorker
 
 class EDFSimulator(QWidget):
     big_int_ = 9999999999
-    max_channels = 0 # Max amount of channels of the signal generator
+    max_channels = 0  # Max amount of channels of the signal generator. Set in the config file
 
     def __init__(self):
         super().__init__()
@@ -47,12 +47,21 @@ class EDFSimulator(QWidget):
         self.testing_signals_button.clicked.connect(
             self.changeToTestingSignals)
 
+        buttons_v_layout = QVBoxLayout()
+        buttons_v_layout.addWidget(
+            self.browse_edf_button, alignment=Qt.AlignTop)
+        buttons_v_layout.addWidget(
+            self.browse_devices_button, alignment=Qt.AlignTop)
+        buttons_v_layout.addWidget(
+            self.testing_signals_button, alignment=Qt.AlignTop)
+
         # ==================================== VERTICAL SEPARATOR LINE ====================================
         separator_line = QFrame()
         separator_line.setFrameShape(QFrame.VLine)
         separator_line.setStyleSheet("border:2px; border-style:solid")
 
         # ==================================== RIGHT COLUMN ====================================
+        # Current file/signal and device selected
         current_file_label = QLabel("Current EDF file: ")
         current_file_label.setFont(self.info_key_font)
         self.current_file_name_label = QLabel("")
@@ -60,6 +69,16 @@ class EDFSimulator(QWidget):
         current_file_h_layout.addWidget(current_file_label)
         current_file_h_layout.addWidget(
             self.current_file_name_label, stretch=1)
+        current_device_label = QLabel("Current device: ")
+        current_device_label.setFont(self.info_key_font)
+        self.current_device_name_label = QLabel("")
+        current_device_h_layout = QHBoxLayout()
+        current_device_h_layout.addWidget(current_device_label)
+        current_device_h_layout.addWidget(
+            self.current_file_name_label, stretch=1)
+        current_selection_v_layout = QVBoxLayout()
+        current_selection_v_layout.addLayout(current_file_h_layout)
+        current_selection_v_layout.addLayout(current_device_h_layout)
 
         separator_line_2a = QFrame()
         separator_line_2a.setFrameShape(QFrame.HLine)
@@ -158,16 +177,10 @@ class EDFSimulator(QWidget):
         main_grid.setRowStretch(4, 100)
         main_grid.setRowStretch(5, 1)
         main_grid.setRowStretch(6, 10)
-        main_grid.addWidget(self.browse_edf_button, 1,
-                            1, alignment=Qt.AlignTop)
-        main_grid.addWidget(self.browse_devices_button,
-                            2, 1, alignment=Qt.AlignTop)
-        main_grid.addWidget(self.testing_signals_button,
-                            3, 1, alignment=Qt.AlignTop)
+        main_grid.addLayout(buttons_v_layout, 1, 1, alignment=Qt.AlignTop)
         main_grid.addWidget(separator_line, 1, 2, 6, 1)
-        main_grid.addLayout(current_file_h_layout,
-                            1, 3, alignment=Qt.AlignTop)
-        main_grid.addWidget(separator_line_2a, 2, 3)
+        main_grid.addLayout(current_selection_v_layout, 1, 3)
+        main_grid.addWidget(separator_line_2a, 2, 3, alignment=Qt.AlignTop)
         main_grid.addLayout(info_v_layout, 3, 3)
         main_grid.addLayout(config_v_layout, 4, 3)
         main_grid.addWidget(separator_line_2b, 5, 3)
@@ -245,7 +258,7 @@ class EDFSimulator(QWidget):
 
         if comm_ports:
             self.comm_ports_list = CommPortsPopUp(
-                comm_ports, self.serial_comm_worker.selectCommPort)
+                comm_ports, self.serial_comm_worker.selectCommPort, prefix="EDF signal generator: ")
             self.comm_ports_list.show()
         else:
             PopUpWindow("Device selection", "No EDF signal generator found!",
@@ -296,6 +309,8 @@ class EDFSimulator(QWidget):
             if not selected_channels:
                 print("Error when parsing input into channels")
             if self.edf_worker.setSelectedChannels(selected_channels) == False:
+                PopUpWindow("Channel selection", "Error when trying to set the selected channels in the EDF worker, please try again",
+                            QMessageBox.Abort, QMessageBox.Critical)
                 print("Error when trying to set the selected channels in the EDF worker")
             else:
                 self.selected_channels_value.setText(
@@ -374,12 +389,12 @@ class CommPortsPopUp(QListWidget):
     param[in] cb_method: Method to call when an item is double clicked
     """
 
-    def __init__(self, list_to_display, cb_method):
+    def __init__(self, list_to_display, cb_method, prefix=""):
         super().__init__()
         self.cb_method = cb_method
 
         for item in list_to_display:
-            self.addItem(item)
+            self.addItem(prefix + item)
 
         self.resize(400, 300)
         self.setStyleSheet("font-size: 15px")
@@ -422,6 +437,7 @@ class PopUpWindow(QMessageBox):
 def main():
     app = QApplication(sys.argv)
     # App icon
+    # TODO logo not loading in Windows
     app_icon = QIcon()
     app_icon.addFile('logo_fiuba.png', QSize(16, 16))
     app_icon.addFile('logo_fiuba.png', QSize(24, 24))
