@@ -15,7 +15,7 @@ This class will be in charge of managing the ports and sending the data to the d
 
 
 class SerialComWorker():
-    selected_comm_port = ""  # Selected serial communication port
+    chosen_device = {}  # Selected serial communication port
     """
     List of key-value pairs of EDF signal generators found. Should contain:
     Name: Identifier for the device
@@ -30,7 +30,7 @@ class SerialComWorker():
         """
         Method to create a list of all corresponding EDF signal generator devices
         """
-        self.parseSerialPorts()
+        self.generator_devices = self.searchCommPorts()
         user_device_list = []
         if self.generator_devices:
             # Create list to be displayed to user
@@ -40,54 +40,7 @@ class SerialComWorker():
         else:
             return []
 
-    def parseSerialPorts(self):
-        """
-        Lists serial port names.
-        Raises EnvironmentError on unsupported or unknown platforms.
-        Returns A list of the serial ports available on the system.
-        """
-        # For linux platforms
-        if sys.platform.startswith('linux'):
-            self.generator_devices = self.searchLinuxCommPorts()
-            return
-        # For windows platforms
-        if sys.platform.startswith('win'):
-            self.generator_devices = self.searchWindowsCommPorts()
-            return
-
-    def searchLinuxCommPorts(self):
-        """
-        Method to look for connected EDF signal generator devices in Linux
-
-        Returns a list of serial comm devices with key-value pairs containing information about it
-        """
-        # TODO: Change to save the devices the same way as the WIndows method does. Follow generator_devices format
-        usb_devices = []
-        device_re = re.compile(
-            b"Bus\s+(?P<bus>\d+)\s+Device\s+(?P<device>\d+).+ID\s(?P<id>\w+:\w+)\s(?P<tag>.+)$", re.I)
-        df = subprocess.check_output("lsusb")
-        for i in df.split(b'\n'):
-            if i:
-                info = device_re.match(i)
-                if info:
-                    dinfo = info.groupdict()
-                    # Convert from bytes to str if value is not already a string
-                    for key in dinfo.keys():
-                        try:
-                            dinfo[key] = dinfo[key].decode("utf-8")
-                        except(UnicodeDecodeError, AttributeError):
-                            continue
-                    # Build the "device" key-value
-                    dinfo['device'] = '/dev/bus/usb/%s/%s' % (
-                        dinfo.pop('bus'), dinfo.pop('device'))
-                    usb_devices.append(dinfo)
-        generator_devices = []
-        for device in usb_devices:
-            if "STMicroelectronics" in str(device["tag"]):
-                generator_devices.append(device)
-        return generator_devices
-
-    def searchWindowsCommPorts(self):
+    def searchCommPorts(self):
         """
         Method to look for connected EDF signal generator devices in Windows
 
@@ -115,4 +68,4 @@ class SerialComWorker():
             for device in self.generator_devices:
                 if device.name in user_chosen_device:
                     print("Selected port: " + device.name)
-                    self.selected_comm_port = device.name
+                    self.chosen_device = device
