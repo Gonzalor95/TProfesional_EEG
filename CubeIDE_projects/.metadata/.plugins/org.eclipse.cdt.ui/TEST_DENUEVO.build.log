@@ -1,0 +1,12 @@
+18:34:36 **** Incremental Build of configuration Debug for project TEST_DENUEVO ****
+make -j4 all 
+arm-none-eabi-size   TEST_DENUEVO.elf 
+   text	   data	    bss	    dec	    hex	filename
+   4516	     20	   1572	   6108	   17dc	TEST_DENUEVO.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy -O ihex TEST_DENUEVO.elf TEST_DENUEVO.hex
+ 
+
+18:34:37 Build Finished. 0 errors, 0 warnings. (took 895ms)
+

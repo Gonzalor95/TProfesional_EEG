@@ -9,14 +9,11 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
-			<item value="C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\EEG"/>
+			<item value="C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\STMF301_BluePill"/>
 		</list>
 	</section>
 	<section name="NewWizardAction">
 	</section>
 	<section name="BasicNewProjectResourceWizard">
-	</section>
-	<section name="org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea">
-		<item key="OUTSIDE_LOCATION" value="C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\Gonza"/>
 	</section>
 </section>

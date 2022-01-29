@@ -1,0 +1,12 @@
+20:37:23 **** Incremental Build of configuration Debug for project STM32F401RE ****
+make -j4 all 
+arm-none-eabi-size   STM32F401RE.elf 
+   text	   data	    bss	    dec	    hex	filename
+   5716	     20	   1572	   7308	   1c8c	STM32F401RE.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy -O ihex STM32F401RE.elf STM32F401RE.hex
+ 
+
+20:37:23 Build Finished. 0 errors, 0 warnings. (took 987ms)
+
