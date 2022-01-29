@@ -1,0 +1,21 @@
+Circuit: * C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\LTSpice_projects\Atenuador.asc
+
+Direct Newton iteration for .op point succeeded.
+
+Date: Sat Jan 29 20:07:20 2022
+Total elapsed time: 0.088 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 2143
+traniter = 2136
+tranpoints = 1069
+accept = 1062
+rejected = 7
+matrix size = 16
+fillins = 6
+solver = Normal
+Matrix Compiler1: 1016 bytes object code size  0.3/0.2/[0.1]
+Matrix Compiler2: 1.62 KB object code size  0.2/0.2/[0.1]
+
