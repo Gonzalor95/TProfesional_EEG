@@ -4,6 +4,16 @@ Estan adaptados para usar el DAC = AD5601 de 8 bits. El DAC necesita que los dos
 Datasheet del AD5601 = https://www.analog.com/media/en/technical-documentation/data-sheets/AD5601_5611_5621.pdf
 Datasheet del STM32F103C6 = https://www.st.com/resource/en/datasheet/stm32f103t6.pdf
 
+
+- Para crear el .hex en STM32CubeIDE:
+
+Ir a "Project Properties > C/C++ Build > Settings > Build steps > Post-build steps > Command":
+
+
+_arm-none-eabi-objcopy -O ihex ${ProjName}.elf ${ProjName}.hex_
+ 
+
+
 # Ejemplo Triangular:
 
 
