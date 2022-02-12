@@ -13,6 +13,7 @@ from SerialComWorker import SerialComWorker
 # GUI elements
 from gui_elements.PopUpWindow import PopUpWindow
 from gui_elements.CommPortsPopUp import CommPortsPopUp
+from gui_elements.WelcomeScreen import WelcomeScreen
 
 # Utils
 from utils import utils
@@ -20,7 +21,10 @@ from utils import utils
 
 class EDFSimulator(QWidget):
     big_int_ = 9999999999
-    max_channels = 0  # Max amount of channels of the signal generator. Set in the config file
+    # Max amount of channels of the signal generator. Set in the config file
+    max_channels = 0
+    selected_device = ""    # Currently selected EDF simulator device
+    selected_edf_file = ""  # Currently selected EDF file
 
     def __init__(self):
         super().__init__()
@@ -40,9 +44,22 @@ class EDFSimulator(QWidget):
         self.serial_comm_worker = SerialComWorker()
         # Read yaml config file and initialize values
         self.readConfigFile()
-        self.initUI()
+        initial_selection = self.showWelcomeScreen()
+        self.initUI(initial_selection)
 
-    def initUI(self):
+    def showWelcomeScreen(self):
+        """
+        Method to show a welcome screen for the user to initially select an EDF file and device
+        """
+        # Show the welcome screen and return a dict with the initial user selected EDF file and device
+        return WelcomeScreen(self.edf_worker, self.serial_comm_worker)
+
+    def initUI(self, initial_selection):
+        """
+        Method to show the main window
+
+        @param initial_selection -- Initially selected EDF file and device from the welcome screen
+        """
         # ==================================== LEFT COLUMN ====================================
         self.browse_edf_button = QPushButton("Browse EDFs")
         self.browse_edf_button.clicked.connect(self.browseEDFFiles)
@@ -132,7 +149,7 @@ class EDFSimulator(QWidget):
         config_v_layout.addLayout(selected_channels_h_box)
         config_v_layout.addLayout(channel_selector_h_box)
         # Time slider
-        selected_sim_time_key = QLabel("Simulation time: ")
+        selected_sim_time_key = QLabel("Simulation time [s]: ")
         selected_sim_time_key.setFont(self.info_key_font)
         self.selected_sim_time_value = QLabel("")
         selected_sim_time_h_box = QHBoxLayout()
@@ -200,17 +217,13 @@ class EDFSimulator(QWidget):
 
         self.centerMainWindow()
         self.show()
+        # Load the user selected file and device that was chosen in the welcome screen
+        if "selected_edf_file" in initial_selection:
+            self.loadEDFFile(initial_selection["selected_edf_file"])
+        if "selected_edf_device" in initial_selection:
+            self.saveSelectedDevice(initial_selection["selected_edf_device"])
 
     # ==================================== CLASS METHODS ====================================
-    def centerMainWindow(self):
-        """
-        Class method to center the main window in the user screen
-        """
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-
     def browseEDFFiles(self):
         """
         Callback method for the "browse" button press.
@@ -221,7 +234,13 @@ class EDFSimulator(QWidget):
         filter = "EDFFiles(*.edf)"
         file_name = QFileDialog.getOpenFileName(
             self, "Select EDF file", os.getcwd(), filter)[0]
-        # Load EDF file into worker
+        self.loadEDFFile(file_name)
+
+    def loadEDFFile(self, file_name):
+        """
+        Method to load an EDF file into the edf worker and its information on the GUI
+        """
+        # Load EDF file into worker and GUI
         if(self.edf_worker.readEDF(file_name)):
             # Check that the amount of channels doesn't exceed the configured one
             if self.edf_worker.getNumberOfChannels() >= self.max_channels:
@@ -253,8 +272,11 @@ class EDFSimulator(QWidget):
                 h_box.addWidget(info_value, stretch=1)
                 self.info_h_boxes.append(h_box)
                 self.information_labels_layout.addLayout(h_box)
+            self.selected_edf_file = file_name
         else:
             print("Error when trying to load the EDF file")
+            PopUpWindow("EDF file selection", "Error when trying to load the selected EDF file, please try again",
+                        QMessageBox.Abort, QMessageBox.Critical)
 
     def browseDevices(self):
         """
@@ -265,11 +287,18 @@ class EDFSimulator(QWidget):
 
         if comm_ports:
             self.comm_ports_list = CommPortsPopUp(
-                comm_ports, self.serial_comm_worker.selectCommPort, prefix="EDF signal generator: ")
+                comm_ports, self.saveSelectedDevice, prefix="EDF signal generator: ")
             self.comm_ports_list.show()
         else:
             PopUpWindow("Device selection", "No EDF signal generator found!",
                         QMessageBox.Abort, QMessageBox.Critical)
+
+    def saveSelectedDevice(self, user_chosen_device):
+        """
+        Method to save the selected device and set it in the serial communication worker
+        """
+        self.selected_device = user_chosen_device
+        self.serial_comm_worker.selectCommPort(user_chosen_device)
 
     def changeToTestingSignals(self):
         """
@@ -295,11 +324,14 @@ class EDFSimulator(QWidget):
             print("Error in preview EDF signal. Check if a file was loaded")
 
     def runEDFSimulator(self):
+        """
+        Callback method for the "run" button
+        """
         print("Run EDF simulator requested")
 
     def selectChannels(self):
         """
-        Callback method for the select channels button
+        Callback method for the "select channels" button
         This method reads the selected channels line edit, parses it into an array of
         integers and set the EDF worker with it
         """
@@ -330,6 +362,15 @@ class EDFSimulator(QWidget):
     def timeSliderChanged(self):
         if self.edf_worker.isFileLoaded():
             self.edf_worker.setSelectedSimTime(self.range_slider.value())
+
+    def centerMainWindow(self):
+        """
+        Class method to center the main window in the user screen
+        """
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def deleteBoxFromLayout(self, layout, box):
         """
@@ -372,7 +413,7 @@ class EDFSimulator(QWidget):
 def main():
     app = QApplication(sys.argv)
     # App icon
-    # TODO logo not loading in Windows
+    # TODO logo not loading in Windows taskbar
     app_icon = QIcon()
     app_icon.addFile('logo_fiuba.png', QSize(16, 16))
     app_icon.addFile('logo_fiuba.png', QSize(24, 24))
