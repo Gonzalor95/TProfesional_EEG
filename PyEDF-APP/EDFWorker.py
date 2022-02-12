@@ -174,7 +174,7 @@ class EDFWorker():
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
         for index in range(len(self.selected_channels_)):
             signal_to_print = signal[self.selected_channels_[
-                index]][self.selected_sim_time_[0]:self.selected_sim_time_[1]]
+                index]][self.selected_sim_time_[0]*int(self.getSampleRate()):self.selected_sim_time_[1]*int(self.getSampleRate())]
             axis[index][0].plot(signal_to_print, color=(
                 [168/255, 193/255, 5/255]), linewidth=0.4)
             # Hide axis values
