@@ -10,6 +10,13 @@ from qtrangeslider import QLabeledRangeSlider
 from EDFWorker import EDFWorker
 from SerialComWorker import SerialComWorker
 
+# GUI elements
+from gui_elements.PopUpWindow import PopUpWindow
+from gui_elements.CommPortsPopUp import CommPortsPopUp
+
+# Utils
+from utils import utils
+
 
 class EDFSimulator(QWidget):
     big_int_ = 9999999999
@@ -304,7 +311,7 @@ class EDFSimulator(QWidget):
             else:
                 # Remove all whitespaces
                 raw_string = raw_string.replace(" ", "")
-                selected_channels = self.parseSelectedChannelsString(
+                selected_channels = utils.parse_selected_channels_string(
                     raw_string)
             if not selected_channels:
                 print("Error when parsing input into channels")
@@ -348,25 +355,6 @@ class EDFSimulator(QWidget):
                 else:
                     self.deleteItemsOfLayout(item.layout())
 
-    def parseSelectedChannelsString(self, raw_selected_channels_string):
-        """
-        Method to parse the user input selected channel string into an array of ints
-        """
-        return_list = []
-        aux_list = raw_selected_channels_string.split(",")
-        for value in aux_list:
-            if value.isdigit() and int(value) not in return_list:
-                return_list.append(int(value))
-            elif "-" in value:
-                dash_subarray = parse_dash_separated_values(value)
-                for value in dash_subarray:
-                    if value not in return_list:
-                        return_list.append(value)
-            elif not value.isdigit():
-                print("Wrong input format for channel selection")
-                return []
-        return return_list
-
     def readConfigFile(self):
         """
         Method to read the yaml configuration file and load it
@@ -379,59 +367,6 @@ class EDFSimulator(QWidget):
                 PopUpWindow("Configuration file", "Error in configuration file",
                             QMessageBox.Abort, QMessageBox.Critical)
                 sys.exit()
-
-
-class CommPortsPopUp(QListWidget):
-    """
-    Class to handle the pop window used to select between different items on a list
-
-    param[in] list_to_display: List of items to be listed
-    param[in] cb_method: Method to call when an item is double clicked
-    """
-
-    def __init__(self, list_to_display, cb_method, prefix=""):
-        super().__init__()
-        self.cb_method = cb_method
-
-        for item in list_to_display:
-            self.addItem(prefix + item)
-
-        self.resize(400, 300)
-        self.setStyleSheet("font-size: 15px")
-
-        self.itemDoubleClicked.connect(self.doubleClicked)
-        self.centerMainWindow()
-
-    def centerMainWindow(self):
-        """
-        Class method to center the main window in the user screen
-        """
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-
-    def doubleClicked(self, item):
-        """
-        Callback method for when a user double clicks an item in the list
-        """
-        self.cb_method(item.text())
-        self.close()
-
-
-class PopUpWindow(QMessageBox):
-    """
-    Class to handle the pop up msg windows for the user
-    """
-
-    def __init__(self, title, msg, button_type, icon):
-        super().__init__()
-        self.setWindowTitle(title)
-        self.setText(msg)
-        self.setIcon(icon)
-        self.setStandardButtons(button_type)
-        self.setDefaultButton(button_type)
-        self.exec_()
 
 
 def main():
@@ -449,32 +384,6 @@ def main():
     ex = EDFSimulator()
     # Start app
     sys.exit(app.exec_())
-
-# Auxiliary methods =========================================
-
-
-def parse_dash_separated_values(dash_string):
-    """
-    Aux method to parse the dash separated values into an array of ints
-    """
-    aux_list = dash_string.split("-")
-    return_list = []
-    if len(aux_list) != 2:
-        print(
-            "Error when parsing '-' separated values, more than two values found")
-        return []
-    if (not aux_list[0].isdigit()) or (not aux_list[1].isdigit()):
-        print(
-            "Error when parsing '-' separated values, values are not digits")
-        return []
-    if int(aux_list[0]) > int(aux_list[1]):
-        print(
-            "Error when parsing '-' separated values, first value bigger than the second one")
-        return []
-    for i in range(int(aux_list[1]) - int(aux_list[0])):
-        return_list.append(int(aux_list[0]) + i)
-    return_list.append(int(aux_list[1]))
-    return return_list
 
 
 if __name__ == '__main__':

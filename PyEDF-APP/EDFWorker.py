@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from numpy.core.records import array
 import pyedflib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -189,6 +188,6 @@ class EDFWorker():
                 [0, self.selected_sim_time_[1] - self.selected_sim_time_[0]])
         # Make it fullscreen # TODO: check that maxsize() does not work on windows
         plot_figure_manager = plt.get_current_fig_manager()
-        plot_figure_manager.resize(
-            *plot_figure_manager.window.maxsize())
+        #plot_figure_manager.resize(
+        #    *plot_figure_manager.window.maxsize())
         plt.show()
