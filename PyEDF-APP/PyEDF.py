@@ -258,7 +258,7 @@ class EDFSimulator(QWidget):
             self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
-                self.deleteBoxFromLayout(
+                utils.delete_box_from_layout(
                     self.information_labels_layout, self.info_h_boxes[widget_index])
             # Generate the information h boxes and add them to the info v layout
             signal_info_dict = self.edf_worker.getSignalInfo()
@@ -371,30 +371,6 @@ class EDFSimulator(QWidget):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-
-    def deleteBoxFromLayout(self, layout, box):
-        """
-        Method to delete a box layout from another layout
-        """
-        for i in range(layout.count()):
-            layout_item = layout.itemAt(i)
-            if layout_item.layout() == box:
-                self.deleteItemsOfLayout(layout_item.layout())
-                layout.removeItem(layout_item)
-                break
-
-    def deleteItemsOfLayout(self, layout):
-        """
-        Method to delete the items of a layout
-        """
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.setParent(None)
-                else:
-                    self.deleteItemsOfLayout(item.layout())
 
     def readConfigFile(self):
         """

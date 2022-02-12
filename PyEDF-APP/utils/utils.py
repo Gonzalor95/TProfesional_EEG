@@ -45,3 +45,27 @@ def parse_dash_separated_values(dash_string):
         return_list.append(int(aux_list[0]) + i)
     return_list.append(int(aux_list[1]))
     return return_list
+
+def delete_box_from_layout(layout, box):
+    """
+    Method to delete a box layout from another layout
+    """
+    for i in range(layout.count()):
+        layout_item = layout.itemAt(i)
+        if layout_item.layout() == box:
+            delete_items_of_layout(layout_item.layout())
+            layout.removeItem(layout_item)
+            break
+
+def delete_items_of_layout(layout):
+    """
+    Method to delete the items of a layout
+    """
+    if layout is not None:
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+            else:
+                delete_items_of_layout(item.layout())
