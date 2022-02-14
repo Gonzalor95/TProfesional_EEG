@@ -7,19 +7,20 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from qtrangeslider import QLabeledRangeSlider
-from EDFWorker import EDFWorker
-from SerialComWorker import SerialComWorker
+from modules.EDFWorker import EDFWorker
+from modules.SerialComWorker import SerialComWorker
 
 # GUI elements
-from EDFGUI import Ui_MainWindow
+from gui_elements.EDFGUIDesigner import Ui_MainWindow
+from gui_elements.WelcomeDialog import WelcomeDialog
 from gui_elements.PopUpWindow import PopUpWindow
 from gui_elements.CommPortsPopUp import CommPortsPopUp
-from gui_elements.WelcomeScreen import WelcomeScreen
 from gui_elements.Style import FontStyles
 
 # Utils
 from utils import utils
 
+# TODO: delete: python -m PyQt5.uic.pyuic -x EDFGUI.ui -o EDFGUI.py
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
     big_int_ = 9999999999
@@ -42,6 +43,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Read yaml config file and initialize values
         self.readConfigFile()
 
+        # Add custom double range slider
         self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
         self.range_slider.setHandleLabelPosition(
             QLabeledRangeSlider.LabelPosition.LabelsBelow)
@@ -61,6 +63,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.preview_button.clicked.connect(self.previewEDF)
         # self.preview_dig_button.clicked.connect(self.previewDigitalEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
+
+        # Show welcome screen
+        welcome_dialog = WelcomeDialog(self.serial_comm_worker)
+        self.setInitialSelection(welcome_dialog.getInitialSelection())
 
     # ==================================== CLASS METHODS ====================================
 
@@ -217,7 +223,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Method to read the yaml configuration file and load it
         """
-        with open('device_params.yaml', 'r') as file:
+        with open('config/device_params.yaml', 'r') as file:
             device_params = yaml.safe_load(file)
             try:
                 self.max_channels_ = device_params["max_channels"]
@@ -237,6 +243,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.selected_channels_key.setFont(self.font_styles.info_key_font)
         self.selected_sim_time_key.setFont(self.font_styles.info_key_font)
 
+    def setInitialSelection(self, initial_selection):
+        """
+        Method to set the initial selection of the user. Sets the EDF file and device if the user selected one
+        """
 
 def main():
     app = QApplication(sys.argv)

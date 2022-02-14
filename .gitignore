@@ -2,3 +2,4 @@
 PyEDF-APP/__pycache__/EDFWorker.cpython-39.pyc
 PyEDF-APP/chb01_01 (1).edf
 PyEDF-APP/test.py
+*.pyc
