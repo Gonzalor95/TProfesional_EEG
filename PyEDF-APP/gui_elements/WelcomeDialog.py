@@ -47,6 +47,14 @@ class WelcomeDialog(QDialog):
                 self.ui.welcome_list.addItem(file)
 
     def setUpDeviceSelectionState(self):
+        """
+        Method to set the device selection state.
+        - Disables the skip button
+        - Enables the back button
+        - Changes the instruction text
+        - Changes the Next button text to Finish
+        - Clears and lists the COM devices in the list widget
+        """
         self.state_ = self.states_[1]
         self.ui.instructions_label.setText("Please, select an EDF generator device (you can choose a different one later on):")
         self.ui.next_button.setText("Finish")
@@ -58,20 +66,34 @@ class WelcomeDialog(QDialog):
             self.ui.welcome_list.addItem(device)
 
     def backButtonClicked(self):
+        """
+        Callback method for the Back button. Should only be enabled and work if in the second "device" state
+        """
         if self.state_ ==self.states_[1]:
             self.setState(self.states_[0])
 
     def skipButtonClicked(self):
+        """
+        Callback method for the Skip button. Only enabled when in the first "file" device
+        """
         if self.state_ == self.states_[0]:
             self.setState(self.states_[1])
 
     def nextButtonClicked(self):
+        """
+        Callback method for the Next button.
+        - If in the "file" state, changes to "device" state
+        - If in device state, finishes the welcome windows
+        """
         if self.state_ == self.states_[0]:
             self.setState(self.states_[1])
         elif self.state_ == self.states_[1]:
             self.done(1)
 
     def saveListSelection(self, selection):
+        """
+        Callback method for the clicking of an item in the list widget
+        """
         if self.state_ == self.states_[0]:
             full_path = os.getcwd() + "\edf_samples" + "\\" + selection.text()
             self.initial_selection_["initial_selected_file"] = full_path

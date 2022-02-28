@@ -214,6 +214,9 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.channel_select_line_edit.clear()
 
     def timeSliderChanged(self):
+        """
+        Callback method for the slider changed
+        """
         if self.edf_worker.isFileLoaded():
             self.edf_worker.setSelectedSimTime(self.range_slider.value())
 
@@ -241,7 +244,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
 
     def setFonts(self):
         """
-        TODO
+        Method to set the font styles of the GUI
         """
         self.current_file_label.setFont(self.font_styles.info_key_font)
         self.current_device_label.setFont(self.font_styles.info_key_font)
