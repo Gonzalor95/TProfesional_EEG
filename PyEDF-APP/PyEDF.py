@@ -22,6 +22,7 @@ from utils import utils
 
 # TODO: delete: python -m PyQt5.uic.pyuic -x EDFGUI.ui -o EDFGUI.py
 
+
 class EDFSimulator(QMainWindow, Ui_MainWindow):
     big_int_ = 9999999999
     # Max amount of channels of the signal generator. Set in the config file
@@ -79,7 +80,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Filter only for EDF files
         filter = "EDFFiles(*.edf)"
         file_name = QFileDialog.getOpenFileName(
-            self, "Select EDF file", os.getcwd(), filter)[0]
+            self, "Select EDF file", os.getcwd() + "\edf_samples", filter)[0]
         if file_name:
             self.loadEDFFile(file_name)
 
@@ -134,7 +135,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
 
         if comm_ports:
             self.comm_ports_list = CommPortsPopUp(
-                comm_ports, self.saveSelectedDevice, prefix="EDF signal generator: ")
+                comm_ports, self.saveSelectedDevice)
             self.comm_ports_list.show()
         else:
             PopUpWindow("Device selection", "No EDF signal generator found!",
@@ -146,6 +147,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         self.selected_device_ = user_chosen_device
         self.serial_comm_worker.selectCommPort(user_chosen_device)
+        self.current_device_name_label.setText(user_chosen_device)
 
     def changeToTestingSignals(self):
         """
@@ -247,6 +249,12 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Method to set the initial selection of the user. Sets the EDF file and device if the user selected one
         """
+        if "initial_selected_file" in initial_selection:
+            self.loadEDFFile(initial_selection["initial_selected_file"])
+        if "initial_selected_device" in initial_selection:
+            self.saveSelectedDevice(
+                initial_selection["initial_selected_device"])
+
 
 def main():
     app = QApplication(sys.argv)

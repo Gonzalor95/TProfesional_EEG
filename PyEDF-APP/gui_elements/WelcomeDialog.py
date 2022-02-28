@@ -36,12 +36,26 @@ class WelcomeDialog(QDialog):
         Method to set up the initial state. Disables the corresponding buttons and looks for EDF files in
         the "edf_samples" folder at the same level the program is located
         """
+        self.ui.welcome_list.clear()
         self.state_ = self.states_[0]
+        self.ui.instructions_label.setText("Please, select an EDF file (you can choose a different one later on):")
+        self.ui.next_button.setText("Next")
         self.ui.back_button.setEnabled(False)
         edf_files_path = os.getcwd() + "\edf_samples"
         for file in os.listdir(edf_files_path):
             if file.endswith(".edf"):
                 self.ui.welcome_list.addItem(file)
+
+    def setUpDeviceSelectionState(self):
+        self.state_ = self.states_[1]
+        self.ui.instructions_label.setText("Please, select an EDF generator device (you can choose a different one later on):")
+        self.ui.next_button.setText("Finish")
+        self.ui.skip_button.setEnabled(False)
+        self.ui.back_button.setEnabled(True)
+        self.ui.welcome_list.clear()
+        comm_ports = self.serial_comm_worker.listSerialPorts()
+        for device in comm_ports:
+            self.ui.welcome_list.addItem(device)
 
     def backButtonClicked(self):
         if self.state_ ==self.states_[1]:
@@ -63,7 +77,7 @@ class WelcomeDialog(QDialog):
             self.initial_selection_["initial_selected_file"] = full_path
         if self.state_ == self.states_[1]:
             self.initial_selection_[
-                "initial_selected_decive"] = selection.device()
+                "initial_selected_device"] = selection.text()
 
     def setState(self, state):
         """
@@ -74,10 +88,7 @@ class WelcomeDialog(QDialog):
         if state == self.states_[0]:
             self.setUpInitialState()
         if state == self.states_[1]:
-            self.state_ = state
-            self.ui.skip_button.setEnabled(False)
-            self.ui.back_button.setEnabled(True)
-            self.ui.welcome_list.clear()
+            self.setUpDeviceSelectionState()
 
     def getInitialSelection(self):
         """
