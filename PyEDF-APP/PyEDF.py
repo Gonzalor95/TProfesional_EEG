@@ -20,7 +20,8 @@ from gui_elements.Style import FontStyles
 # Utils
 from utils import utils
 
-# TODO: delete: python -m PyQt5.uic.pyuic -x EDFGUI.ui -o EDFGUI.py
+# TODO: (Delete) Command to convert .ui files to python files
+# python -m PyQt5.uic.pyuic -x EDFGUI.ui -o EDFGUI.py
 
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
@@ -64,6 +65,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.preview_button.clicked.connect(self.previewEDF)
         # self.preview_dig_button.clicked.connect(self.previewDigitalEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
+        # TODO: Perhaps add a button to get the mapping from output pin to what the channel is named (the scientific name)
+        # So you would get something like:
+        # Pin 0 <> F7-T7
+        # Pin 1 <> F8-P5
 
         # Show welcome screen
         welcome_dialog = WelcomeDialog(self.serial_comm_worker)

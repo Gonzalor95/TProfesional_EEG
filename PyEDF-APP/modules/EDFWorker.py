@@ -173,8 +173,10 @@ class EDFWorker():
     def plotSignals(self, signal):
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
         for index in range(len(self.selected_channels_)):
+            start_time = self.selected_sim_time_[0]*int(self.getSampleRate())
+            end_time = self.selected_sim_time_[1]*int(self.getSampleRate())
             signal_to_print = signal[self.selected_channels_[
-                index]][self.selected_sim_time_[0]*int(self.getSampleRate()):self.selected_sim_time_[1]*int(self.getSampleRate())]
+                index]][start_time:end_time]
             axis[index][0].plot(signal_to_print, color=(
                 [168/255, 193/255, 5/255]), linewidth=0.4)
             # Hide axis values
@@ -182,12 +184,10 @@ class EDFWorker():
             axis[index][0].get_yaxis().set_ticks([])
             # Set plot title
             axis[index][0].set_ylabel(
-                "Channel " + str(self.selected_channels_[index]), rotation=0, labelpad=30)
+                self.signal_headers[self.selected_channels_[index]]["label"], rotation=0, labelpad=30)
             # Adjust axis range to better fit the signal
             axis[index][0].set_xlim(
-                [0, self.selected_sim_time_[1] - self.selected_sim_time_[0]])
-        # Make it fullscreen # TODO: check that maxsize() does not work on windows
+                [0, end_time - start_time])
         plot_figure_manager = plt.get_current_fig_manager()
-        #plot_figure_manager.resize(
-        #    *plot_figure_manager.window.maxsize())
+        plot_figure_manager.window.showMaximized()
         plt.show()
