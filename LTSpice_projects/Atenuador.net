@@ -1,0 +1,49 @@
+* C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\LTSpice_projects\Atenuador.asc
+V§Salida_DAC N005 0 PWL file=C:\Users\gonza\Downloads\asd.txt AC 5
+Vref N003 0 5
+XU1 N005 N001 5V -5V N002 AD820
+R2 N003 N001 10k
+R4 N002 N001 10k
+V1 5V 0 6
+V4 0 -5V 6
+R3 N002 N006 1Meg
+R5 N006 0 10
+XU2 N006 N004 5V -5V N004 AD820
+XX1 N004 5V -5V Vout bandpassfilter
+R1 Vout 0 5Meg
+
+* block symbol definitions
+.subckt bandpassfilter Input +V -V Output
+XU2 N009 N004 +V -V N004 level1 Avol=1Meg GBW=10Meg Vos=0 En=0 Enk=0 In=0 Ink=0 Rin=500Meg
+R2 N001 Input 10k
+R4 N003 N002 10k
+R5 N003 N009 40k
+C3 N003 N004 415n
+C1 N008 0 147n
+R1 N008 N001 10k
+C2 N002 N001 172n
+XU1 N008 N002 +V -V N002 level1 Avol=1Meg GBW=10Meg Vos=0 En=0 Enk=0 In=0 Ink=0 Rin=500Meg
+C4 N009 0 61n
+XU3 N010 Output +V -V Output level1 Avol=1Meg GBW=10Meg Vos=0 En=0 Enk=0 In=0 Ink=0 Rin=500Meg
+R3 N007 N006 6680
+R6 Output N005 2760
+R7 N010 0 18900
+C5 N007 N005 220µ
+C6 N011 N006 220µ
+R9 0 N011 7830
+C7 N006 N004 220µ
+XU4 N011 N007 +V -V N007 level1 Avol=1Meg GBW=10Meg Vos=0 En=0 Enk=0 In=0 Ink=0 Rin=500Meg
+C8 N010 N005 220µ
+.ends bandpassfilter
+
+* .ac dec 1000 0.01 1k
+* Regulador
+* DAC AD5308
+* Rail to rail
+* Atenuador
+.noise V(Vout) Salida_DAC dec 1000 0.01 1k
+* .tran 9
+.lib ADI1.lib
+.lib UniversalOpAmp1.lib
+.backanno
+.end
