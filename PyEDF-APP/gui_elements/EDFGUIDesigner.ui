@@ -106,7 +106,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Current EDF file: </string>
+          <string>Current signal: </string>
          </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>

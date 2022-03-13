@@ -171,6 +171,9 @@ class EDFWorker():
             self.digital_signals_generated_ = True
 
     def plotSignals(self, signal):
+        """
+        Method to plot the physical signal to a graph. Plots only the selected channels
+        """
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
         for index in range(len(self.selected_channels_)):
             start_time = self.selected_sim_time_[0]*int(self.getSampleRate())

@@ -201,7 +201,7 @@ class Ui_MainWindow(object):
         self.browse_edf_button.setText(_translate("MainWindow", "Browse EDFs"))
         self.browse_devices_button.setText(_translate("MainWindow", "Browse devices"))
         self.testing_signals_button.setText(_translate("MainWindow", "Testing signals"))
-        self.current_file_label.setText(_translate("MainWindow", "Current EDF file: "))
+        self.current_file_label.setText(_translate("MainWindow", "Current signal: "))
         self.current_device_label.setText(_translate("MainWindow", "Current device: "))
         self.information_title_label.setText(_translate("MainWindow", "Signal information"))
         self.configuration_title_label.setText(_translate("MainWindow", "Signal configuration"))

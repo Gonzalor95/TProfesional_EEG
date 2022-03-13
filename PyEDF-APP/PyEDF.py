@@ -9,12 +9,13 @@ from PyQt5.QtCore import *
 from qtrangeslider import QLabeledRangeSlider
 from modules.EDFWorker import EDFWorker
 from modules.SerialComWorker import SerialComWorker
+from modules.TestingSignals import TestingSignalsWorker
 
 # GUI elements
 from gui_elements.EDFGUIDesigner import Ui_MainWindow
 from gui_elements.WelcomeDialog import WelcomeDialog
 from gui_elements.PopUpWindow import PopUpWindow
-from gui_elements.CommPortsPopUp import CommPortsPopUp
+from gui_elements.ListSelectionPopUp import ListSelectionPopUp
 from gui_elements.Style import FontStyles
 
 # Utils
@@ -28,8 +29,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
     big_int_ = 9999999999
     # Max amount of channels of the signal generator. Set in the config file
     max_channels_ = 0
-    selected_device_ = ""    # Currently selected EDF simulator device
-    selected_edf_file_ = ""  # Currently selected EDF file
+    # Flag to indicate whether the selected signal is a testing one or a real one
+    is_testing_signal_ = False
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -38,12 +39,14 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.info_h_boxes = []
         self.font_styles = FontStyles()
 
+        # Read yaml config file and initialize values
+        self.readConfigFile()
         # EDF worker instance
         self.edf_worker = EDFWorker()
         # Serial communication worker instance
         self.serial_comm_worker = SerialComWorker()
-        # Read yaml config file and initialize values
-        self.readConfigFile()
+        # Testing signals worker instance
+        self.testing_signals_worker = TestingSignalsWorker(self.max_channels_)
 
         # Add custom double range slider
         self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
@@ -59,7 +62,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.browse_edf_button.clicked.connect(self.browseEDFFiles)
         self.browse_devices_button.clicked.connect(self.browseDevices)
         self.testing_signals_button.clicked.connect(
-            self.changeToTestingSignals)
+            self.browseTestingSignals)
         self.select_channels_button.clicked.connect(self.selectChannels)
         self.range_slider.valueChanged.connect(self.timeSliderChanged)
         self.preview_button.clicked.connect(self.previewEDF)
@@ -125,7 +128,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                 h_box.addWidget(info_value, stretch=1)
                 self.info_h_boxes.append(h_box)
                 self.information_labels_layout.addLayout(h_box)
-            self.selected_edf_file_ = file_name
+            # Set the flag to indicate that the signal loaded is not a testing signal
+            self.is_testing_signal_ = False
         else:
             print("Error when trying to load the EDF file")
             PopUpWindow("EDF file selection", "Error when trying to load the selected EDF file, please try again",
@@ -139,7 +143,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         comm_ports = self.serial_comm_worker.listSerialPorts()
 
         if comm_ports:
-            self.comm_ports_list = CommPortsPopUp(
+            self.comm_ports_list = ListSelectionPopUp(
                 comm_ports, self.saveSelectedDevice)
             self.comm_ports_list.show()
         else:
@@ -150,14 +154,51 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Method to save the selected device and set it in the serial communication worker
         """
-        self.selected_device_ = user_chosen_device
         self.serial_comm_worker.selectCommPort(user_chosen_device)
         self.current_device_name_label.setText(user_chosen_device)
 
-    def changeToTestingSignals(self):
+    def browseTestingSignals(self):
         """
-        Callback metho for the "Testing signals" button press.
+        Callback method for the "Testing signals" button press.
         """
+        testing_signals = self.testing_signals_worker.listTestingSignals()
+
+        self.testing_signals_list = ListSelectionPopUp(
+            testing_signals, self.loadTestingSignal)
+        self.testing_signals_list.show()
+
+    def loadTestingSignal(self, chosen_signal):
+        """
+        Method to load a testing signal into the testing signal worker and its information on the GUI
+        """
+        # Load testing signal into worker and GUI
+        self.testing_signals_worker.selectTestingSignal(chosen_signal)
+        # Place the file name in the dialog box
+        self.current_file_name_label.setText(chosen_signal)
+
+        # Set the maximun time selector slider value to the signal duration
+        self.range_slider.setMaximum(self.testing_signals_worker.getDuration())
+        self.range_slider.setValue([0, self.big_int_])
+        # Set selected channels to ALL
+        self.selected_channels_value.setText("ALL")
+        # Delete info h layouts in the info v layout (not the title)
+        for widget_index in range(self.information_labels_layout.count()):
+            utils.delete_box_from_layout(
+                self.information_labels_layout, self.info_h_boxes[widget_index])
+        # Generate the information h boxes and add them to the info v layout
+        signal_info_dict = self.testing_signals_worker.getSignalInfo()
+        self.info_h_boxes.clear()
+        for key in signal_info_dict:
+            info_key = QLabel(str(key) + ": ")
+            info_key.setFont(self.font_styles.info_key_font)
+            info_value = QLabel(str(signal_info_dict[key]))
+            h_box = QHBoxLayout()
+            h_box.addWidget(info_key)
+            h_box.addWidget(info_value, stretch=1)
+            self.info_h_boxes.append(h_box)
+            self.information_labels_layout.addLayout(h_box)
+        # Set the flag to indicate that the signal loaded is a testing signal
+        self.is_testing_signal_ = True
 
     def previewEDF(self):
         """
@@ -165,8 +206,12 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         This method will plot the selected signal channels and show it to the user
         """
         print("Preview EDF requested")
-        if(self.edf_worker.previewSignals("physical") == False):
-            print("Error in preview EDF signal. Check if a file was loaded")
+        if self.is_testing_signal_:
+            if(self.testing_signals_worker.previewSignal() == False):
+                print("Error when previewing testing signal. Check if a file was loaded")
+        else:
+            if(self.edf_worker.previewSignals("physical") == False):
+                print("Error in preview EDF signal. Check if a file was loaded")
 
     def previewDigitalEDF(self):
         """
@@ -201,13 +246,24 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                     raw_string)
             if not selected_channels:
                 print("Error when parsing input into channels")
-            if self.edf_worker.setSelectedChannels(selected_channels) == False:
-                PopUpWindow("Channel selection", "Error when trying to set the selected channels in the EDF worker, please try again",
-                            QMessageBox.Abort, QMessageBox.Critical)
-                print("Error when trying to set the selected channels in the EDF worker")
+            if self.is_testing_signal_:
+                if self.testing_signals_worker.setSelectedChannels(selected_channels) == False:
+                    PopUpWindow("Channel selection", "Error when trying to set the selected channels in the testing signal worker, please try again",
+                                QMessageBox.Abort, QMessageBox.Critical)
+                    print(
+                        "Error when trying to set the selected channels in the testing signal worker")
+                else:
+                    self.selected_channels_value.setText(
+                        ",".join([str(int) for int in selected_channels]))
             else:
-                self.selected_channels_value.setText(
-                    ",".join([str(int) for int in selected_channels]))
+                if self.edf_worker.setSelectedChannels(selected_channels) == False:
+                    PopUpWindow("Channel selection", "Error when trying to set the selected channels in the EDF worker, please try again",
+                                QMessageBox.Abort, QMessageBox.Critical)
+                    print(
+                        "Error when trying to set the selected channels in the EDF worker")
+                else:
+                    self.selected_channels_value.setText(
+                        ",".join([str(int) for int in selected_channels]))
         else:
             print("Empty input in channel selector")
         # Clear line edit
@@ -217,8 +273,12 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Callback method for the slider changed
         """
-        if self.edf_worker.isFileLoaded():
-            self.edf_worker.setSelectedSimTime(self.range_slider.value())
+        if self.is_testing_signal_:
+            print (self.range_slider.value())
+            self.testing_signals_worker.setSelectedSimTime(self.range_slider.value())
+        else:
+            if self.edf_worker.isFileLoaded():
+                self.edf_worker.setSelectedSimTime(self.range_slider.value())
 
     def centerMainWindow(self):
         """

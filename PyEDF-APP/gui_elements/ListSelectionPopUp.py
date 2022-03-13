@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 
-class CommPortsPopUp(QListWidget):
+class ListSelectionPopUp(QListWidget):
     """
     Class to handle the pop window used to select between different items on a list
 
