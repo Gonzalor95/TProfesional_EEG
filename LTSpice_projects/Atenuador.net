@@ -1,0 +1,40 @@
+* C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\LTSpice_projects\Atenuador.asc
+V§Salida_DAC N006 0 PWL file=C:\Users\gonza\Downloads\asd.txt AC 5
+Vref N005 0 5
+XU1 N006 N004 5V -5V N002 AD820
+R2 N005 N004 10k
+R4 N002 N004 10k
+V1 5V 0 5
+V4 0 -5V 5
+R3 N001 N007 1Meg
+R5 N007 0 10
+XU2 N007 Vout 5V -5V Vout AD820
+XX1 N002 5V -5V N003 bandpassfilter
+R1 Vout 0 5Meg
+XU3 N003 N001 5V -5V N001 AD820
+
+* block symbol definitions
+.subckt bandpassfilter Input +V -V Output
+XU1 N004 N002 +V -V N002 LT1112
+XU2 N005 Output +V -V Output LT1112
+R2 N005 N003 138k
+R3 N003 N002 7.7k
+C1 N005 0 11n
+C3 Output N003 110n
+R1 N004 0 315k
+R4 N002 N001 158k
+C2 N004 N001 10µ
+C4 N001 Input 10µ
+.ends bandpassfilter
+
+* .ac dec 1000 0.01 1k
+* Regulador
+* DAC AD5308
+* Rail to rail
+* Atenuador
+* .noise V(Vout) Salida_DAC dec 1000 0.01 1k
+.tran 9 uic
+.lib ADI1.lib
+.lib LTC.lib
+.backanno
+.end
