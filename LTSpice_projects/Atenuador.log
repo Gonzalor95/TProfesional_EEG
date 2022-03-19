@@ -197,7 +197,6 @@ Salida_dac: Removing PWL point (3582.59,2.51282)
 WARNING: Node NC_01 is floating.
 
 WARNING: Less than two connections to node NC_01.  This node is used by C:X1:4.
-WARNING: Less than two connections to node N006.  This node is used by V2.
 Direct Newton iteration failed to find .op point.  (Use ".option noopiter" to skip.)
 Starting Gmin stepping
 Gmin = 10
@@ -235,21 +234,21 @@ Source Step = 100%
 Source stepping succeeded in finding the operating point.
 
 
-Date: Tue Mar 15 20:20:54 2022
-Total elapsed time: 49.687 seconds.
+Date: Sat Mar 19 18:46:30 2022
+Total elapsed time: 15.715 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 780546
-traniter = 774814
-tranpoints = 387408
-accept = 251931
-rejected = 135477
-matrix size = 51
-fillins = 71
+totiter = 136785
+traniter = 131042
+tranpoints = 65522
+accept = 52435
+rejected = 13087
+matrix size = 57
+fillins = 102
 solver = Normal
-Thread vector: 42.4/14.8[4] 8.4/6.6[4] 12.2/3.3[4] 0.2/15.0[1]  2592/500
-Matrix Compiler1: 6.09 KB object code size  3.3/2.6/[0.7]
-Matrix Compiler2: 6.49 KB object code size  2.0/2.4/[0.5]
+Thread vector: 21.9/15.4[4] 8.6/4.3[4] 8.2/3.3[4] 0.3/2.5[1]  2592/500
+Matrix Compiler1: 8.33 KB object code size  3.3/1.9/[0.8]
+Matrix Compiler2: 8.07 KB object code size  2.5/2.6/[0.6]
 
