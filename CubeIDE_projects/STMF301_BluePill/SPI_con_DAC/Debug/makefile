@@ -62,8 +62,8 @@ all:
 main-build: SPI_con_DAC.elf secondary-outputs
 
 # Tool invocations
-SPI_con_DAC.elf: $(OBJS) $(USER_OBJS) C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\STMF301_BluePill\SPI_con_DAC\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "SPI_con_DAC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\STMF301_BluePill\SPI_con_DAC\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SPI_con_DAC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+EEG.elf: $(OBJS) $(USER_OBJS) C:\Users\juanc\Documents\Git\TProfesional_EEG\CubeIDE_projects\EEG\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "EEG.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\juanc\Documents\Git\TProfesional_EEG\CubeIDE_projects\EEG\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EEG.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
