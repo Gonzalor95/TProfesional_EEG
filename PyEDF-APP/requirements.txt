@@ -1,0 +1,7 @@
+yaml
+PyQt5
+pyedflib
+qtrangeslider
+numpy
+matplotlib
+serial
