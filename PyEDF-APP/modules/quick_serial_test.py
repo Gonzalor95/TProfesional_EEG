@@ -1,7 +1,7 @@
 
 import serial
 
-ser = serial.Serial('/dev/ttyACM0')  # open serial port
+ser = serial.Serial('COM3')  # open serial port
 
 print (ser.name)
 

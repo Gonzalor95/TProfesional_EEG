@@ -66,7 +66,6 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.select_channels_button.clicked.connect(self.selectChannels)
         self.range_slider.valueChanged.connect(self.timeSliderChanged)
         self.preview_button.clicked.connect(self.previewEDF)
-        # self.preview_dig_button.clicked.connect(self.previewDigitalEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
         # TODO: Perhaps add a button to get the mapping from output pin to what the channel is named (the scientific name)
         # So you would get something like:
@@ -210,17 +209,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             if(self.testing_signals_worker.previewSignal() == False):
                 print("Error when previewing testing signal. Check if a file was loaded")
         else:
-            if(self.edf_worker.previewSignals("physical") == False):
+            if(self.edf_worker.previewSignals("digital") == False):
                 print("Error in preview EDF signal. Check if a file was loaded")
-
-    def previewDigitalEDF(self):
-        """
-        Callback method for the "preview" button press. Used to preview digital signals.
-        This method will plot the selected signal channels and show it to the user
-        """
-        print("Preview digital EDF requested")
-        if(self.edf_worker.previewSignals("digital") == False):
-            print("Error in preview EDF signal. Check if a file was loaded")
 
     def runEDFSimulator(self):
         """

@@ -22,10 +22,10 @@ class TestingSignalsWorker():
     def __init__(self, max_channels):
         self.max_channels_ = max_channels
         self.selected_channels_ = range(max_channels)
-        self.duration_ = 100  # Max duration in seconds
+        self.duration_ = 300  # Max duration in seconds
         self.amplitud_ = 1
-        self.frecuency_ = 100  # In Hz
-        self.sample_rate_ = 1000
+        self.frecuency_ = 1  # In Hz
+        self.sample_rate_ = 1000 # In points per sec
         self.selected_sim_time_ = (0, self.duration_)
         print("Testing signals worker initialized")
 
@@ -142,57 +142,40 @@ class TestingSignalsWorker():
             self.signal_ = self.generateSquareSignal()
         if selected_signal == self.testing_signals_[1]:
             self.signal_ = self.generateSinSignal()
-        # if selected_signal == self.testing_signals_[2]:
-        #     self.signal_ = self.generateTriangSignal()
+        if selected_signal == self.testing_signals_[2]:
+            self.signal_ = self.generateTriangSignal()
 
     def generateSquareSignal(self):
         """
         Method to generate a square signal
         """
-        # Sampling rate 1000 hz / second
-        t = np.linspace(0, self.duration_, self.getSampleRate(), endpoint=True)
-        squarewave = signal.square(2 * np.pi * 5 * t)
-
-        # Sampling rate 1000 hz / second
-        t = np.linspace(0, 1, 1000, endpoint=True)
-        # Plot the square wave signal
-        plt.plot(t, signal.square(2 * np.pi * 5 * t))
-        # Give a title for the square wave plot
-        plt.title('Sqaure wave - 5 Hz sampled at 1000 Hz /second')
-        # Give x axis label for the square wave plot
-        plt.xlabel('Time')
-        # Give y axis label for the square wave plot
-        plt.ylabel('Amplitude')
-        plt.grid(True, which='both')
-        # Provide x axis and line color
-        plt.axhline(y=0, color='k')
-        # Set the max and min values for y axis
-        plt.ylim(-2, 2)
-        # Display the square wave drawn
-        plt.show()
-
+        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
+        squarewave = signal.square(2 * np.pi * self.getFrecuency() * t)
         return squarewave
 
     def generateSinSignal(self):
         """
         Method to generate a sinusoidal signal
         """
-        time = np.arange(0, self.duration_, 1/self.getSampleRate())
-        sinewave = self.getAmplitud() * np.sin(self.getFrecuency() * time)
+        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
+        sinewave = self.getAmplitud() * np.sin(2 * np.pi * self.getFrecuency() * t)
         return sinewave
 
-    # def generateTriangSignal(self):
-    #     """
-    #     Method to generate a triangular signal
-    #     """
+    def generateTriangSignal(self):
+        """
+        Method to generate a triangular signal
+        """
+        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
+        triangle = np.abs(signal.sawtooth(2 * np.pi * self.getFrecuency() * t))
+        return triangle
 
     def plotSignal(self, signal):
         """
         Method to plot the physical signal to a graph. Plots only the selected channels
         """
         fig, axis = plt.subplots(1)
-        start_time = self.selected_sim_time_[0]*int(self.getSampleRate())
-        end_time = self.selected_sim_time_[1]*int(self.getSampleRate())
+        start_time = self.selected_sim_time_[0] * int(self.getSampleRate())
+        end_time = self.selected_sim_time_[1] * int(self.getSampleRate())
         axis.plot(signal[start_time:end_time], color=(
             [168/255, 193/255, 5/255]), linewidth=0.4)
         # Hide axis values
