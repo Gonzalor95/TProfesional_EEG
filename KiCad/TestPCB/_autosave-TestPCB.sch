@@ -1,0 +1,1151 @@
+EESchema Schematic File Version 5
+EELAYER 36 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+Comment5 ""
+Comment6 ""
+Comment7 ""
+Comment8 ""
+Comment9 ""
+$EndDescr
+Connection ~ 950  4325
+Connection ~ 950  4575
+Connection ~ 1150 5500
+Connection ~ 1250 4450
+Connection ~ 1425 4925
+Connection ~ 1675 1550
+Connection ~ 1675 4775
+Connection ~ 1675 4925
+Connection ~ 4575 975 
+Connection ~ 5350 1075
+Connection ~ 6350 1575
+Connection ~ 6350 2175
+Wire Wire Line
+	950  4225 950  4325
+Wire Wire Line
+	950  4325 950  4575
+Wire Wire Line
+	950  4575 950  4625
+Wire Wire Line
+	950  5225 950  5500
+Wire Wire Line
+	950  5500 1150 5500
+Wire Wire Line
+	1250 4325 1250 4450
+Wire Wire Line
+	1250 4450 1250 4575
+Wire Wire Line
+	1250 4925 1425 4925
+Wire Wire Line
+	1400 4450 1250 4450
+Wire Wire Line
+	1425 4925 1675 4925
+Wire Wire Line
+	1425 5225 1425 5500
+Wire Wire Line
+	1425 5500 1150 5500
+Wire Wire Line
+	1675 975  1675 1550
+Wire Wire Line
+	1675 975  2675 975 
+Wire Wire Line
+	1675 1550 1675 4775
+Wire Wire Line
+	1675 4775 1675 4925
+Wire Wire Line
+	1675 4775 1775 4775
+Wire Wire Line
+	1675 4925 1675 5075
+Wire Wire Line
+	1675 5075 1775 5075
+Wire Wire Line
+	2575 4775 4200 4775
+Wire Wire Line
+	2675 1550 1675 1550
+Wire Wire Line
+	2975 975  4575 975 
+Wire Wire Line
+	4575 725  4575 975 
+Wire Wire Line
+	4575 975  4675 975 
+Wire Wire Line
+	4675 1550 2975 1550
+Wire Wire Line
+	4775 725  4575 725 
+Wire Wire Line
+	5075 725  5350 725 
+Wire Wire Line
+	5350 725  5350 1075
+Wire Wire Line
+	5350 1075 5275 1075
+Wire Wire Line
+	6350 1075 5350 1075
+Wire Wire Line
+	6350 1075 6350 1125
+Wire Wire Line
+	6350 1425 6350 1575
+Wire Wire Line
+	6350 1575 6350 1725
+Wire Wire Line
+	6350 1575 6925 1575
+Wire Wire Line
+	6350 2025 6350 2175
+Wire Wire Line
+	6350 2175 6350 2225
+Wire Wire Line
+	6350 2175 6950 2175
+Wire Wire Line
+	6875 2375 6875 2525
+Wire Wire Line
+	6875 2525 7550 2525
+Wire Wire Line
+	6900 1200 7525 1200
+Wire Wire Line
+	6900 1375 6900 1200
+Wire Wire Line
+	6925 1375 6900 1375
+Wire Wire Line
+	6950 2375 6875 2375
+Wire Wire Line
+	7525 1200 7525 1475
+Wire Wire Line
+	7550 2525 7550 2275
+Wire Wire Line
+	11600 -600 12025 -900
+Wire Wire Line
+	11925 150  12225 -900
+Wire Wire Line
+	12375 125  12475 -875
+Wire Wire Line
+	12875 175  12675 -875
+Wire Wire Line
+	13250 -625 13100 -850
+Wire Wire Line
+	13300 200  12875 -850
+Wire Wire Line
+	13575 -625 13300 -825
+Wire Wire Line
+	13975 -625 13525 -825
+$Comp
+L power:+5V #PWR?
+U 1 1 62502B15
+P 950 4225
+F 0 "#PWR?" H 950 4075 50  0001 C CNN
+F 1 "+5V" H 965 4398 50  0000 C CNN
+F 2 "" H 950 4225 50  0001 C CNN
+F 3 "" H 950 4225 50  0001 C CNN
+	1    950  4225
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3VA #PWR?
+U 1 1 62471EB9
+P 11000 -1000
+F 0 "#PWR?" H 11000 -1150 50  0001 C CNN
+F 1 "+3.3VA" H 11015 -827 50  0000 C CNN
+F 2 "" H 11000 -1000 50  0001 C CNN
+F 3 "" H 11000 -1000 50  0001 C CNN
+	1    11000 -1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 62475FBA
+P 12025 -900
+F 0 "#PWR?" H 12025 -1050 50  0001 C CNN
+F 1 "+5V" H 12040 -727 50  0000 C CNN
+F 2 "" H 12025 -900 50  0001 C CNN
+F 3 "" H 12025 -900 50  0001 C CNN
+	1    12025 -900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6247C905
+P 12225 -900
+F 0 "#PWR?" H 12225 -1050 50  0001 C CNN
+F 1 "+5V" H 12240 -727 50  0000 C CNN
+F 2 "" H 12225 -900 50  0001 C CNN
+F 3 "" H 12225 -900 50  0001 C CNN
+	1    12225 -900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6247FDBF
+P 12475 -875
+F 0 "#PWR?" H 12475 -1025 50  0001 C CNN
+F 1 "+5V" H 12490 -702 50  0000 C CNN
+F 2 "" H 12475 -875 50  0001 C CNN
+F 3 "" H 12475 -875 50  0001 C CNN
+	1    12475 -875
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 62489BEA
+P 12675 -875
+F 0 "#PWR?" H 12675 -1025 50  0001 C CNN
+F 1 "+5V" H 12690 -702 50  0000 C CNN
+F 2 "" H 12675 -875 50  0001 C CNN
+F 3 "" H 12675 -875 50  0001 C CNN
+	1    12675 -875
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6248F934
+P 12875 -850
+F 0 "#PWR?" H 12875 -1000 50  0001 C CNN
+F 1 "+5V" H 12890 -677 50  0000 C CNN
+F 2 "" H 12875 -850 50  0001 C CNN
+F 3 "" H 12875 -850 50  0001 C CNN
+	1    12875 -850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6248FAB3
+P 13100 -850
+F 0 "#PWR?" H 13100 -1000 50  0001 C CNN
+F 1 "+5V" H 13115 -677 50  0000 C CNN
+F 2 "" H 13100 -850 50  0001 C CNN
+F 3 "" H 13100 -850 50  0001 C CNN
+	1    13100 -850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 62496173
+P 13300 -825
+F 0 "#PWR?" H 13300 -975 50  0001 C CNN
+F 1 "+5V" H 13315 -652 50  0000 C CNN
+F 2 "" H 13300 -825 50  0001 C CNN
+F 3 "" H 13300 -825 50  0001 C CNN
+	1    13300 -825
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 624A729B
+P 13525 -825
+F 0 "#PWR?" H 13525 -975 50  0001 C CNN
+F 1 "+5V" H 13540 -652 50  0000 C CNN
+F 2 "" H 13525 -825 50  0001 C CNN
+F 3 "" H 13525 -825 50  0001 C CNN
+	1    13525 -825
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 624F9C17
+P 1150 5500
+F 0 "#PWR?" H 1150 5250 50  0001 C CNN
+F 1 "GND" H 1155 5327 50  0000 C CNN
+F 2 "" H 1150 5500 50  0001 C CNN
+F 3 "" H 1150 5500 50  0001 C CNN
+	1    1150 5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 624DFBA9
+P 1225 5900
+F 0 "#PWR?" H 1225 5650 50  0001 C CNN
+F 1 "GND" H 1230 5727 50  0000 C CNN
+F 2 "" H 1225 5900 50  0001 C CNN
+F 3 "" H 1225 5900 50  0001 C CNN
+	1    1225 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 62518C36
+P 1400 4450
+F 0 "#PWR?" H 1400 4200 50  0001 C CNN
+F 1 "GND" V 1405 4322 50  0000 R CNN
+F 2 "" H 1400 4450 50  0001 C CNN
+F 3 "" H 1400 4450 50  0001 C CNN
+	1    1400 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 624F9A88
+P 1475 5900
+F 0 "#PWR?" H 1475 5650 50  0001 C CNN
+F 1 "GND" H 1480 5727 50  0000 C CNN
+F 2 "" H 1475 5900 50  0001 C CNN
+F 3 "" H 1475 5900 50  0001 C CNN
+	1    1475 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 00000000
+P 6350 2525
+F 0 "#PWR?" H 6350 2275 50  0001 C CNN
+F 1 "GND" H 6350 2350 50  0000 C CNN
+F 2 "" H 6350 2525 50  0001 C CNN
+F 3 "" H 6350 2525 50  0001 C CNN
+	1    6350 2525
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 5 1 623B6EB7
+P 11700 -300
+F 0 "U?" H 11658 -254 50  0000 L CNN
+F 1 "TLC274" H 11658 -345 50  0000 L CNN
+F 2 "" H 11650 -200 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 11750 -100 50  0001 C CNN
+	5    11700 -300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 3 1 6236D895
+P 12025 450
+F 0 "U?" H 11983 496 50  0000 L CNN
+F 1 "MC33078" H 11983 405 50  0000 L CNN
+F 2 "" H 12025 450 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 12025 450 50  0001 C CNN
+	3    12025 450 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 3 1 6238E750
+P 12475 425
+F 0 "U?" H 12433 471 50  0000 L CNN
+F 1 "MC33078" H 12433 380 50  0000 L CNN
+F 2 "" H 12475 425 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 12475 425 50  0001 C CNN
+	3    12475 425 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 3 1 6239F33C
+P 12975 475
+F 0 "U?" H 12933 521 50  0000 L CNN
+F 1 "MC33078" H 12933 430 50  0000 L CNN
+F 2 "" H 12975 475 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 12975 475 50  0001 C CNN
+	3    12975 475 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 5 1 623C44D4
+P 13350 -325
+F 0 "U?" H 13308 -279 50  0000 L CNN
+F 1 "TLC274" H 13308 -370 50  0000 L CNN
+F 2 "" H 13300 -225 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 13400 -125 50  0001 C CNN
+	5    13350 -325
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 3 1 623A8547
+P 13400 500
+F 0 "U?" H 13358 546 50  0000 L CNN
+F 1 "MC33078" H 13358 455 50  0000 L CNN
+F 2 "" H 13400 500 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 13400 500 50  0001 C CNN
+	3    13400 500 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 5 1 623D3FA8
+P 13675 -325
+F 0 "U?" H 13633 -279 50  0000 L CNN
+F 1 "TLC274" H 13633 -370 50  0000 L CNN
+F 2 "" H 13625 -225 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 13725 -125 50  0001 C CNN
+	5    13675 -325
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 5 1 623E3814
+P 14075 -325
+F 0 "U?" H 14033 -279 50  0000 L CNN
+F 1 "TLC274" H 14033 -370 50  0000 L CNN
+F 2 "" H 14025 -225 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 14125 -125 50  0001 C CNN
+	5    14075 -325
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461251
+P 2550 2350
+F 0 "R?" H 2620 2396 50  0000 L CNN
+F 1 "10k" H 2620 2305 50  0000 L CNN
+F 2 "" V 2480 2350 50  0001 C CNN
+F 3 "~" H 2550 2350 50  0001 C CNN
+	1    2550 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624643F9
+P 2825 975
+F 0 "R?" H 2895 1021 50  0000 L CNN
+F 1 "10k" H 2895 930 50  0000 L CNN
+F 2 "" V 2755 975 50  0001 C CNN
+F 3 "~" H 2825 975 50  0001 C CNN
+	1    2825 975 
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6241AFDE
+P 2825 1550
+F 0 "R?" H 2895 1596 50  0000 L CNN
+F 1 "10k" H 2895 1505 50  0000 L CNN
+F 2 "" V 2755 1550 50  0001 C CNN
+F 3 "~" H 2825 1550 50  0001 C CNN
+	1    2825 1550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461A64
+P 2975 2350
+F 0 "R?" H 3045 2396 50  0000 L CNN
+F 1 "10k" H 3045 2305 50  0000 L CNN
+F 2 "" V 2905 2350 50  0001 C CNN
+F 3 "~" H 2975 2350 50  0001 C CNN
+	1    2975 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624623D2
+P 3375 2325
+F 0 "R?" H 3445 2371 50  0000 L CNN
+F 1 "10k" H 3445 2280 50  0000 L CNN
+F 2 "" V 3305 2325 50  0001 C CNN
+F 3 "~" H 3375 2325 50  0001 C CNN
+	1    3375 2325
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62462C6F
+P 3750 2300
+F 0 "R?" H 3820 2346 50  0000 L CNN
+F 1 "10k" H 3795 2255 50  0000 L CNN
+F 2 "" V 3680 2300 50  0001 C CNN
+F 3 "~" H 3750 2300 50  0001 C CNN
+	1    3750 2300
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62463207
+P 4150 2350
+F 0 "R?" H 4220 2396 50  0000 L CNN
+F 1 "10k" H 4220 2305 50  0000 L CNN
+F 2 "" V 4080 2350 50  0001 C CNN
+F 3 "~" H 4150 2350 50  0001 C CNN
+	1    4150 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62463848
+P 4925 725
+F 0 "R?" H 4995 771 50  0000 L CNN
+F 1 "10k" H 4995 680 50  0000 L CNN
+F 2 "" V 4855 725 50  0001 C CNN
+F 3 "~" H 4925 725 50  0001 C CNN
+	1    4925 725 
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624643E7
+P 6350 1275
+F 0 "R?" H 6420 1321 50  0000 L CNN
+F 1 "500k" H 6420 1230 50  0000 L CNN
+F 2 "" V 6280 1275 50  0001 C CNN
+F 3 "~" H 6350 1275 50  0001 C CNN
+	1    6350 1275
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624643F3
+P 6350 1875
+F 0 "R?" H 6420 1921 50  0000 L CNN
+F 1 "10" H 6420 1830 50  0000 L CNN
+F 2 "" V 6280 1875 50  0001 C CNN
+F 3 "~" H 6350 1875 50  0001 C CNN
+	1    6350 1875
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624643ED
+P 6350 2375
+F 0 "R?" H 6420 2421 50  0000 L CNN
+F 1 "500k" H 6420 2330 50  0000 L CNN
+F 2 "" V 6280 2375 50  0001 C CNN
+F 3 "~" H 6350 2375 50  0001 C CNN
+	1    6350 2375
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6241AFC0
+P 17425 -850
+F 0 "R?" H 17495 -804 50  0000 L CNN
+F 1 "500k" H 17495 -895 50  0000 L CNN
+F 2 "" V 17355 -850 50  0001 C CNN
+F 3 "~" H 17425 -850 50  0001 C CNN
+	1    17425 -850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6246123F
+P 17425 -450
+F 0 "R?" H 17495 -404 50  0000 L CNN
+F 1 "500k" H 17495 -495 50  0000 L CNN
+F 2 "" V 17355 -450 50  0001 C CNN
+F 3 "~" H 17425 -450 50  0001 C CNN
+	1    17425 -450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461A52
+P 17425 -25
+F 0 "R?" H 17495 21  50  0000 L CNN
+F 1 "500k" H 17495 -70 50  0000 L CNN
+F 2 "" V 17355 -25 50  0001 C CNN
+F 3 "~" H 17425 -25 50  0001 C CNN
+	1    17425 -25 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62463836
+P 17425 1575
+F 0 "R?" H 17495 1621 50  0000 L CNN
+F 1 "500k" H 17495 1530 50  0000 L CNN
+F 2 "" V 17355 1575 50  0001 C CNN
+F 3 "~" H 17425 1575 50  0001 C CNN
+	1    17425 1575
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624623C0
+P 17450 375
+F 0 "R?" H 17520 421 50  0000 L CNN
+F 1 "500k" H 17520 330 50  0000 L CNN
+F 2 "" V 17380 375 50  0001 C CNN
+F 3 "~" H 17450 375 50  0001 C CNN
+	1    17450 375 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624631F5
+P 17450 1150
+F 0 "R?" H 17520 1196 50  0000 L CNN
+F 1 "500k" H 17520 1105 50  0000 L CNN
+F 2 "" V 17380 1150 50  0001 C CNN
+F 3 "~" H 17450 1150 50  0001 C CNN
+	1    17450 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62462C5D
+P 17475 750
+F 0 "R?" H 17545 796 50  0000 L CNN
+F 1 "500k" H 17545 705 50  0000 L CNN
+F 2 "" V 17405 750 50  0001 C CNN
+F 3 "~" H 17475 750 50  0001 C CNN
+	1    17475 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6241AFC6
+P 17750 -850
+F 0 "R?" H 17820 -804 50  0000 L CNN
+F 1 "500k" H 17820 -895 50  0000 L CNN
+F 2 "" V 17680 -850 50  0001 C CNN
+F 3 "~" H 17750 -850 50  0001 C CNN
+	1    17750 -850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461245
+P 17750 -450
+F 0 "R?" H 17820 -404 50  0000 L CNN
+F 1 "500k" H 17820 -495 50  0000 L CNN
+F 2 "" V 17680 -450 50  0001 C CNN
+F 3 "~" H 17750 -450 50  0001 C CNN
+	1    17750 -450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461A58
+P 17750 -25
+F 0 "R?" H 17820 21  50  0000 L CNN
+F 1 "500k" H 17820 -70 50  0000 L CNN
+F 2 "" V 17680 -25 50  0001 C CNN
+F 3 "~" H 17750 -25 50  0001 C CNN
+	1    17750 -25 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6246383C
+P 17750 1575
+F 0 "R?" H 17820 1621 50  0000 L CNN
+F 1 "500k" H 17820 1530 50  0000 L CNN
+F 2 "" V 17680 1575 50  0001 C CNN
+F 3 "~" H 17750 1575 50  0001 C CNN
+	1    17750 1575
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624623C6
+P 17775 375
+F 0 "R?" H 17845 421 50  0000 L CNN
+F 1 "500k" H 17845 330 50  0000 L CNN
+F 2 "" V 17705 375 50  0001 C CNN
+F 3 "~" H 17775 375 50  0001 C CNN
+	1    17775 375 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624631FB
+P 17775 1150
+F 0 "R?" H 17845 1196 50  0000 L CNN
+F 1 "500k" H 17845 1105 50  0000 L CNN
+F 2 "" V 17705 1150 50  0001 C CNN
+F 3 "~" H 17775 1150 50  0001 C CNN
+	1    17775 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62462C63
+P 17800 750
+F 0 "R?" H 17870 796 50  0000 L CNN
+F 1 "500k" H 17870 705 50  0000 L CNN
+F 2 "" V 17730 750 50  0001 C CNN
+F 3 "~" H 17800 750 50  0001 C CNN
+	1    17800 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6241AFD8
+P 18050 -850
+F 0 "R?" H 18120 -804 50  0000 L CNN
+F 1 "10" H 18120 -895 50  0000 L CNN
+F 2 "" V 17980 -850 50  0001 C CNN
+F 3 "~" H 18050 -850 50  0001 C CNN
+	1    18050 -850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6246124B
+P 18050 -450
+F 0 "R?" H 18120 -404 50  0000 L CNN
+F 1 "10" H 18120 -495 50  0000 L CNN
+F 2 "" V 17980 -450 50  0001 C CNN
+F 3 "~" H 18050 -450 50  0001 C CNN
+	1    18050 -450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461A5E
+P 18050 -25
+F 0 "R?" H 18120 21  50  0000 L CNN
+F 1 "10" H 18120 -70 50  0000 L CNN
+F 2 "" V 17980 -25 50  0001 C CNN
+F 3 "~" H 18050 -25 50  0001 C CNN
+	1    18050 -25 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62463842
+P 18050 1575
+F 0 "R?" H 18120 1621 50  0000 L CNN
+F 1 "10" H 18120 1530 50  0000 L CNN
+F 2 "" V 17980 1575 50  0001 C CNN
+F 3 "~" H 18050 1575 50  0001 C CNN
+	1    18050 1575
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624623CC
+P 18075 375
+F 0 "R?" H 18145 421 50  0000 L CNN
+F 1 "10" H 18145 330 50  0000 L CNN
+F 2 "" V 18005 375 50  0001 C CNN
+F 3 "~" H 18075 375 50  0001 C CNN
+	1    18075 375 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62463201
+P 18075 1150
+F 0 "R?" H 18145 1196 50  0000 L CNN
+F 1 "10" H 18145 1105 50  0000 L CNN
+F 2 "" V 18005 1150 50  0001 C CNN
+F 3 "~" H 18075 1150 50  0001 C CNN
+	1    18075 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62462C69
+P 18100 750
+F 0 "R?" H 18170 796 50  0000 L CNN
+F 1 "10" H 18170 705 50  0000 L CNN
+F 2 "" V 18030 750 50  0001 C CNN
+F 3 "~" H 18100 750 50  0001 C CNN
+	1    18100 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6241AFE4
+P 18700 -875
+F 0 "R?" H 18770 -829 50  0000 L CNN
+F 1 "10k" H 18770 -920 50  0000 L CNN
+F 2 "" V 18630 -875 50  0001 C CNN
+F 3 "~" H 18700 -875 50  0001 C CNN
+	1    18700 -875
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461257
+P 18700 -475
+F 0 "R?" H 18770 -429 50  0000 L CNN
+F 1 "10k" H 18770 -520 50  0000 L CNN
+F 2 "" V 18630 -475 50  0001 C CNN
+F 3 "~" H 18700 -475 50  0001 C CNN
+	1    18700 -475
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62461A6A
+P 18700 -50
+F 0 "R?" H 18770 -4  50  0000 L CNN
+F 1 "10k" H 18770 -95 50  0000 L CNN
+F 2 "" V 18630 -50 50  0001 C CNN
+F 3 "~" H 18700 -50 50  0001 C CNN
+	1    18700 -50 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6246384E
+P 18700 1550
+F 0 "R?" H 18770 1596 50  0000 L CNN
+F 1 "10k" H 18770 1505 50  0000 L CNN
+F 2 "" V 18630 1550 50  0001 C CNN
+F 3 "~" H 18700 1550 50  0001 C CNN
+	1    18700 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624643FF
+P 18700 1950
+F 0 "R?" H 18770 1996 50  0000 L CNN
+F 1 "10k" H 18770 1905 50  0000 L CNN
+F 2 "" V 18630 1950 50  0001 C CNN
+F 3 "~" H 18700 1950 50  0001 C CNN
+	1    18700 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 624623D8
+P 18725 350
+F 0 "R?" H 18795 396 50  0000 L CNN
+F 1 "10k" H 18795 305 50  0000 L CNN
+F 2 "" V 18655 350 50  0001 C CNN
+F 3 "~" H 18725 350 50  0001 C CNN
+	1    18725 350 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6246320D
+P 18725 1125
+F 0 "R?" H 18795 1171 50  0000 L CNN
+F 1 "10k" H 18795 1080 50  0000 L CNN
+F 2 "" V 18655 1125 50  0001 C CNN
+F 3 "~" H 18725 1125 50  0001 C CNN
+	1    18725 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 62462C75
+P 18750 725
+F 0 "R?" H 18820 771 50  0000 L CNN
+F 1 "10k" H 18820 680 50  0000 L CNN
+F 2 "" V 18680 725 50  0001 C CNN
+F 3 "~" H 18750 725 50  0001 C CNN
+	1    18750 725 
+	1    0    0    -1  
+$EndComp
+$Comp
+L TestPCB-rescue:CP-Device C?
+U 1 1 624EA6CF
+P 1100 4325
+F 0 "C?" H 1218 4371 50  0000 L CNN
+F 1 "CP" H 1218 4280 50  0000 L CNN
+F 2 "" H 1138 4175 50  0001 C CNN
+F 3 "~" H 1100 4325 50  0001 C CNN
+	1    1100 4325
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 624E5C3E
+P 1100 4575
+F 0 "C?" H 1215 4621 50  0000 L CNN
+F 1 "C" H 1215 4530 50  0000 L CNN
+F 2 "" H 1138 4425 50  0001 C CNN
+F 3 "~" H 1100 4575 50  0001 C CNN
+	1    1100 4575
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 624E2C54
+P 1425 5075
+F 0 "C?" H 1540 5121 50  0000 L CNN
+F 1 "C" H 1540 5030 50  0000 L CNN
+F 2 "" H 1463 4925 50  0001 C CNN
+F 3 "~" H 1425 5075 50  0001 C CNN
+	1    1425 5075
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U1
+U 1 1 6236653A
+P 4975 1075
+F 0 "U1" H 4975 1442 50  0000 C CNN
+F 1 "MC33078" H 4975 1351 50  0000 C CNN
+F 2 "" H 4975 1075 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 4975 1075 50  0001 C CNN
+	1    4975 1075
+	1    0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 2 1 62369905
+P 4975 1650
+F 0 "U?" H 4975 2017 50  0000 C CNN
+F 1 "MC33078" H 4975 1926 50  0000 C CNN
+F 2 "" H 4975 1650 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 4975 1650 50  0001 C CNN
+	2    4975 1650
+	1    0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 1 1 623ACA35
+P 7225 1475
+F 0 "U?" H 7225 1842 50  0000 C CNN
+F 1 "TLC274" H 7225 1751 50  0000 C CNN
+F 2 "" H 7175 1575 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 7275 1675 50  0001 C CNN
+	1    7225 1475
+	1    0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 2 1 623AEFA6
+P 7250 2275
+F 0 "U?" H 7250 2642 50  0000 C CNN
+F 1 "TLC274" H 7250 2551 50  0000 C CNN
+F 2 "" H 7200 2375 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 7300 2475 50  0001 C CNN
+	2    7250 2275
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 1 1 6238751F
+P 14775 -525
+F 0 "U?" H 14775 -158 50  0000 C CNN
+F 1 "MC33078" H 14775 -249 50  0000 C CNN
+F 2 "" H 14775 -525 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 14775 -525 50  0001 C CNN
+	1    14775 -525
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 2 1 6238AF83
+P 14775 -125
+F 0 "U?" H 14775 242 50  0000 C CNN
+F 1 "MC33078" H 14775 151 50  0000 C CNN
+F 2 "" H 14775 -125 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 14775 -125 50  0001 C CNN
+	2    14775 -125
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 1 1 6239B832
+P 15625 -525
+F 0 "U?" H 15625 -158 50  0000 C CNN
+F 1 "MC33078" H 15625 -249 50  0000 C CNN
+F 2 "" H 15625 -525 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 15625 -525 50  0001 C CNN
+	1    15625 -525
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 2 1 62399279
+P 15625 -100
+F 0 "U?" H 15625 267 50  0000 C CNN
+F 1 "MC33078" H 15625 176 50  0000 C CNN
+F 2 "" H 15625 -100 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 15625 -100 50  0001 C CNN
+	2    15625 -100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 1 1 623A23D2
+P 16700 -525
+F 0 "U?" H 16700 -158 50  0000 C CNN
+F 1 "MC33078" H 16700 -249 50  0000 C CNN
+F 2 "" H 16700 -525 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 16700 -525 50  0001 C CNN
+	1    16700 -525
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:MC33078 U?
+U 2 1 623A54C9
+P 16700 -100
+F 0 "U?" H 16700 267 50  0000 C CNN
+F 1 "MC33078" H 16700 176 50  0000 C CNN
+F 2 "" H 16700 -100 50  0001 C CNN
+F 3 "https://www.onsemi.com/pub/Collateral/MC33078-D.PDF" H 16700 -100 50  0001 C CNN
+	2    16700 -100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 3 1 623B169B
+P 16850 2475
+F 0 "U?" H 16850 2842 50  0000 C CNN
+F 1 "TLC274" H 16850 2751 50  0000 C CNN
+F 2 "" H 16800 2575 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 16900 2675 50  0001 C CNN
+	3    16850 2475
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 4 1 623B4072
+P 16850 2900
+F 0 "U?" H 16850 3267 50  0000 C CNN
+F 1 "TLC274" H 16850 3176 50  0000 C CNN
+F 2 "" H 16800 3000 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 16900 3100 50  0001 C CNN
+	4    16850 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 1 1 623B983D
+P 17550 2500
+F 0 "U?" H 17550 2867 50  0000 C CNN
+F 1 "TLC274" H 17550 2776 50  0000 C CNN
+F 2 "" H 17500 2600 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 17600 2700 50  0001 C CNN
+	1    17550 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 2 1 623BC9D8
+P 17550 2900
+F 0 "U?" H 17550 3267 50  0000 C CNN
+F 1 "TLC274" H 17550 3176 50  0000 C CNN
+F 2 "" H 17500 3000 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 17600 3100 50  0001 C CNN
+	2    17550 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 1 1 623C7134
+P 17700 3850
+F 0 "U?" H 17700 4217 50  0000 C CNN
+F 1 "TLC274" H 17700 4126 50  0000 C CNN
+F 2 "" H 17650 3950 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 17750 4050 50  0001 C CNN
+	1    17700 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 2 1 623CA470
+P 17700 4250
+F 0 "U?" H 17700 4617 50  0000 C CNN
+F 1 "TLC274" H 17700 4526 50  0000 C CNN
+F 2 "" H 17650 4350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 17750 4450 50  0001 C CNN
+	2    17700 4250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 3 1 623BE93D
+P 18175 2450
+F 0 "U?" H 18175 2817 50  0000 C CNN
+F 1 "TLC274" H 18175 2726 50  0000 C CNN
+F 2 "" H 18125 2550 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18225 2650 50  0001 C CNN
+	3    18175 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 4 1 623C16A6
+P 18200 2875
+F 0 "U?" H 18200 3242 50  0000 C CNN
+F 1 "TLC274" H 18200 3151 50  0000 C CNN
+F 2 "" H 18150 2975 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18250 3075 50  0001 C CNN
+	4    18200 2875
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 3 1 623CD4B8
+P 18275 3850
+F 0 "U?" H 18275 4217 50  0000 C CNN
+F 1 "TLC274" H 18275 4126 50  0000 C CNN
+F 2 "" H 18225 3950 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18325 4050 50  0001 C CNN
+	3    18275 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 4 1 623D11D3
+P 18275 4250
+F 0 "U?" H 18275 4617 50  0000 C CNN
+F 1 "TLC274" H 18275 4526 50  0000 C CNN
+F 2 "" H 18225 4350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18325 4450 50  0001 C CNN
+	4    18275 4250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 1 1 623D6E84
+P 18850 3825
+F 0 "U?" H 18850 4192 50  0000 C CNN
+F 1 "TLC274" H 18850 4101 50  0000 C CNN
+F 2 "" H 18800 3925 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18900 4025 50  0001 C CNN
+	1    18850 3825
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 2 1 623D9B40
+P 18850 4225
+F 0 "U?" H 18875 4475 50  0000 C CNN
+F 1 "TLC274" H 18875 4384 50  0000 C CNN
+F 2 "" H 18800 4325 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 18900 4425 50  0001 C CNN
+	2    18850 4225
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 3 1 623DC667
+P 19450 3800
+F 0 "U?" H 19450 4167 50  0000 C CNN
+F 1 "TLC274" H 19450 4076 50  0000 C CNN
+F 2 "" H 19400 3900 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 19500 4000 50  0001 C CNN
+	3    19450 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:TLC274 U?
+U 4 1 623E009D
+P 19450 4200
+F 0 "U?" H 19450 4567 50  0000 C CNN
+F 1 "TLC274" H 19450 4476 50  0000 C CNN
+F 2 "" H 19400 4300 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc274.pdf" H 19500 4400 50  0001 C CNN
+	4    19450 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Reference_Voltage:REF192 U?
+U 1 1 6248B05C
+P 950 4925
+F 0 "U?" H 1294 4971 50  0000 L CNN
+F 1 "REF192" H 1294 4880 50  0000 L CNN
+F 2 "" H 950 4875 50  0001 C CIN
+F 3 "https://www.analog.com/static/imported-files/data_sheets/REF19xSeries.pdf" H 950 4875 50  0001 C CIN
+	1    950  4925
+	1    0    0    -1  
+$EndComp
+$Comp
+L Analog_DAC:DAC5578xPW U?
+U 1 1 6246A341
+P 2175 5075
+F 0 "U?" H 2175 5856 50  0000 C CNN
+F 1 "DAC5578xPW" H 2175 5765 50  0000 C CNN
+F 2 "Package_SO:TSSOP-16_4.4x5mm_P0.65mm" H 2175 4525 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/dac5578.pdf" H 2175 5075 50  0001 C CNN
+	1    2175 5075
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

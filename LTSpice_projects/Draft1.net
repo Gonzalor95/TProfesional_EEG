@@ -1,0 +1,17 @@
+* C:\Users\Gonzalo\Desktop\Gonzalo\GitHub\TProfesional_EEG\LTSpice_projects\Draft1.asc
+V1 N003 0 SINE(0 2 1k)
+V2 N005 0 SINE(0 3 1k)
+R1 N002 N006 5K
+R2 N006 N007 100
+R3 N007 0 5k
+R4 N004 N005 1k
+R5 N001 N003 1k
+R6 N002 N001 1k
+R7 0 N004 1k
+XU1 N004 N001 V+ V- N002 level1 Avol=1Meg GBW=10Meg Vos=0 En=0 Enk=0 In=0 Ink=0 Rin=500Meg
+V3 V+ 0 5
+V4 0 V- 5
+.tran 0.01
+.lib UniversalOpAmp1.lib
+.backanno
+.end
