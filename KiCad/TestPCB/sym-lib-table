@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "TestPCB-rescue")(type "Legacy")(uri "${KIPRJMOD}/TestPCB-rescue.lib")(options "")(descr ""))
+)
