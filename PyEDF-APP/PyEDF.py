@@ -6,7 +6,6 @@ import yaml
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from qtrangeslider import QLabeledRangeSlider
 from modules.EDFWorker import EDFWorker
 from modules.SerialComWorker import SerialComWorker
 from modules.TestingSignals import TestingSignalsWorker
@@ -49,11 +48,12 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_worker = TestingSignalsWorker(self.max_channels_)
 
         # Add custom double range slider
-        self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
-        self.range_slider.setHandleLabelPosition(
-            QLabeledRangeSlider.LabelPosition.LabelsBelow)
-        self.range_slider.setValue([0, 99])
-        self.range_slider_layout.addWidget(self.range_slider)
+        self.min_time_input = QLineEdit()
+        self.max_time_input = QLineEdit()
+        self.set_sim_time_button = QPushButton("Set time")
+        self.range_slider_layout.addWidget(self.min_time_input)
+        self.range_slider_layout.addWidget(self.max_time_input)
+        self.range_slider_layout.addWidget(self.set_sim_time_button)
 
         # Set fonts
         self.setFonts()
@@ -64,13 +64,9 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_button.clicked.connect(
             self.browseTestingSignals)
         self.select_channels_button.clicked.connect(self.selectChannels)
-        self.range_slider.valueChanged.connect(self.timeSliderChanged)
+        self.set_sim_time_button.clicked.connect(self.simTimeChanged)
         self.preview_button.clicked.connect(self.previewEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
-        # TODO: Perhaps add a button to get the mapping from output pin to what the channel is named (the scientific name)
-        # So you would get something like:
-        # Pin 0 <> F7-T7
-        # Pin 1 <> F8-P5
 
         # Show welcome screen
         welcome_dialog = WelcomeDialog(self.serial_comm_worker)
@@ -103,12 +99,14 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                     "Number of channels of the selected EDF file exceeds the max amount, "
                     "please select a different EDF file")
                 self.edf_worker.resetWorker()
+                PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
+                            "please select a different EDF file",
+                            QMessageBox.Abort, QMessageBox.Warning)
                 return
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
             # Set the maximun time selector slider value to the signal duration
-            self.range_slider.setMaximum(self.edf_worker.getDuration())
-            self.range_slider.setValue([0, self.big_int_])
+            self.selected_sim_time_value.setText(str(0) + " - " + str(self.edf_worker.getDuration()))
             # Set selected channels to ALL
             self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
@@ -176,8 +174,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.current_file_name_label.setText(chosen_signal)
 
         # Set the maximun time selector slider value to the signal duration
-        self.range_slider.setMaximum(self.testing_signals_worker.getDuration())
-        self.range_slider.setValue([0, self.big_int_])
+        self.selected_sim_time_value.setText(str(0) + " - " + str(self.edf_worker.getDuration()))
         # Set selected channels to ALL
         self.selected_channels_value.setText("ALL")
         # Delete info h layouts in the info v layout (not the title)
@@ -259,16 +256,24 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Clear line edit
         self.channel_select_line_edit.clear()
 
-    def timeSliderChanged(self):
+    def simTimeChanged(self):
         """
         Callback method for the slider changed
         """
+        raw_min_time_str = self.min_time_input.text()
+        raw_max_time_str = self.max_time_input.text()
+        if utils.validate_sim_time(raw_min_time_str, raw_max_time_str, self.edf_worker.getDuration()) == False:
+            PopUpWindow("Simulation time selection", "Bad user input for the simulation time, try again",
+                        QMessageBox.Abort, QMessageBox.Critical)
+            return
         if self.is_testing_signal_:
-            print (self.range_slider.value())
-            self.testing_signals_worker.setSelectedSimTime(self.range_slider.value())
+            self.testing_signals_worker.setSelectedSimTime(
+                (int(raw_min_time_str), int(raw_max_time_str)))
         else:
             if self.edf_worker.isFileLoaded():
-                self.edf_worker.setSelectedSimTime(self.range_slider.value())
+                self.edf_worker.setSelectedSimTime(
+                    (int(raw_min_time_str), int(raw_max_time_str)))
+        self.selected_sim_time_value.setText(raw_min_time_str + " - " + raw_max_time_str)
 
     def centerMainWindow(self):
         """

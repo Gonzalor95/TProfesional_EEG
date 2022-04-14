@@ -69,3 +69,17 @@ def delete_items_of_layout(layout):
                 widget.setParent(None)
             else:
                 delete_items_of_layout(item.layout())
+
+def validate_sim_time(selected_min_time, selected_max_time, max_allowable_time):
+    """
+    Method to validate the user input for the simulation time
+    """
+    try:
+        x = int(selected_min_time)
+        y = int(selected_max_time)
+    except:
+        return False
+    if (x >= y) or (y > max_allowable_time):
+        return False
+    return True
+
