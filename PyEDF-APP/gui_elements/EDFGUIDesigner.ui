@@ -6,413 +6,392 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1121</width>
-    <height>899</height>
+    <width>948</width>
+    <height>723</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>EDF signal generator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>160</width>
-      <height>851</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="buttons_v_layout">
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QPushButton" name="browse_edf_button">
-       <property name="text">
-        <string>Browse EDFs</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="browse_devices_button">
-       <property name="text">
-        <string>Browse devices</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="testing_signals_button">
-       <property name="text">
-        <string>Testing signals</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </widget>
-   <widget class="Line" name="line">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>0</y>
-      <width>20</width>
-      <height>851</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Sunken</enum>
-    </property>
-    <property name="lineWidth">
-     <number>4</number>
-    </property>
-    <property name="midLineWidth">
-     <number>0</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>0</y>
-      <width>911</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="current_selection_layout">
-     <item>
-      <layout class="QHBoxLayout" name="current_file_h_layout">
-       <item>
-        <widget class="QLabel" name="current_file_label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Current signal: </string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::RichText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="current_file_name_label">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="current_device_h_layout">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMaximumSize</enum>
-       </property>
-       <item>
-        <widget class="QLabel" name="current_device_label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Current device: </string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::PlainText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="current_device_name_label">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>80</y>
-      <width>911</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="lineWidth">
-     <number>2</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_3">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>760</y>
-      <width>911</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="lineWidth">
-     <number>2</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="information_title_label">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>100</y>
-      <width>911</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="midLineWidth">
-     <number>0</number>
-    </property>
-    <property name="text">
-     <string>Signal information</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="configuration_title_label">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>400</y>
-      <width>911</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string>Signal configuration</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QWidget" name="horizontalLayoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>780</y>
-      <width>911</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="prev_run_buttons_layout">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="preview_button">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>PREVIEW</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="run_button">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>RUN</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>130</y>
-      <width>911</width>
-      <height>261</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="information_labels_layout"/>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_4">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>440</y>
-      <width>911</width>
-      <height>311</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="selected_channels_key">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Selected channels: </string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="selected_channels_value">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QLineEdit" name="channel_select_line_edit">
-         <property name="placeholderText">
-          <string>0, 1, 5 - 6,...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="select_channels_button">
-         <property name="text">
-          <string>Select</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
-       <item>
-        <widget class="QLabel" name="selected_sim_time_key">
-         <property name="text">
-          <string>Simulation time [s]: </string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="range_slider_layout"/>
-     </item>
-     <item>
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </widget>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" rowspan="8">
+     <layout class="QVBoxLayout" name="buttons_v_layout">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="browse_edf_button">
+        <property name="text">
+         <string>Browse EDFs</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="browse_devices_button">
+        <property name="text">
+         <string>Browse devices</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="testing_signals_button">
+        <property name="text">
+         <string>Testing signals</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1" rowspan="8">
+     <widget class="Line" name="line">
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>4</number>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <layout class="QVBoxLayout" name="current_selection_layout">
+      <item>
+       <layout class="QHBoxLayout" name="current_file_h_layout">
+        <item>
+         <widget class="QLabel" name="current_file_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Current signal: </string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::RichText</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="current_file_name_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="current_device_h_layout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMaximumSize</enum>
+        </property>
+        <item>
+         <widget class="QLabel" name="current_device_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Current device: </string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="current_device_name_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="2">
+     <widget class="Line" name="line_2">
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>2</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QLabel" name="information_title_label">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="text">
+       <string>Signal information</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <layout class="QVBoxLayout" name="information_labels_layout"/>
+    </item>
+    <item row="4" column="2">
+     <widget class="QLabel" name="configuration_title_label">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string>Signal configuration</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="selected_channels_key">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Selected channels: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="selected_channels_value">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLineEdit" name="channel_select_line_edit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>0, 1, 5 - 6,...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="select_channels_button">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Select</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="channel_browse_button">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Browse channels</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="selected_sim_time_key">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Simulation time [s]: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="selected_sim_time_value">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="range_slider_layout"/>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="6" column="2">
+     <widget class="Line" name="line_3">
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>2</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="2">
+     <layout class="QHBoxLayout" name="prev_run_buttons_layout">
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="preview_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>PREVIEW</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="run_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>RUN</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
  </widget>
  <tabstops>

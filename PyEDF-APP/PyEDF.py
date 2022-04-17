@@ -21,7 +21,7 @@ from gui_elements.Style import FontStyles
 from utils import utils
 
 # TODO: (Delete) Command to convert .ui files to python files
-# python -m PyQt5.uic.pyuic -x EDFGUI.ui -o EDFGUI.py
+# python -m PyQt5.uic.pyuic -x EDFGUIDesigner.ui -o EDFGUIDesigner.py
 
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
@@ -64,6 +64,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_button.clicked.connect(
             self.browseTestingSignals)
         self.select_channels_button.clicked.connect(self.selectChannels)
+        self.channel_browse_button.clicked.connect(self.browseChannels)
         self.set_sim_time_button.clicked.connect(self.simTimeChanged)
         self.preview_button.clicked.connect(self.previewEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
@@ -106,7 +107,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
             # Set the maximun time selector slider value to the signal duration
-            self.selected_sim_time_value.setText(str(0) + " - " + str(self.edf_worker.getDuration()))
+            self.selected_sim_time_value.setText(
+                str(0) + " - " + str(self.edf_worker.getDuration()))
+            self.edf_worker.setSelectedSimTime(
+                (int(0), int(self.edf_worker.getDuration())))
             # Set selected channels to ALL
             self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
@@ -141,7 +145,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
 
         if comm_ports:
             self.comm_ports_list = ListSelectionPopUp(
-                comm_ports, self.saveSelectedDevice)
+                self.saveSelectedDevice, comm_ports)
             self.comm_ports_list.show()
         else:
             PopUpWindow("Device selection", "No EDF signal generator found!",
@@ -161,7 +165,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         testing_signals = self.testing_signals_worker.listTestingSignals()
 
         self.testing_signals_list = ListSelectionPopUp(
-            testing_signals, self.loadTestingSignal)
+            self.loadTestingSignal, testing_signals)
         self.testing_signals_list.show()
 
     def loadTestingSignal(self, chosen_signal):
@@ -172,9 +176,11 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_worker.selectTestingSignal(chosen_signal)
         # Place the file name in the dialog box
         self.current_file_name_label.setText(chosen_signal)
-
         # Set the maximun time selector slider value to the signal duration
-        self.selected_sim_time_value.setText(str(0) + " - " + str(self.edf_worker.getDuration()))
+        self.selected_sim_time_value.setText(
+            str(0) + " - " + str(self.testing_signals_worker.getDuration()))
+        self.testing_signals_worker.setSelectedSimTime(
+            (int(0), int(self.testing_signals_worker.getDuration())))
         # Set selected channels to ALL
         self.selected_channels_value.setText("ALL")
         # Delete info h layouts in the info v layout (not the title)
@@ -256,6 +262,19 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Clear line edit
         self.channel_select_line_edit.clear()
 
+    def browseChannels(self):
+        """
+        Callback for the browseChannels button click
+        """
+        channels = self.edf_worker.getChannels()
+        self.signal_channels_list = ListSelectionPopUp(
+            self.parseSelectedChannels)
+        self.signal_channels_list.addCheckableList(channels)
+        self.signal_channels_list.show()
+
+    def parseSelectedChannels(self):
+        print("asd")
+
     def simTimeChanged(self):
         """
         Callback method for the slider changed
@@ -273,7 +292,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             if self.edf_worker.isFileLoaded():
                 self.edf_worker.setSelectedSimTime(
                     (int(raw_min_time_str), int(raw_max_time_str)))
-        self.selected_sim_time_value.setText(raw_min_time_str + " - " + raw_max_time_str)
+        self.selected_sim_time_value.setText(
+            raw_min_time_str + " - " + raw_max_time_str)
 
     def centerMainWindow(self):
         """
