@@ -15,8 +15,8 @@ Fp1_f7: Removing PWL point (7.89844,-47.0818)
 Fp1_f7: Removing PWL point (8.88281,-9.96337)
 Direct Newton iteration for .op point succeeded.
 
-Date: Mon May 02 22:15:59 2022
-Total elapsed time: 0.703 seconds.
+Date: Tue May 03 19:14:48 2022
+Total elapsed time: 0.794 seconds.
 
 tnom = 27
 temp = 27
@@ -29,6 +29,6 @@ rejected = 0
 matrix size = 17
 fillins = 0
 solver = Normal
-Matrix Compiler1: 498 bytes object code size  0.1/0.1/[0.1]
-Matrix Compiler2: 969 bytes object code size  0.1/0.2/[0.1]
+Matrix Compiler1: 498 bytes object code size  0.2/0.1/[0.1]
+Matrix Compiler2: 969 bytes object code size  0.2/0.2/[0.1]
 

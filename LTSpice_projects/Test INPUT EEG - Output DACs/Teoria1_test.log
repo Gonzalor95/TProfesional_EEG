@@ -1,0 +1,28 @@
+Circuit: * C:\Users\Gonzalo\Desktop\Gonzalo\GitHub\TProfesional_EEG\LTSpice_projects\Test INPUT EEG - Output DACs\Teoria1_test.asc
+
+F1: Removing PWL point (1.55078,35.3602)
+F1: Removing PWL point (3.51172,-31.453)
+F1: Removing PWL point (5.58203,-7.61905)
+F1: Removing PWL point (5.85547,4.10256)
+V1: Removing PWL point (0.0078125,0.19536)
+V1: Removing PWL point (7.89844,-47.0818)
+V1: Removing PWL point (8.88281,-9.96337)
+Direct Newton iteration for .op point succeeded.
+
+Date: Tue May 03 20:15:52 2022
+Total elapsed time: 0.318 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 20297
+traniter = 20294
+tranpoints = 10148
+accept = 10148
+rejected = 0
+matrix size = 8
+fillins = 0
+solver = Normal
+Matrix Compiler1: 210 bytes object code size  0.1/0.1/[0.0]
+Matrix Compiler2: off  [0.0]/0.1/0.1
+
