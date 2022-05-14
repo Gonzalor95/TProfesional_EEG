@@ -26,7 +26,7 @@ from utils import utils
 
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
-    big_int_ = 9999999999
+    big_int_ = 999999999
     # Max amount of channels of the signal generator. Set in the config file
     max_channels_ = 0
     # Flag to indicate whether the selected signal is a testing one or a real one
@@ -49,11 +49,11 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_worker = TestingSignalsWorker(self.max_channels_)
 
         # Add custom double range slider
-        self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
-        self.range_slider.setHandleLabelPosition(
-            QLabeledRangeSlider.LabelPosition.LabelsBelow)
-        self.range_slider.setValue([0, 99])
-        self.range_slider_layout.addWidget(self.range_slider)
+        # self.range_slider = QLabeledRangeSlider(Qt.Horizontal)
+        # self.range_slider.setHandleLabelPosition(
+        #     QLabeledRangeSlider.LabelPosition.LabelsBelow)
+        # self.range_slider.setValue([0, 99])
+        # self.range_slider_layout.addWidget(self.range_slider)
 
         # Set fonts
         self.setFonts()
@@ -64,7 +64,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.testing_signals_button.clicked.connect(
             self.browseTestingSignals)
         self.select_channels_button.clicked.connect(self.selectChannels)
-        self.range_slider.valueChanged.connect(self.timeSliderChanged)
+        # self.range_slider.valueChanged.connect(self.timeSliderChanged)
         self.preview_button.clicked.connect(self.previewEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
         # TODO: Perhaps add a button to get the mapping from output pin to what the channel is named (the scientific name)
@@ -74,7 +74,9 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
 
         # Show welcome screen
         welcome_dialog = WelcomeDialog(self.serial_comm_worker)
+
         self.setInitialSelection(welcome_dialog.getInitialSelection())
+
 
     # ==================================== CLASS METHODS ====================================
 
@@ -107,8 +109,11 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
             # Set the maximun time selector slider value to the signal duration
-            self.range_slider.setMaximum(self.edf_worker.getDuration())
-            self.range_slider.setValue([0, self.big_int_])
+            # print("RangeSlider")
+            # self.range_slider.setMaximum(self.edf_worker.getDuration())
+            # print("RangeSlider2")
+            # self.range_slider.setValue([0, self.big_int_])
+            
             # Set selected channels to ALL
             self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
@@ -118,6 +123,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             # Generate the information h boxes and add them to the info v layout
             signal_info_dict = self.edf_worker.getSignalInfo()
             self.info_h_boxes.clear()
+
             for key in signal_info_dict:
                 info_key = QLabel(str(key) + ": ")
                 info_key.setFont(self.font_styles.info_key_font)
@@ -176,8 +182,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.current_file_name_label.setText(chosen_signal)
 
         # Set the maximun time selector slider value to the signal duration
-        self.range_slider.setMaximum(self.testing_signals_worker.getDuration())
-        self.range_slider.setValue([0, self.big_int_])
+        # self.range_slider.setMaximum(self.testing_signals_worker.getDuration())
+        # self.range_slider.setValue([0, self.big_int_])
         # Set selected channels to ALL
         self.selected_channels_value.setText("ALL")
         # Delete info h layouts in the info v layout (not the title)
@@ -308,8 +314,11 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         Method to set the initial selection of the user. Sets the EDF file and device if the user selected one
         """
         if "initial_selected_file" in initial_selection:
+
             self.loadEDFFile(initial_selection["initial_selected_file"])
+
         if "initial_selected_device" in initial_selection:
+            print("Initial_SelectedDevice")
             self.saveSelectedDevice(
                 initial_selection["initial_selected_device"])
 
