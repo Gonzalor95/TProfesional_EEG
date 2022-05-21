@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 
 class ListSelectionPopUp(QListWidget):
     """
@@ -8,7 +9,7 @@ class ListSelectionPopUp(QListWidget):
     param[in] cb_method: Method to call when an item is double clicked
     """
 
-    def __init__(self, list_to_display, cb_method, prefix=""):
+    def __init__(self, cb_method, list_to_display=[], prefix=""):
         super().__init__()
         self.cb_method = cb_method
 
@@ -36,3 +37,13 @@ class ListSelectionPopUp(QListWidget):
         """
         self.cb_method(item.text())
         self.close()
+
+    def addCheckableList(self, list):
+        """
+        Method to add a checkable list to the window
+        """
+        for item in list:
+            list_item = QListWidgetItem(item)
+            list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)
+            list_item.setCheckState(Qt.Unchecked)
+            self.addItem(list_item)

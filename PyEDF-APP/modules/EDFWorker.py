@@ -62,6 +62,18 @@ class EDFWorker():
         """
         return self.physical_signals.shape[0]
 
+    def getChannels(self):
+        """
+        Getter for the channels of the EDF file
+        """
+        if self.file_loaded_:
+            channels_list = [header["label"] for header in self.signal_headers]
+            print(channels_list)
+            return channels_list
+        else:
+            print("File not loaded. Cannot get channels")
+            return []
+
     def getDuration(self):
         """
         Getter for the measurement duration in seconds
@@ -122,6 +134,8 @@ class EDFWorker():
             # As a default when reading a file, select all channels
             for signal_index in range(len(self.signal_headers)):
                 self.selected_channels_.append(signal_index)
+            # Set the simulation time
+            self.selected_sim_time_ = (int(0), int(self.getDuration()))
             self.file_loaded_ = True
             return True
         except:
