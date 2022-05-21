@@ -1,0 +1,12 @@
+21:11:59 **** Incremental Build of configuration Debug for project SPI_con_DAC ****
+make -j4 all 
+arm-none-eabi-size   SPI_con_DAC.elf 
+   text	   data	    bss	    dec	    hex	filename
+   6572	     20	   1660	   8252	   203c	SPI_con_DAC.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objcopy -O ihex SPI_con_DAC.elf SPI_con_DAC.hex
+ 
+
+21:12:00 Build Finished. 0 errors, 0 warnings. (took 906ms)
+

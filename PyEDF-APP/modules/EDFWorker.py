@@ -78,7 +78,7 @@ class EDFWorker():
         """
         Getter for the measurement duration in seconds
         """
-        return self.physical_signals.shape[1] / self.getSampleRate()
+        return int(int(self.physical_signals.shape[1]) / int(self.getSampleRate()))
 
     def getSignalInfo(self):
         """

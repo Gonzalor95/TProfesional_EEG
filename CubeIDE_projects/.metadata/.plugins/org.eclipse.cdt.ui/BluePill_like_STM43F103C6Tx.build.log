@@ -1,0 +1,22 @@
+21:11:56 **** Incremental Build of configuration Debug for project BluePill_like_STM43F103C6Tx ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103x6 -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "BluePill_like_STM43F103C6Tx.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\gonza\Desktop\TPProfresional\TProfesional_EEG\CubeIDE_projects\BluePill like - STM43F103C6Tx - 1 SPI\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="BluePill_like_STM43F103C6Tx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: BluePill_like_STM43F103C6Tx.elf
+ 
+arm-none-eabi-size   BluePill_like_STM43F103C6Tx.elf 
+arm-none-eabi-objdump -h -S  BluePill_like_STM43F103C6Tx.elf  > "BluePill_like_STM43F103C6Tx.list"
+arm-none-eabi-objcopy  -O binary  BluePill_like_STM43F103C6Tx.elf  "BluePill_like_STM43F103C6Tx.bin"
+Finished building: BluePill_like_STM43F103C6Tx.bin
+ 
+   text	   data	    bss	    dec	    hex	filename
+   6376	     20	   1660	   8056	   1f78	BluePill_like_STM43F103C6Tx.elf
+Finished building: BluePill_like_STM43F103C6Tx.list
+Finished building: default.size.stdout
+ 
+ 
+arm-none-eabi-objcopy -O ihex BluePill_like_STM43F103C6Tx.elf BluePill_like_STM43F103C6Tx.hex
+ 
+
+21:11:59 Build Finished. 0 errors, 0 warnings. (took 2s.647ms)
+
