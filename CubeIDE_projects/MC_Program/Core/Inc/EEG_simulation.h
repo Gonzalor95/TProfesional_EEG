@@ -21,6 +21,8 @@
 #define DAC_CHANNEL_G_ADDR_8Bit_MASK 0x60 // 0b01100000
 #define DAC_CHANNEL_H_ADDR_8Bit_MASK 0x70 // 0b01110000
 
+
+
 typedef uint16_t dac_channel_addr_16bit_mask;
 
 typedef uint8_t Channel_DataPackage;
@@ -54,7 +56,9 @@ void idle_mode();
 void execute_config();
 
 void test_sine_wave_1DAC_1Channel(uint8_t dac_channel_addr_8bMask,SPI_HandleTypeDef *hspi);
-void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef *hspi);
+void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi);
+
+
 
 
 #endif /* INC_EEG_SIMULATION_H_ */
