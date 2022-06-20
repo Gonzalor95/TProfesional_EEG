@@ -10,15 +10,16 @@
 
 
 #include "stm32f4xx_hal.h"
+#include "stdint.h"
 
-#define DAC_CHANNEL_A_ADDR_16Bit_MASK 0x0000 // 0b0000000000000000
-#define DAC_CHANNEL_B_ADDR_16Bit_MASK 0x1000 // 0b0001000000000000
-#define DAC_CHANNEL_C_ADDR_16Bit_MASK 0x2000 // 0b0010000000000000
-#define DAC_CHANNEL_D_ADDR_16Bit_MASK 0x3000 // 0b0011000000000000
-#define DAC_CHANNEL_E_ADDR_16Bit_MASK 0x4000 // 0b0100000000000000
-#define DAC_CHANNEL_F_ADDR_16Bit_MASK 0x5000 // 0b0101000000000000
-#define DAC_CHANNEL_G_ADDR_16Bit_MASK 0x6000 // 0b0110000000000000
-#define DAC_CHANNEL_H_ADDR_16Bit_MASK 0x7000 // 0b0111000000000000
+#define DAC_CHANNEL_A_ADDR_8Bit_MASK 0x00 // 0b00000000
+#define DAC_CHANNEL_B_ADDR_8Bit_MASK 0x10 // 0b00010000
+#define DAC_CHANNEL_C_ADDR_8Bit_MASK 0x20 // 0b00100000
+#define DAC_CHANNEL_D_ADDR_8Bit_MASK 0x30 // 0b00110000
+#define DAC_CHANNEL_E_ADDR_8Bit_MASK 0x40 // 0b01000000
+#define DAC_CHANNEL_F_ADDR_8Bit_MASK 0x50 // 0b01010000
+#define DAC_CHANNEL_G_ADDR_8Bit_MASK 0x60 // 0b01100000
+#define DAC_CHANNEL_H_ADDR_8Bit_MASK 0x70 // 0b01110000
 
 typedef uint16_t dac_channel_addr_16bit_mask;
 
@@ -52,7 +53,8 @@ void feed_DAC();
 void idle_mode();
 void execute_config();
 
-void test_sine_wave_1DAC_1Channel(DAC_CHANNEL_ADDR DAC_channel_tag,SPI_HandleTypeDef *hspi);
+void test_sine_wave_1DAC_1Channel(uint8_t dac_channel_addr_8bMask,SPI_HandleTypeDef *hspi);
+void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef *hspi);
 
 
 #endif /* INC_EEG_SIMULATION_H_ */

@@ -106,7 +106,7 @@ int main(void)
   /* Infinite loop */
   while(1){
   /* USER CODE BEGIN WHILE */
-	  test_sine_wave_1DAC_1Channel(DAC_A, &hspi1);
+	  test_sine_wave_1DAC_1Channel(DAC_CHANNEL_A_ADDR_8Bit_MASK, &hspi1);
 
     /* USER CODE END WHILE */
 
