@@ -12,6 +12,10 @@
 #include "stm32f4xx_hal.h"
 #include "stdint.h"
 
+
+/*BEGIN: DAC Channels mask definitions */
+
+// Mask servers to write required address in the 16bit word to write to DACs
 #define DAC_CHANNEL_A_ADDR_8Bit_MASK 0x00 // 0b00000000
 #define DAC_CHANNEL_B_ADDR_8Bit_MASK 0x10 // 0b00010000
 #define DAC_CHANNEL_C_ADDR_8Bit_MASK 0x20 // 0b00100000
@@ -23,10 +27,6 @@
 
 
 
-typedef uint16_t dac_channel_addr_16bit_mask;
-
-typedef uint8_t Channel_DataPackage;
-
 typedef enum {
 	CHANNEL_A = 0, //0b000
 	CHANNEL_B = 1, //0b001
@@ -35,15 +35,22 @@ typedef enum {
 	CHANNEL_E = 4, //0b100
 	CHANNEL_F = 5, //0b101
 	CHANNEL_G = 6, //0b110
-	CHANNEL_H = 7 //0b111
-}DAC_CHANNEL_ADDR;
+	CHANNEL_H = 7  //0b111
+}DAC_Channel;
+
+/*END: DAC Channels mask definitions */
+
+
+/*BEGIN: DACs identification */
 
 typedef enum {
-	DAC_A,
-	DAC_B,
-	DAC_C,
-	DAC_D
-}DAC_TAG;
+	DAC_A = 0,
+	DAC_B = 1,
+	DAC_C = 2,
+	DAC_D = 3
+}DAC_Tag;
+
+/*END: DACs identification */
 
 typedef uint16_t DAC_Config;
 
@@ -55,8 +62,15 @@ void feed_DAC();
 void idle_mode();
 void execute_config();
 
-void test_sine_wave_1DAC_1Channel(uint8_t dac_channel_addr_8bMask,SPI_HandleTypeDef *hspi);
+void all_DACs_array_init(SPI_HandleTypeDef *hspi1, SPI_HandleTypeDef *hspi2, SPI_HandleTypeDef *hspi3, SPI_HandleTypeDef *hspi4);
+
+void test_sine_wave_1DAC_1Channel(DAC_Tag dac_tag, DAC_Channel dac_channel);
 void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi);
+
+uint8_t get_DAC_Channel_Addr_mask(DAC_Channel dac_channel);
+SPI_HandleTypeDef * get_DAC_SPI_handler(DAC_Tag dac_tag);
+
+
 
 
 

@@ -1,3 +1,5 @@
-../Core/Src/EEG_simulation.c:23:6:config_DACs	4	static
-../Core/Src/EEG_simulation.c:38:6:test_sine_wave_1DAC_1Channel	24	static
-../Core/Src/EEG_simulation.c:66:6:test_sine_wave_1DAC_all_channels	48	static
+../Core/Src/EEG_simulation.c:49:6:test_sine_wave_1DAC_1Channel	32	static
+../Core/Src/EEG_simulation.c:80:6:test_sine_wave_1DAC_all_channels	48	static
+../Core/Src/EEG_simulation.c:120:6:all_DACs_array_init	24	static
+../Core/Src/EEG_simulation.c:135:9:get_DAC_Channel_Addr_mask	16	static
+../Core/Src/EEG_simulation.c:145:21:get_DAC_SPI_handler	16	static

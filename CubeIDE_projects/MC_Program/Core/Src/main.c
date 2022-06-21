@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,7 +46,13 @@ SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 
+
 /* USER CODE BEGIN PV */
+
+/*Each SPI will be assigned to a particular DAC*/
+
+
+uint8_t buffer[64]; // Buffer to receive in USB via CDC (Communication Device Class)
 
 /* USER CODE END PV */
 
@@ -64,6 +71,8 @@ static void MX_SPI4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
 
 /* USER CODE END 0 */
 
@@ -99,14 +108,17 @@ int main(void)
   MX_SPI2_Init();
   MX_SPI3_Init();
   MX_SPI4_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+
+  all_DACs_array_init(&hspi1,&hspi2,&hspi3,&hspi4); // TODO: ver si se necesita realmente
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  while(1){
   /* USER CODE BEGIN WHILE */
-	  test_sine_wave_1DAC_1Channel(DAC_CHANNEL_A_ADDR_8Bit_MASK, &hspi1);
+  while(1){
+	  test_sine_wave_1DAC_1Channel(DAC_A, CHANNEL_A);
 
     /* USER CODE END WHILE */
 
@@ -136,10 +148,10 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 24;
-  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLN = 144;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -151,7 +163,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
