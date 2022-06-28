@@ -24,6 +24,8 @@
 /* USER CODE BEGIN Includes */
 
 #include "EEG_simulation.h"
+#include "usbd_cdc_if.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,18 +43,17 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
-
 
 /* USER CODE BEGIN PV */
 
 /*Each SPI will be assigned to a particular DAC*/
 
 
-uint8_t buffer[64]; // Buffer to receive in USB via CDC (Communication Device Class)
+uint8_t bufferUSB[64]; // Buffer to receive in USB via CDC (Communication Device Class)
 
 /* USER CODE END PV */
 
@@ -71,7 +72,7 @@ static void MX_SPI4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+char * USBdataSend = "Hello Gonza\n";
 
 
 /* USER CODE END 0 */
@@ -118,11 +119,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while(1){
-	  test_sine_wave_1DAC_1Channel(DAC_A, CHANNEL_A);
+	 // test_sine_wave_1DAC_1Channel(DAC_A, CHANNEL_A);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  CDC_Transmit_FS((uint8_t *) USBdataSend, strlen (USBdataSend));
+	  HAL_Delay(10000);
   }
   /* USER CODE END 3 */
 }
