@@ -35,6 +35,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define USB_BUFFER_MAX 16
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
@@ -52,8 +54,10 @@ SPI_HandleTypeDef hspi4;
 
 /*Each SPI will be assigned to a particular DAC*/
 
-
-uint8_t bufferUSB[64]; // Buffer to receive in USB via CDC (Communication Device Class)
+// Para la prueba con USB tenemos solo 1 DAC = 8 Canales.
+// Cada Canal recibe un dato de 16 bits.
+// Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
+uint8_t bufferUSB[USB_BUFFER_MAX]; // Buffer to receive in USB via CDC (Communication Device Class)
 
 /* USER CODE END PV */
 
@@ -72,8 +76,6 @@ static void MX_SPI4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char * USBdataSend = "Hello Gonza\n";
-
 
 /* USER CODE END 0 */
 
@@ -114,6 +116,9 @@ int main(void)
 
   all_DACs_array_init(&hspi1,&hspi2,&hspi3,&hspi4); // TODO: ver si se necesita realmente
 
+  char * USBdataSend = "USB Data ACK\n";
+  uint16_t dataToDAC = 0x00;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -125,7 +130,14 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  CDC_Transmit_FS((uint8_t *) USBdataSend, strlen (USBdataSend));
-	  HAL_Delay(10000);
+
+	  dataToDAC = bufferUSB[0]; // Copia primeros 8 bits 0b0000000011111111
+	  dataToDAC = dataToDAC | bufferUSB[1] << 8; // Copia los siguientes 8 bits
+
+	  send_data_1DAC_allChannels(dataToDAC, DAC_A);
+
+	  dataToDAC = 0x00;
+
   }
   /* USER CODE END 3 */
 }

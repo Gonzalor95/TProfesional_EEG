@@ -52,8 +52,8 @@ typedef enum {
 
 /*END: DACs identification */
 
-typedef uint16_t DAC_Config;
 
+// TODO: Prototypes for full simulation program*/
 void config_DACs();
 void waiting_simulation_config();
 void process_simulation();
@@ -62,11 +62,21 @@ void feed_DAC();
 void idle_mode();
 void execute_config();
 
+
+
+// Configuration prototypes
 void all_DACs_array_init(SPI_HandleTypeDef *hspi1, SPI_HandleTypeDef *hspi2, SPI_HandleTypeDef *hspi3, SPI_HandleTypeDef *hspi4);
 
+
+// Sine wave test functions
 void test_sine_wave_1DAC_1Channel(DAC_Tag dac_tag, DAC_Channel dac_channel);
 void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi);
 
+// Send Data general functions
+void send_data_1DAC_1Ch(uint16_t  data, DAC_Tag dac_tag, DAC_Channel dac_channel);
+void send_data_1DAC_allChannels(uint16_t data, DAC_Tag dac_tag);
+
+// Get Functions
 uint8_t get_DAC_Channel_Addr_mask(DAC_Channel dac_channel);
 SPI_HandleTypeDef * get_DAC_SPI_handler(DAC_Tag dac_tag);
 

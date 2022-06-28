@@ -125,6 +125,43 @@ void all_DACs_array_init(SPI_HandleTypeDef *hspi1, SPI_HandleTypeDef *hspi2, SPI
 
 }
 
+/**
+* @brief Sends data to a particular channel of the device
+* @param data: Se toman los primeros 12 bits del dato (empezando por los LSB)
+* @retval none
+*/
+void send_data_1DAC_1Ch(uint16_t data, DAC_Tag dac_tag, DAC_Channel dac_channel){
+
+	uint8_t bufferDAC[] = {0x00, 0x00};
+	uint8_t dac_channel_addr_8bMask = get_DAC_Channel_Addr_mask(dac_channel);
+	SPI_HandleTypeDef * hspi = get_DAC_SPI_handler(dac_tag);
+
+	bufferDAC[0] = (data >> 8) | dac_channel_addr_8bMask; // Agregamos la mascara con la dirección del Canal para el DAC
+	bufferDAC[1] = data;	// Se toman los primeros 8 bits del dato
+
+	HAL_SPI_Transmit(hspi, bufferDAC, (uint16_t) sizeof(bufferDAC), 1);
+}
+
+/**
+* @brief Sends data to all the channels in a DAC
+* @param data: Se toman los primeros 12 bits del dato (empezando por los LSB)
+* @retval none
+*/
+void send_data_1DAC_allChannels(uint16_t data, DAC_Tag dac_tag){
+
+	uint8_t bufferDAC[] = {0x00, 0x00};
+	SPI_HandleTypeDef * hspi = get_DAC_SPI_handler(dac_tag);
+
+
+	bufferDAC[1] = data;	// Se toman los primeros 8 bits del dato
+	for(uint8_t i = 0;i < 8;i++){
+		bufferDAC[0] = (data >> 8) | i << 4; // Agregamos la mascara con la dirección del Canal para el DAC
+
+
+		HAL_SPI_Transmit(hspi, bufferDAC, (uint16_t) sizeof(bufferDAC), 1);
+		bufferDAC[0] = 0x00;
+	}
+}
 
 /**
 * @brief Gets the address mask for the particular channel.
