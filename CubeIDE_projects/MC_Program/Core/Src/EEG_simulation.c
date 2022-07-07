@@ -64,6 +64,7 @@ void test_sine_wave_1DAC_1Channel(DAC_Tag dac_tag, DAC_Channel dac_channel){
 		  buffer[1] = g_table_sine_wave[i];
 
 		 HAL_SPI_Transmit(hspi, buffer, 1, 1);
+		 HAL_Delay(100);
 	  }
 }
 
@@ -109,6 +110,17 @@ void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi){
 
 	  }
 
+}
+
+
+void test_send_1_data(SPI_HandleTypeDef *hspi, uint16_t data){
+
+	uint8_t data_buffer[2];
+
+	data_buffer[0] = (uint8_t) data >> 8;
+	data_buffer[1] = (uint8_t) data;
+
+	HAL_SPI_Transmit(hspi,data_buffer,(uint16_t)sizeof(data_buffer),1);
 }
 
 /**
@@ -182,3 +194,4 @@ uint8_t get_DAC_Channel_Addr_mask(DAC_Channel dac_channel){
 SPI_HandleTypeDef * get_DAC_SPI_handler(DAC_Tag dac_tag){
 	return all_DACs_array[dac_tag];
 }
+

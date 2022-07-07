@@ -75,6 +75,7 @@ void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi);
 // Send Data general functions
 void send_data_1DAC_1Ch(uint16_t  data, DAC_Tag dac_tag, DAC_Channel dac_channel);
 void send_data_1DAC_allChannels(uint16_t data, DAC_Tag dac_tag);
+void test_send_1_data(SPI_HandleTypeDef *hspi, uint16_t data);
 
 // Get Functions
 uint8_t get_DAC_Channel_Addr_mask(DAC_Channel dac_channel);

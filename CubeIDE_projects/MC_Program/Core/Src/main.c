@@ -45,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
@@ -123,20 +123,35 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  int i = 0;
   while(1){
 	 // test_sine_wave_1DAC_1Channel(DAC_A, CHANNEL_A);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  CDC_Transmit_FS((uint8_t *) USBdataSend, strlen (USBdataSend));
 
-	  dataToDAC = bufferUSB[0]; // Copia primeros 8 bits 0b0000000011111111
-	  dataToDAC = dataToDAC | bufferUSB[1] << 8; // Copia los siguientes 8 bits
+	//  dataToDAC = bufferUSB[0]; // Copia primeros 8 bits 0b0000000011111111
+	//  dataToDAC = dataToDAC | bufferUSB[1] << 8; // Copia los siguientes 8 bits
 
+	 // CDC_Transmit_FS((uint8_t *) USBdataSend, strlen (USBdataSend)); // Envío el ACK para el proximo dato
+
+	  dataToDAC = 0x0FFF;// 0b0 000111111111111
+	  test_send_1_data(&hspi1, dataToDAC);
+
+	//  test_sine_wave_1DAC_1Channel(DAC_A, CHANNEL_G);
+
+	  /* Send spikes wave*
+	  dataToDAC = i;
 	  send_data_1DAC_allChannels(dataToDAC, DAC_A);
-
 	  dataToDAC = 0x00;
+	  i++;
+	  if (i == 255)
+		  i = 0;
+	  HAL_Delay(100);
+
+	  */
+	//  HAL_GPIO_TogglePin (PINBlink_GPIO_Port, PINBlink_Pin); //PB8 (B8 en el BlackPill)
 
   }
   /* USER CODE END 3 */
@@ -176,12 +191,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -346,12 +361,23 @@ static void MX_SPI4_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(PINBlink_GPIO_Port, PINBlink_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PINBlink_Pin */
+  GPIO_InitStruct.Pin = PINBlink_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(PINBlink_GPIO_Port, &GPIO_InitStruct);
 
 }
 
