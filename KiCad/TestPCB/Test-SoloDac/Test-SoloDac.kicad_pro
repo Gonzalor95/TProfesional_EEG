@@ -45,7 +45,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.3
+          "min_clearance": 0.508
         }
       },
       "diff_pair_dimensions": [
@@ -104,7 +104,7 @@
         "allow_microvias": false,
         "max_error": 0.005,
         "min_clearance": 0.0,
-        "min_copper_edge_clearance": 0.01,
+        "min_copper_edge_clearance": 0.0,
         "min_hole_clearance": 0.25,
         "min_hole_to_hole": 0.25,
         "min_microvia_diameter": 0.19999999999999998,
@@ -119,12 +119,7 @@
         "use_height_for_length_calcs": true
       },
       "track_widths": [
-        0.0,
-        0.4,
-        0.6,
-        1.0,
-        1.5,
-        2.0
+        0.0
       ],
       "via_dimensions": [
         {
@@ -351,7 +346,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "TestPCB.kicad_pro",
+    "filename": "Test-SoloDac.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -383,7 +378,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "",
+      "netlist": "../../../../../../../../Program Files/KiCad/6.0/",
       "specctra_dsn": "",
       "step": "",
       "vrml": ""
@@ -402,9 +397,9 @@
       "intersheets_ref_show": false,
       "intersheets_ref_suffix": "",
       "junction_size_choice": 3,
-      "label_size_ratio": 0.25,
-      "pin_symbol_size": 0.0,
-      "text_offset_ratio": 0.08
+      "label_size_ratio": 0.375,
+      "pin_symbol_size": 25.0,
+      "text_offset_ratio": 0.15
     },
     "legacy_lib_dir": "",
     "legacy_lib_list": [],
@@ -430,7 +425,7 @@
   },
   "sheets": [
     [
-      "37b6c6d6-3e12-4736-912a-ea6e2bf06721",
+      "404e06c5-588f-457a-b92a-10c25a7d6b44",
       ""
     ]
   ],
