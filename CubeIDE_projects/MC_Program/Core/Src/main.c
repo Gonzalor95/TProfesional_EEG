@@ -112,6 +112,7 @@ int main(void)
 
   uint16_t  i= 0x0000;
   uint8_t dataToDAC[2];
+  HAL_Delay(50);
   while(1){
 
 	  // Set to MSB first.
@@ -123,12 +124,13 @@ int main(void)
 	   * 	- (i >> 8 ) = 				0b0000-0000-1111-1111
 	   * 	- (i >> 8) & 0x00EF =	 	0b0000-0000-1111-1111
 	   */
-
+	  dataToDAC[0] = 0xFF;
+	  dataToDAC[1] = 0x6F; // DAC 13 = VoutH (arriba de todo)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-	  HAL_Delay(17);
+	  //HAL_Delay(20);
 	  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
 	  if(i == 0xffff){
 		  i = 0;
@@ -198,10 +200,10 @@ static void MX_SPI1_Init(void)
   /* SPI1 parameter configuration*/
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.Direction = SPI_DIRECTION_1LINE;
   hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
