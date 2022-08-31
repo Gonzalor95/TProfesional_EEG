@@ -24,6 +24,7 @@
 
 
 #include "string.h"
+#include "EEG_simulation.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +63,51 @@ static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
+
+
+
+HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara){
+
+	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
+    /* Donde:
+     * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
+     * AAA = Address (de 0 a 8)
+     * D...D = datos
+    */
+    uint8_t dataToDAC[2];
+    HAL_StatusTypeDef status = HAL_OK;
+
+    // 1) Inicializar dataToDAC a 0:
+    dataToDAC[0] = 0;
+    dataToDAC[1] = 0;
+
+    // 2) Recibo data:
+    // uint16_t data = 0x8A5F; // 0b 1000-1010-0101-1111
+
+
+    // 3) Desestimo (shifteando) los ultimos 4 LSB (derecha de todo)
+    data = data >> 4; // 0b 0000-1000-1010-0101
+
+    // 4) Paste data
+	dataToDAC[0] = (uint8_t) data;
+	dataToDAC[1] = (uint8_t) (data >> 8);
+
+
+    // 5) aplico mascara
+   // uint8_t mascara = 0x70; // 0b 0111-0000
+    dataToDAC[1] = dataToDAC[1] | mascara;
+
+
+
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
+	status = HAL_SPI_Transmit(hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+
+	return status;
+
+}
+
+HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara);
 
 
 /* USER CODE END PFP */
@@ -110,33 +156,33 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  uint16_t  i= 0x0000;
-  uint8_t dataToDAC[2];
+  uint16_t data = 0xFFFF;
+  uint8_t mascara = 0x40; // 0b 0111-0000
+  uint16_t i = 0;
+  HAL_StatusTypeDef status;
   HAL_Delay(50);
   while(1){
 
-	  // Set to MSB first.
-	  // Teoricamente, HAL_SPI_Transmit manda primero la posicion [0] del array
-	  dataToDAC[0] =  ( (uint8_t) (i >> 8) )  & 0x7F;
-	  dataToDAC[1] = (uint8_t) i;
-	  /*
-	   * Explicacion: si i = 0xffff = 	0b1111-1111-1111-1111
-	   * 	- (i >> 8 ) = 				0b0000-0000-1111-1111
-	   * 	- (i >> 8) & 0x00EF =	 	0b0000-0000-1111-1111
-	   */
-	  dataToDAC[0] = 0xFF;
-	  dataToDAC[1] = 0x6F; // DAC 13 = VoutH (arriba de todo)
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-	  //HAL_Delay(20);
-	  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	  if(i == 0xffff){
-		  i = 0;
+
+	//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+	//  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
+	//  HAL_Delay(20);
+	//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+
+	  if(i%2){
+		  data = 0xFFFF;
 	  }else{
-		  i++;
+		  data = 0;
 	  }
+
+	  status = send_data_to_dac_channel(data, &hspi1, mascara);
+	  HAL_Delay(1);
+	  i++;
 
   }
   /* USER CODE END 3 */
@@ -204,7 +250,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
@@ -227,11 +273,22 @@ static void MX_SPI1_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : PA4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
 
