@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <EEG_simulation.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -24,7 +25,6 @@
 
 
 #include "string.h"
-#include "EEG_simulation.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,55 +65,19 @@ static void MX_SPI1_Init(void);
 
 
 
-
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara){
-
-	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
-    /* Donde:
-     * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
-     * AAA = Address (de 0 a 8)
-     * D...D = datos
-    */
-    uint8_t dataToDAC[2];
-    HAL_StatusTypeDef status = HAL_OK;
-
-    // 1) Inicializar dataToDAC a 0:
-    dataToDAC[0] = 0;
-    dataToDAC[1] = 0;
-
-    // 2) Recibo data:
-    // uint16_t data = 0x8A5F; // 0b 1000-1010-0101-1111
-
-
-    // 3) Desestimo (shifteando) los ultimos 4 LSB (derecha de todo)
-    data = data >> 4; // 0b 0000-1000-1010-0101
-
-    // 4) Paste data
-	dataToDAC[0] = (uint8_t) data;
-	dataToDAC[1] = (uint8_t) (data >> 8);
-
-
-    // 5) aplico mascara
-   // uint8_t mascara = 0x70; // 0b 0111-0000
-    dataToDAC[1] = dataToDAC[1] | mascara;
-
-
-
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
-	status = HAL_SPI_Transmit(hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-
-	return status;
-
-}
-
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara);
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/*
+ * Envia lo contenido en la variable "data". Se truncan los primeros 12 bits mas significativos.
+*/
+
+
+
+
+
+
 
 /* USER CODE END 0 */
 
@@ -157,9 +121,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   uint16_t data = 0xFFFF;
-  uint8_t mascara = 0x40; // 0b 0111-0000
+  uint8_t mascara = 0x40; // = 0xA0, donde A = 0 ... 7
   uint16_t i = 0;
-  HAL_StatusTypeDef status;
   HAL_Delay(50);
   while(1){
 
@@ -169,10 +132,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
-	//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-	//  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	//  HAL_Delay(20);
-	//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 
 	  if(i%2){
 		  data = 0xFFFF;
@@ -180,7 +139,9 @@ int main(void)
 		  data = 0;
 	  }
 
-	  status = send_data_to_dac_channel(data, &hspi1, mascara);
+	  if(HAL_OK != send_data_to_dac_channel(data, &hspi1, mascara)){
+		  Error_Handler();
+	  }
 	  HAL_Delay(1);
 	  i++;
 

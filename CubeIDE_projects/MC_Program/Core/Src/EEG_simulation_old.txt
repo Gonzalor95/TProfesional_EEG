@@ -5,7 +5,7 @@
  *      Author: Gonzalo
  */
 
-#include <EEG_simulation_old_h.txt>
+#include <EEG_simulation_old.h>
 
 
 // This is a global table of a sine wave of 12bits resolution
@@ -33,45 +33,165 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 		DAC_CHANNEL_H_ADDR_8Bit_MASK
 };
 
-
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara){
-
-	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
-    /* Donde:
-     * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
-     * AAA = Address (de 0 a 8)
-     * D...D = datos
-    */
-    uint8_t dataToDAC[2];
-    HAL_StatusTypeDef status = HAL_OK;
-
-    // 1) Inicializar dataToDAC a 0:
-    dataToDAC[0] = 0;
-    dataToDAC[1] = 0;
-
-    // 2) Recibo data:
-    // uint16_t data = 0x8A5F; // 0b 1000-1010-0101-1111
+// This variable must be initialized by all_DACs_array_init()
+SPI_HandleTypeDef * all_DACs_array[4];
 
 
-    // 3) Desestimo (shifteando) los ultimos 4 LSB (derecha de todo)
-    data = data >> 4; // 0b 0000-1000-1010-0101
+/**
+* @brief 12bit test sine wave for a particular DAC in a particular channel.
+* La funcion crea una senoidal para un DAC particular indicado por hspi. Se le indica el canal del DAC a
+* escribir mediante un entero de 8bits que tiene la mascara con la direccion requerida. La tabla que contiene
+* la senoidal, es una variable global en el .h
+* @param hspi: SPI handle pointer (this will indicate which DAC will be sending)
+* @param dac_channel_addr_8bMask: 8 bit mask indicating DAC channel to send the wave
+* @retval None
+*/
+void test_sine_wave_1DAC_1Channel(DAC_Tag dac_tag, DAC_Channel dac_channel){
 
-    // 4) Paste data
-	dataToDAC[0] = (uint8_t) data;
-	dataToDAC[1] = (uint8_t) (data >> 8);
+	uint8_t dac_channel_addr_8bMask = get_DAC_Channel_Addr_mask(dac_channel);
+	SPI_HandleTypeDef * hspi = get_DAC_SPI_handler(dac_tag);
+
+	  uint8_t  buffer[2] = {0x00,0x00};
+
+	  for( int i = 0; i < (sizeof(g_table_sine_wave)/ sizeof(*g_table_sine_wave))  ; i++)
+	  {
+
+		  buffer[0] = dac_channel_addr_8bMask;
+		  // A la direccion, agregamos los 4 MSB de la senoidal
+		  buffer[0] = (g_table_sine_wave[i] >> 8) | buffer[0];
+
+		  // A la segunda parte del buffer, simplemente le asignamos el valor de la tabla ya que solo tomara 8 bits
+		  buffer[1] = g_table_sine_wave[i];
+
+		 HAL_SPI_Transmit(hspi, buffer, 1, 1);
+		 HAL_Delay(100);
+	  }
+}
+
+/**
+* @brief 12bit test sine wave for a particular DAC in all channels.
+* La funcion crea una senoidal para todos los DACs en el array indicado por hspi. Se le indica el canal del DAC a
+* escribir mediante un entero de 8bits que tiene la mascara con la direccion requerida. La tabla que contiene
+* la senoidal, es una variable global en el .h.
+* La funcion considera que se usan los 8 canales del DAC
+* @param hspi: SPI handle pointer (this will indicate which DAC will be sending)
+* @param dac_channel_addr_8bMask: 8 bit mask indicating DAC channel to send the wave
+* @retval None
+*/
+void test_sine_wave_1DAC_all_channels(SPI_HandleTypeDef **hspi){
+
+	// En el buffer, tenemos que escribir los 8 canales de 16 bits cada uno
+	// Dado que el HAL_SPI_Transmit() maneja un buffer de 8 bits, necesitamos un buffer de 16 bloques de 8 bits.
+	uint8_t  buffer[16] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+
+	for( int i = 0; i < (sizeof(g_table_sine_wave)/ sizeof(*g_table_sine_wave))  ; i++)
+	{
+
+		for(int j = 0; j < (sizeof(buffer)/ sizeof(*buffer)); j++){
 
 
-    // 5) aplico mascara
-   // uint8_t mascara = 0x70; // 0b 0111-0000
-    dataToDAC[1] = dataToDAC[1] | mascara;
+			if(j % 2 == 0){ // Es par (buffer[j] = {0,2,4,6,8,10,12,14}). Entonces lleva address + valor de senoidal
+
+				// Aplica la mascara. j/2 = 1,2,..,7 Por lo tanto, 7 = 0b00000111. Entonces 7 << 4 = 0b01110000
+				// Despues 0b01110000 &
+				buffer[j] = ((j/2) << 4);
+				// A la direccion, agregamos los 4 MSB de la senoidal
+				buffer[j] = (g_table_sine_wave[i] >> 8) | buffer[j];
+
+			}else{ // Es impar
+				buffer[j] = g_table_sine_wave[i];
+			}
+		}
+
+		// Enviamos el buffer a todos los DACs para que c/u escriba en sus 8 canales
+//		for(int j = 0; j < (sizeof(*hspi)/ sizeof(**hspi)); j++){
+//			HAL_SPI_Transmit(hspi[j], buffer, (uint16_t) sizeof(buffer), 1);
+//		}
+
+	  }
+
+}
 
 
+void test_send_1_data(SPI_HandleTypeDef *hspi, uint16_t data){
 
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
-	status = HAL_SPI_Transmit(hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	uint8_t data_buffer[2];
 
-	return status;
+	data_buffer[0] = (uint8_t) data >> 8;
+	data_buffer[1] = (uint8_t) data;
 
+	HAL_SPI_Transmit(hspi,data_buffer,(uint16_t)sizeof(data_buffer),1);
+}
+
+/**
+* @brief Initialization of all_DACs_array
+* La funcion coloca en "*all_DACs_array[]" las referencias a los SPI handlers
+* @param hspix: Los SPI Handlers
+* @retval none
+*/
+void all_DACs_array_init(SPI_HandleTypeDef *hspi1, SPI_HandleTypeDef *hspi2, SPI_HandleTypeDef *hspi3, SPI_HandleTypeDef *hspi4){
+	all_DACs_array[0] =hspi1;
+	all_DACs_array[1] =hspi2;
+	all_DACs_array[2] =hspi3;
+	all_DACs_array[3] =hspi4;
+
+}
+
+/**
+* @brief Sends data to a particular channel of the device
+* @param data: Se toman los primeros 12 bits del dato (empezando por los LSB)
+* @retval none
+*/
+void send_data_1DAC_1Ch(uint16_t data, DAC_Tag dac_tag, DAC_Channel dac_channel){
+
+	uint8_t bufferDAC[] = {0x00, 0x00};
+	uint8_t dac_channel_addr_8bMask = get_DAC_Channel_Addr_mask(dac_channel);
+	SPI_HandleTypeDef * hspi = get_DAC_SPI_handler(dac_tag);
+
+	bufferDAC[0] = (data >> 8) | dac_channel_addr_8bMask; // Agregamos la mascara con la dirección del Canal para el DAC
+	bufferDAC[1] = data;	// Se toman los primeros 8 bits del dato
+
+	HAL_SPI_Transmit(hspi, bufferDAC, (uint16_t) sizeof(bufferDAC), 1);
+}
+
+/**
+* @brief Sends data to all the channels in a DAC
+* @param data: Se toman los primeros 12 bits del dato (empezando por los LSB)
+* @retval none
+*/
+void send_data_1DAC_allChannels(uint16_t data, DAC_Tag dac_tag){
+
+	uint8_t bufferDAC[] = {0x00, 0x00};
+	SPI_HandleTypeDef * hspi = get_DAC_SPI_handler(dac_tag);
+
+
+	bufferDAC[1] = data;	// Se toman los primeros 8 bits del dato
+	for(uint8_t i = 0;i < 8;i++){
+		bufferDAC[0] = (data >> 8) | i << 4; // Agregamos la mascara con la dirección del Canal para el DAC
+
+
+		HAL_SPI_Transmit(hspi, bufferDAC, (uint16_t) sizeof(bufferDAC), 1);
+		bufferDAC[0] = 0x00;
+	}
+}
+
+/**
+* @brief Gets the address mask for the particular channel.
+* A partir de "dac_channel" resuelve la mascara necesaria para escribir en ese canal.
+* @param dac_channel: tipo enumerativo con valor CHANNEL_A, CHANNEL_B,..., CHANNEL_H
+* @retval uint8_t: Maskara de 8 bits para escribir en el canal
+*/
+uint8_t get_DAC_Channel_Addr_mask(DAC_Channel dac_channel){
+	return DAC_Channel_Addr8bit_mask_Dictionary[dac_channel];
+}
+
+/**
+* @brief Gets the SPI handler for the corresponding DAC.
+* A partir de "dac_tag" resuelve el SPI handler del DAC que queremos comunicarnos
+* @param dac_tag: tipo enumerativo con valor DAC_A, DAC_B,..., DAC_D
+* @retval uint8_t: Maskara de 8 bits para escribir en el canal
+*/
+SPI_HandleTypeDef * get_DAC_SPI_handler(DAC_Tag dac_tag){
+	return all_DACs_array[dac_tag];
 }
 
