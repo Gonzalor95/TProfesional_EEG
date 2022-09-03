@@ -64,7 +64,59 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handl
 
 }
 
+HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count){
 
+	HAL_StatusTypeDef status = HAL_OK;
+
+	for(size_t i = 0; i < channel_count; i++ ){
+
+		DAC_Channel dac_channel = arr_dac_channels[i];
+
+		if( HAL_OK != (status = send_data_to_dac_channel(data,dac_handler,dac_channel)) ){
+			break;
+		}
+	}
+	return status;
+}
+
+void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms){
+
+	uint16_t data = 0;
+	size_t i = 0;
+
+	while(1){
+		if(i%2) data = 0xFFFF;
+		else data = 0;
+
+		if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
+			EEG_simulation_error_Handler();
+		}
+		HAL_Delay(delay_in_ms);
+		i++;
+	}
+
+}
+
+void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms){
+
+	uint16_t data = DAC_CHANNEL_MIN_DATA + 1;
+	bool ascending = true;
+
+	while(1){
+
+		if(data == DAC_CHANNEL_MAX_DATA) ascending = false;
+		else if (data == DAC_CHANNEL_MIN_DATA) ascending = true;
+
+		if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
+			EEG_simulation_error_Handler();
+		}
+	//	HAL_Delay(delay_in_ms);
+		data++;
+		//if(ascending) data++;
+	//	else data--;
+	}
+
+}
 
 /* initializer, gets and setters */
 
@@ -78,5 +130,13 @@ void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeD
 
 uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel){
 	return DAC_Channel_Addr8bit_mask_Dictionary[dac_channel];
+}
+
+// Errors:
+void EEG_simulation_error_Handler(void){
+  __disable_irq();
+  while (1)
+  {
+  }
 }
 

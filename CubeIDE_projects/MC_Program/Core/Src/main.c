@@ -17,7 +17,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <EEG_simulation.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -25,6 +24,8 @@
 
 
 #include "string.h"
+#include "EEG_simulation.h"
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
@@ -112,14 +113,19 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   DAC_Handler dac_handler;
-  DAC_Channel dac_channel = CHANNEL_H;
+  //DAC_Channel dac_channel = CHANNEL_H;
   DAC_Tag dac_tag = DAC_A;
+
+  DAC_Channel list_of_channels[] = {CHANNEL_A,CHANNEL_B,CHANNEL_C,CHANNEL_D,CHANNEL_E,CHANNEL_F,CHANNEL_G,CHANNEL_H};
+
+  size_t channel_count = sizeof(list_of_channels)/sizeof(list_of_channels[0]);
 
   init_dac_handler(&dac_handler, dac_tag, &hspi1, GPIOA, GPIO_PIN_4);
 
-  uint16_t data = 0xFFFF;
 
-  uint16_t i = 0;
+  uint32_t delay_in_ms = 1;
+
+
   HAL_Delay(50);
 
   while(1){
@@ -129,19 +135,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  send_triangular_wave_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
+
+//	  if(HAL_OK != send_data_to_multiple_dac_channels( data, &dac_handler, list_of_channels, channel_count)){
+//		  Error_Handler();
+//	  }
 
 
-	  if(i%2){
-		  data = 0xFFFF;
-	  }else{
-		  data = 0;
-	  }
-
-	  if(HAL_OK != send_data_to_dac_channel(data, &dac_handler, dac_channel)){
-		  Error_Handler();
-	  }
-	  HAL_Delay(1);
-	  i++;
 
   }
   /* USER CODE END 3 */
@@ -166,7 +166,12 @@ void SystemClock_Config(void)
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 12;
+  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -176,12 +181,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }

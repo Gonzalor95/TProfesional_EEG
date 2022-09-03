@@ -1,3 +1,7 @@
 ../Core/Src/EEG_simulation.c:24:19:send_data_to_dac_channel	24	static
-../Core/Src/EEG_simulation.c:71:6:init_dac_handler	24	static
-../Core/Src/EEG_simulation.c:79:9:get_dac_channel_addr_mask	16	static
+../Core/Src/EEG_simulation.c:67:19:send_data_to_multiple_dac_channels	40	static
+../Core/Src/EEG_simulation.c:82:6:send_pulse_to_dac_channels	32	static
+../Core/Src/EEG_simulation.c:100:6:send_triangular_wave_to_dac_channels	32	static
+../Core/Src/EEG_simulation.c:123:6:init_dac_handler	24	static
+../Core/Src/EEG_simulation.c:131:9:get_dac_channel_addr_mask	16	static
+../Core/Src/EEG_simulation.c:136:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm
