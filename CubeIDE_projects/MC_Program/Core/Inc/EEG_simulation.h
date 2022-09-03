@@ -55,20 +55,27 @@ typedef enum {
 /* Struct DAC:
  * dac_tag = numero identificador del DAC, relacionado con el hspi
  * *pdac_hspi = puntero al handler SPI del DAC
- * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
- * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
+ * GPIO = maneja el SS (slave select)
+ 	 * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
+ 	 * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
  */
 typedef struct DAC_Handler{
 	DAC_Tag dac_tag;
 	SPI_HandleTypeDef *dac_hspi;
-	GPIO_TypeDef * GPIOx;
-	uint16_t GPIO_Pin;
+	GPIO_TypeDef * dac_GPIO_peripheral;
+	uint16_t dac_GPIO_Pin;
 
 } DAC_Handler;
 
 
 // Prototipos
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, DAC_Channel dac_channel);
+HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel);
+
+
+/* initializer, gets and setters */
+
+void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
+
 
 uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel);
 

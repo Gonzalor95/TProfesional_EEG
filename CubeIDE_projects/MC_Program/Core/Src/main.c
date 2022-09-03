@@ -44,7 +44,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
@@ -111,11 +111,17 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  DAC_Handler dac_handler;
+  DAC_Channel dac_channel = CHANNEL_H;
+  DAC_Tag dac_tag = DAC_A;
+
+  init_dac_handler(&dac_handler, dac_tag, &hspi1, GPIOA, GPIO_PIN_4);
 
   uint16_t data = 0xFFFF;
-  DAC_Channel dac_channel = CHANNEL_H;
+
   uint16_t i = 0;
   HAL_Delay(50);
+
   while(1){
 
 
@@ -131,7 +137,7 @@ int main(void)
 		  data = 0;
 	  }
 
-	  if(HAL_OK != send_data_to_dac_channel(data, &hspi1, dac_channel)){
+	  if(HAL_OK != send_data_to_dac_channel(data, &dac_handler, dac_channel)){
 		  Error_Handler();
 	  }
 	  HAL_Delay(1);

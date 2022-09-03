@@ -1,2 +1,3 @@
-../Core/Src/EEG_simulation.c:37:19:send_data_to_dac_channel	24	static
-../Core/Src/EEG_simulation.c:83:9:get_dac_channel_addr_mask	16	static
+../Core/Src/EEG_simulation.c:24:19:send_data_to_dac_channel	24	static
+../Core/Src/EEG_simulation.c:71:6:init_dac_handler	24	static
+../Core/Src/EEG_simulation.c:79:9:get_dac_channel_addr_mask	16	static
