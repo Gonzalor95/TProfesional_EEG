@@ -5,7 +5,7 @@
  *      Author: Gonzalo
  */
 
-#include <EEG_simulation_old_h.txt>
+#include <EEG_simulation.h>
 
 
 // This is a global table of a sine wave of 12bits resolution
@@ -34,7 +34,7 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 };
 
 
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara){
+HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, DAC_Channel dac_channel){
 
 	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
     /* Donde:
@@ -44,6 +44,8 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hsp
     */
     uint8_t dataToDAC[2];
     HAL_StatusTypeDef status = HAL_OK;
+
+    uint8_t channel_addr_mask = get_dac_channel_addr_mask(dac_channel);
 
     // 1) Inicializar dataToDAC a 0:
     dataToDAC[0] = 0;
@@ -62,8 +64,8 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hsp
 
 
     // 5) aplico mascara
-   // uint8_t mascara = 0x70; // 0b 0111-0000
-    dataToDAC[1] = dataToDAC[1] | mascara;
+   // uint8_t channel_addr_mask = 0x70; // 0b 0111-0000
+    dataToDAC[1] = dataToDAC[1] | channel_addr_mask;
 
 
 
@@ -73,5 +75,12 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hsp
 
 	return status;
 
+}
+
+
+/* gets and setters */
+
+uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel){
+	return DAC_Channel_Addr8bit_mask_Dictionary[dac_channel];
 }
 

@@ -69,14 +69,6 @@ static void MX_SPI1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-/*
- * Envia lo contenido en la variable "data". Se truncan los primeros 12 bits mas significativos.
-*/
-
-
-
-
-
 
 
 /* USER CODE END 0 */
@@ -121,7 +113,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   uint16_t data = 0xFFFF;
-  uint8_t mascara = 0x40; // = 0xA0, donde A = 0 ... 7
+  DAC_Channel dac_channel = CHANNEL_H;
   uint16_t i = 0;
   HAL_Delay(50);
   while(1){
@@ -139,7 +131,7 @@ int main(void)
 		  data = 0;
 	  }
 
-	  if(HAL_OK != send_data_to_dac_channel(data, &hspi1, mascara)){
+	  if(HAL_OK != send_data_to_dac_channel(data, &hspi1, dac_channel)){
 		  Error_Handler();
 	  }
 	  HAL_Delay(1);

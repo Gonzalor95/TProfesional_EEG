@@ -52,18 +52,25 @@ typedef enum {
 
 /*END: DACs identification */
 
-// Struct DAC:
-typedef struct{
-	DAC_Tag dac_tag; // Numero de DAC (correlacionado con el hspi)
-	SPI_HandleTypeDef *dac_hspi; // Puntero al handler SPI del DAC
-	GPIO_TypeDef * GPIOx; // GPIOx where x can be (A..K) to select the GPIO peripheral
-	uint16_t GPIO_Pin; // GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
+/* Struct DAC:
+ * dac_tag = numero identificador del DAC, relacionado con el hspi
+ * *pdac_hspi = puntero al handler SPI del DAC
+ * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
+ * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
+ */
+typedef struct DAC_Handler{
+	DAC_Tag dac_tag;
+	SPI_HandleTypeDef *dac_hspi;
+	GPIO_TypeDef * GPIOx;
+	uint16_t GPIO_Pin;
+
 } DAC_Handler;
 
 
 // Prototipos
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, uint8_t mascara);
+HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, SPI_HandleTypeDef *hspi, DAC_Channel dac_channel);
 
+uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel);
 
 
 #endif /* INC_EEG_SIMULATION_H_ */
