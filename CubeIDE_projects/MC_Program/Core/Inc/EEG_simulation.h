@@ -26,7 +26,7 @@
 #define DAC_CHANNEL_G_ADDR_8Bit_MASK 0x60 // 0b01100000
 #define DAC_CHANNEL_H_ADDR_8Bit_MASK 0x70 // 0b01110000
 
-#define DAC_CHANNEL_MAX_DATA  0XFFFF // 0b 1111-1111-1111-xxxx. x = ignored
+#define DAC_CHANNEL_MAX_DATA  0XFFF0 // 0b 1111-1111-1111-xxxx. x = ignored
 #define DAC_CHANNEL_MIN_DATA  0X000F // 0b 0000-0000-0000-xxxx. x = ignored
 
 
@@ -74,7 +74,7 @@ typedef struct DAC_Handler{
 
 // Prototipos
 HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel);
-HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count);
+HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
 
 void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
 void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);

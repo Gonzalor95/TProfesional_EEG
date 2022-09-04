@@ -99,21 +99,24 @@ void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_ch
 
 void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms){
 
-	uint16_t data = DAC_CHANNEL_MIN_DATA + 1;
+	uint16_t data = DAC_CHANNEL_MIN_DATA+1;
 	bool ascending = true;
-
+	int min_step = 15;
+	int multiplier = 8;
+	int freq_step = multiplier*min_step;
 	while(1){
 
-		if(data == DAC_CHANNEL_MAX_DATA) ascending = false;
-		else if (data == DAC_CHANNEL_MIN_DATA) ascending = true;
+		if(data >= DAC_CHANNEL_MAX_DATA) ascending = false;
+		else if (data <= DAC_CHANNEL_MIN_DATA) ascending = true;
+		//if(data > DAC_CHANNEL_MAX_DATA) data = DAC_CHANNEL_MIN_DATA;
 
 		if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
 			EEG_simulation_error_Handler();
 		}
 	//	HAL_Delay(delay_in_ms);
-		data++;
-		//if(ascending) data++;
-	//	else data--;
+
+		if(ascending) data += freq_step;
+		else data -= freq_step;
 	}
 
 }
