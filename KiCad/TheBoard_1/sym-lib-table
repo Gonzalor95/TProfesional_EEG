@@ -1,3 +1,12 @@
 (sym_lib_table
-  (lib (name "YAAJ_BlackPill_Part_Like")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-model/Symbols/YAAJ_BlackPill_Part_Like.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BlackPill")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BlackPill.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BlackPill_Part_Like")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BlackPill_Part_Like.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BlackPill_Part_Like_SWD_Breakout")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BlackPill_Part_Like_SWD_Breakout.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BlackPill_SWD_Breakout")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BlackPill_SWD_Breakout.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BluePill")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BluePill.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BluePill_Part_Like")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BluePill_Part_Like.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BluePill_Part_Like_SWD_Breakout")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BluePill_Part_Like_SWD_Breakout.lib")(options "")(descr ""))
+  (lib (name "YAAJ_BluePill_SWD_Breakout")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_BluePill_SWD_Breakout.lib")(options "")(descr ""))
+  (lib (name "YAAJ_WeAct_BlackPill_Part_Like")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_WeAct_BlackPill_Part_Like.lib")(options "")(descr ""))
+  (lib (name "YAAJ_WeAct_BlackPill_Part_Like_SWD_Breakout")(type "Legacy")(uri "C:/Users/juanc/Documents/GitHub/TProfesional_EEG/KiCad/Kicad-STM32-black-pill/Symbols/YAAJ_WeAct_BlackPill_Part_Like_SWD_Breakout.lib")(options "")(descr ""))
 )
