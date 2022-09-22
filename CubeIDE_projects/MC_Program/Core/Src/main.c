@@ -119,7 +119,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   DAC_Handler dac_handler;
-  DAC_Channel dac_channel = CHANNEL_H;
+  DAC_Channel dac_channel = CHANNEL_A;
   DAC_Tag dac_tag = DAC_A;
 
   DAC_Channel list_of_channels[] = {CHANNEL_A,CHANNEL_B,CHANNEL_C,CHANNEL_D,CHANNEL_E,CHANNEL_F,CHANNEL_G,CHANNEL_H};
@@ -133,7 +133,7 @@ int main(void)
 
   size_t i = 0;
   HAL_Delay(50);
-  uint16_t data = 0;
+  uint16_t data = 0xffff;
 
   uint8_t newBuffer[2] = {0, 0};
   while(1){
@@ -144,10 +144,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	//if( (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
-	if( (bufferUSB[0] != 0) || (bufferUSB[1] != newBuffer[1]) ){
+	if( (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
 		newBuffer[0] = bufferUSB[0];
 		newBuffer[1] = bufferUSB[1];
-		data += ((uint16_t) newBuffer[0]) << 2;
+
+		data = ( (uint16_t)newBuffer[1] << 8) | ( (uint16_t)  newBuffer[0]);
 	}else{
 	//	data = data + 1000;
 	}
