@@ -14,6 +14,33 @@
 #include <stdbool.h>
 
 
+
+/*
+Verde = DAC 16 = SCLK = PA5
+Naranja  = DAC 15 = DIN = PA7
+Pata = DAC 1 = LDAC
+Azul = DAC 2 =SYNC = PA4
+ *
+ * */
+
+/* BEGIN: Control/Config Words  */
+// Defined according https: www.analog.com/media/en/technical-documentation/data-sheets/ad5308_5318_5328.pdf
+
+//LDAC: 0b 101x-xxxx-xxxx-xx??
+#define DAC_CONFIG_LDAC_LOW 0xA000			// DAC registers updated continuously
+#define DAC_CONFIG_LDAC_HIGH 0xA001			// (DEFAULT) DAR reg. are latched and the input registers can change without affecting the contents of the DAC reg
+#define DAC_CONFIG_LDAC_SINGLE_UPDATE 0xA003// Causes a single pulse on LDAC, updating the DAC registers once.
+//Reset:0b 111?-xxxx-xxxx-xxxx
+#define DAC_CONFIG_RESET_DATA  0xE				// All outputs to zero
+#define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF	// reset all DAC
+
+//Gain of output and reference selection
+
+//Power-down:
+
+
+/* END: Control Words  */
+
 /*BEGIN: DAC Channels mask definitions */
 
 // Mask servers to write required address in the 16bit word to write to DACs
@@ -28,8 +55,6 @@
 
 #define DAC_CHANNEL_MAX_DATA  0XFFF0 // 0b 1111-1111-1111-xxxx. x = ignored
 #define DAC_CHANNEL_MIN_DATA  0X000F // 0b 0000-0000-0000-xxxx. x = ignored
-
-
 
 typedef enum {
 	CHANNEL_A = 0, //0b000
@@ -70,6 +95,9 @@ typedef struct DAC_Handler{
 	uint16_t dac_GPIO_Pin;
 
 } DAC_Handler;
+
+
+
 
 
 // Prototipos

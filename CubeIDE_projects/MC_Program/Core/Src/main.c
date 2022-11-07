@@ -133,9 +133,21 @@ int main(void)
 
   size_t i = 0;
   HAL_Delay(50);
-  uint16_t data = 0xffff;
-
+  uint16_t data = 0x800C; // 0b 100x-xxxx-xx00-1100
+  uint16_t config = 0x800C; // buffered (usa Vref)
+  config = 0x8000;
   uint8_t newBuffer[2] = {0, 0};
+
+  uint8_t dataToDAC[2];
+  dataToDAC[0] = (uint8_t) config;
+  dataToDAC[1] = (uint8_t) (config >> 8);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
+//  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+
+
+
   while(1){
 
 
@@ -143,8 +155,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	//if( (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
-	if( (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
+	if( 1 && (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
 		newBuffer[0] = bufferUSB[0];
 		newBuffer[1] = bufferUSB[1];
 
@@ -152,11 +163,11 @@ int main(void)
 	}else{
 	//	data = data + 1000;
 	}
-	//  send_triangular_wave_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
-	//  send_pulse_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
-	  if(HAL_OK != send_data_to_dac_channel(data, &dac_handler, dac_channel)){
-		  Error_Handler();
-	  }
+	 // send_triangular_wave_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
+	  send_pulse_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
+//	  if(HAL_OK != send_data_to_dac_channel(data, &dac_handler, dac_channel)){
+//		  Error_Handler();
+//	  }
 
   }
   /* USER CODE END 3 */

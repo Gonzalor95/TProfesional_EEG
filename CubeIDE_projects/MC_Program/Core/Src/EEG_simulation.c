@@ -64,6 +64,11 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handl
 
 }
 
+HAL_StatusTypeDef send_config_to_dac(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel){
+	HAL_StatusTypeDef status = HAL_OK;
+	return status;
+}
+
 HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count){
 
 	HAL_StatusTypeDef status = HAL_OK;
@@ -102,7 +107,7 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 	uint16_t data = DAC_CHANNEL_MIN_DATA+1;
 	bool ascending = true;
 	int min_step = 15;
-	int multiplier = 8;
+	int multiplier = 8*16;
 	int freq_step = multiplier*min_step;
 	while(1){
 
@@ -110,9 +115,9 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 		else if (data <= DAC_CHANNEL_MIN_DATA) ascending = true;
 		//if(data > DAC_CHANNEL_MAX_DATA) data = DAC_CHANNEL_MIN_DATA;
 
-		if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
-			EEG_simulation_error_Handler();
-		}
+	//	if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
+	//		EEG_simulation_error_Handler();
+	//	}
 	//	HAL_Delay(delay_in_ms);
 
 		if(ascending) data += freq_step;
