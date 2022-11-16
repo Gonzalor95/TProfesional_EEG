@@ -48,7 +48,7 @@
 
 /* Private variables ---------------------------------------------------------*/
  SPI_HandleTypeDef hspi1;
-SPI_HandleTypeDef hspi4;
+SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN PV */
 
@@ -65,7 +65,7 @@ uint8_t bufferUSB[2]; // Buffer to receive in USB via CDC (Communication Device 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_SPI4_Init(void);
+static void MX_SPI5_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -107,8 +107,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
-  MX_SPI4_Init();
   MX_USB_DEVICE_Init();
+  MX_SPI5_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -122,11 +122,16 @@ int main(void)
   DAC_Channel dac_channel = CHANNEL_A;
   DAC_Tag dac_tag = DAC_A;
 
+  DAC_Handler dac_handler_2;
+  DAC_Channel dac_channel_2 = CHANNEL_A;
+  DAC_Tag dac_tag_2 = DAC_A;
+
   DAC_Channel list_of_channels[] = {CHANNEL_A,CHANNEL_B,CHANNEL_C,CHANNEL_D,CHANNEL_E,CHANNEL_F,CHANNEL_G,CHANNEL_H};
 
   size_t channel_count = sizeof(list_of_channels)/sizeof(list_of_channels[0]);
 
   init_dac_handler(&dac_handler, dac_tag, &hspi1, GPIOA, GPIO_PIN_4);
+  init_dac_handler(&dac_handler_2, dac_tag_2, &hspi5, GPIOB, GPIO_PIN_1);
 
 
   uint32_t delay_in_ms = 0;
@@ -154,7 +159,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+	  /*
 	if( 1 && (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
 		newBuffer[0] = bufferUSB[0];
 		newBuffer[1] = bufferUSB[1];
@@ -162,12 +167,18 @@ int main(void)
 		data = ( (uint16_t)newBuffer[1] << 8) | ( (uint16_t)  newBuffer[0]);
 	}else{
 	//	data = data + 1000;
-	}
+	}*/
 	 // send_triangular_wave_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
-	  send_pulse_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
-//	  if(HAL_OK != send_data_to_dac_channel(data, &dac_handler, dac_channel)){
-//		  Error_Handler();
-//	  }
+//	  send_pulse_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
+
+	  if(HAL_OK != send_data_to_multiple_dac_channels(data, &dac_handler, list_of_channels, channel_count) ){
+		  Error_Handler();
+	  }
+	  if(HAL_OK != send_data_to_multiple_dac_channels(data, &dac_handler_2, list_of_channels, channel_count)){
+		  Error_Handler();
+	  }
+
+	  data = data + 1000;
 
   }
   /* USER CODE END 3 */
@@ -257,40 +268,40 @@ static void MX_SPI1_Init(void)
 }
 
 /**
-  * @brief SPI4 Initialization Function
+  * @brief SPI5 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_SPI4_Init(void)
+static void MX_SPI5_Init(void)
 {
 
-  /* USER CODE BEGIN SPI4_Init 0 */
+  /* USER CODE BEGIN SPI5_Init 0 */
 
-  /* USER CODE END SPI4_Init 0 */
+  /* USER CODE END SPI5_Init 0 */
 
-  /* USER CODE BEGIN SPI4_Init 1 */
+  /* USER CODE BEGIN SPI5_Init 1 */
 
-  /* USER CODE END SPI4_Init 1 */
-  /* SPI4 parameter configuration*/
-  hspi4.Instance = SPI4;
-  hspi4.Init.Mode = SPI_MODE_MASTER;
-  hspi4.Init.Direction = SPI_DIRECTION_1LINE;
-  hspi4.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi4.Init.NSS = SPI_NSS_HARD_OUTPUT;
-  hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi4.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi4.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi4) != HAL_OK)
+  /* USER CODE END SPI5_Init 1 */
+  /* SPI5 parameter configuration*/
+  hspi5.Instance = SPI5;
+  hspi5.Init.Mode = SPI_MODE_MASTER;
+  hspi5.Init.Direction = SPI_DIRECTION_1LINE;
+  hspi5.Init.DataSize = SPI_DATASIZE_16BIT;
+  hspi5.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi5.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi5.Init.NSS = SPI_NSS_SOFT;
+  hspi5.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi5.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi5.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi5.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi5.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi5) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN SPI4_Init 2 */
+  /* USER CODE BEGIN SPI5_Init 2 */
 
-  /* USER CODE END SPI4_Init 2 */
+  /* USER CODE END SPI5_Init 2 */
 
 }
 
@@ -312,12 +323,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+
   /*Configure GPIO pin : PA4 */
   GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
