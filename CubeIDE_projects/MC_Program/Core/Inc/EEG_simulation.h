@@ -27,12 +27,12 @@ Azul = DAC 2 =SYNC = PA4
 // Defined according https: www.analog.com/media/en/technical-documentation/data-sheets/ad5308_5318_5328.pdf
 
 //LDAC: 0b 101x-xxxx-xxxx-xx??
-#define DAC_CONFIG_LDAC_LOW 0xA000			// DAC registers updated continuously
-#define DAC_CONFIG_LDAC_HIGH 0xA001			// (DEFAULT) DAR reg. are latched and the input registers can change without affecting the contents of the DAC reg
-#define DAC_CONFIG_LDAC_SINGLE_UPDATE 0xA003// Causes a single pulse on LDAC, updating the DAC registers once.
+#define DAC_CONFIG_LDAC_LOW 			0xA000	// DAC registers updated continuously
+#define DAC_CONFIG_LDAC_HIGH 			0xA001	// (DEFAULT) DAR reg. are latched and the input registers can change without affecting the contents of the DAC reg
+#define DAC_CONFIG_LDAC_SINGLE_UPDATE 	0xA003	// Causes a single pulse on LDAC, updating the DAC registers once.
 //Reset:0b 111?-xxxx-xxxx-xxxx
-#define DAC_CONFIG_RESET_DATA  0xE				// All outputs to zero
-#define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF	// reset all DAC
+#define DAC_CONFIG_RESET_DATA  				0xE	// All outputs to zero
+#define DAC_CONFIG_RESET_DATA_AND_CONTROL 	0xF	// reset all DAC
 
 //Gain of output and reference selection
 
@@ -96,7 +96,40 @@ typedef struct DAC_Handler{
 
 } DAC_Handler;
 
-
+typedef enum{
+	CH_Fp1 = 0,
+	CH_Fz  = 1,
+	CH_Fp2 = 2,
+	CH_F3  = 3,
+	CH_F4  = 4,
+	CH_C3  = 5,
+	CH_C4  = 6,
+	CH_P3  = 7,
+	CH_P4  = 8,
+	CH_O1  = 9,
+	CH_O2  = 10,
+	CH_F7  = 11,
+	CH_F8  = 12,
+	CH_T7  = 13,
+	CH_T8  = 14,
+	CH_P7  = 15,
+	CH_P8  = 16,
+	CH_Pz  = 17,
+	CH_Cz  = 18,
+	CH_PG1 = 19,
+	CH_PG2 = 20,
+	CH_AFz = 21,
+	CH_FCz = 22,
+	CH_CPz = 23,
+	CH_CP3 = 24,
+	CH_CP4 = 25,
+	CH_FC3 = 26,
+	CH_FC4 = 27,
+	CH_TP7 = 28,
+	CH_TP8 = 29,
+	CH_FT7 = 30,
+	CH_FT8 = 31
+}protocol_word;
 
 
 
