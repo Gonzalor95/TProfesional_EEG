@@ -22,11 +22,11 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 
 
 // Receives the USB buffer and parse it to config and data
-void parse_receiving_buffer(const uint8_t *bufferUSB[], uint16_t *config, uint16_t *data){
+void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data){
 	// config = {1,0}
-	*config = ((uint16_t)*bufferUSB[1] << 8) | ((uint16_t)*bufferUSB[0]);
+	*config = ((uint16_t)bufferUSB[1] << 8) | ((uint16_t)bufferUSB[0]);
 	// data = {3,2}
-	*data = ((uint16_t)*bufferUSB[3] << 8) | ((uint16_t)*bufferUSB[2]);
+	*data = ((uint16_t)bufferUSB[3] << 8) | ((uint16_t)bufferUSB[2]);
 }
 
 
@@ -37,7 +37,7 @@ void process_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_ta
 }
 
 
-HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint16_t *data){
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data){
 
 	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
     /* Donde:
@@ -89,7 +89,7 @@ HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler 
 
 		DAC_Channel dac_channel = arr_dac_channels[i];
 
-		if( HAL_OK != (status = send_data_to_dac_channel(data,dac_handler,dac_channel)) ){
+		if( HAL_OK != (status = send_data_to_dac_channel(dac_handler,&dac_channel, data)) ){
 			break;
 		}
 	}
@@ -148,8 +148,8 @@ void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeD
 }
 
 
-uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel){
-	return DAC_Channel_Addr8bit_mask_Dictionary[dac_channel];
+uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel){
+	return DAC_Channel_Addr8bit_mask_Dictionary[*dac_channel];
 }
 
 // Errors:

@@ -22,11 +22,18 @@ print (ser.name)
 #    ser.write(serial.to_bytes(cw))
 #    LSBy += 1
 
+config_MSB = 5
+config_LSB = 0
 
-cw = [config_MSB, ]
-cw = [0xff,0xff]
+data_MSB = 0xff
+data_LSB = 0xff
+
+cw = [config_MSB, config_LSB, data_MSB, data_LSB]
+
 print (serial.to_bytes(cw))
-ser.write(serial.to_bytes(cw))
+while True:
+    ser.write(serial.to_bytes(cw))
+
 ser.close()
 
 

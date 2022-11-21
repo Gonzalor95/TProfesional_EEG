@@ -131,6 +131,8 @@ int main(void)
 
   DAC_Channel DAC_channel = 0;
   DAC_Tag DAC_tag = 0;
+  uint16_t data = 0;
+  uint16_t config = 0;
 
 
   // TODO: Pre Configuration for LDAC
@@ -142,13 +144,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	parse_receiving_buffer(&bufferUSB, &config, &data);
+	parse_receiving_buffer(bufferUSB, &config, &data);
 
 	// config entre [0, 31] es para escribir al DAC
 	if(config < 8){
 		process_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
 		// Enviamos los datos al DAC y canal adecuados
-		if (HAL_OK != send_data_to_dac_channel(list_of_dacs[DAC_tag], DAC_channel, data)){
+		if (HAL_OK != send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data)){
 			Error_Handler();
 		}
 	}

@@ -139,7 +139,7 @@ typedef enum{
 
 
 // Prototipos
-HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint16_t *data);
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data);
 HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
 
 void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
@@ -151,9 +151,9 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
 
 
-uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel);
+uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
 
-void parse_recieving_buffer(uint8_t **bufferUSB, uint16_t *config, uint16_t *data);
+void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data);
 void process_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel);
 
 // Error functions
