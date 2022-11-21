@@ -21,7 +21,23 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 };
 
 
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel){
+// Receives the USB buffer and parse it to config and data
+void parse_receiving_buffer(const uint8_t *bufferUSB[], uint16_t *config, uint16_t *data){
+	// config = {1,0}
+	*config = ((uint16_t)*bufferUSB[1] << 8) | ((uint16_t)*bufferUSB[0]);
+	// data = {3,2}
+	*data = ((uint16_t)*bufferUSB[3] << 8) | ((uint16_t)*bufferUSB[2]);
+}
+
+
+
+void process_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel){
+	*DAC_tag = (*config) / 8;
+	*DAC_channel = (*config) % 8;
+}
+
+
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint16_t *data){
 
 	// dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
     /* Donde:
@@ -41,7 +57,6 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handl
     // 2) Recibo data:
     // uint16_t data = 0x8A5F; // 0b 1000-1010-0101-1111
 
-
     // 3) Desestimo (shifteando) los ultimos 4 LSB (derecha de todo)
     data = data >> 4; // 0b 0000-1000-1010-0101
 
@@ -49,19 +64,16 @@ HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handl
 	dataToDAC[0] = (uint8_t) data;
 	dataToDAC[1] = (uint8_t) (data >> 8);
 
-
     // 5) aplico mascara
-   // uint8_t channel_addr_mask = 0x70; // 0b 0111-0000
+    // uint8_t channel_addr_mask = 0x70; // 0b 0111-0000
     dataToDAC[1] = dataToDAC[1] | channel_addr_mask;
 
-
-
-	HAL_GPIO_WritePin(dac_handler->dac_GPIO_peripheral, dac_handler->dac_GPIO_Pin, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
+    // GPIO_Write sirve para avisar al DAC que le estamos escribiendo
+	HAL_GPIO_WritePin(dac_handler->dac_GPIO_peripheral, dac_handler->dac_GPIO_Pin, GPIO_PIN_RESET);
 	status = HAL_SPI_Transmit(dac_handler->dac_hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
 	HAL_GPIO_WritePin(dac_handler->dac_GPIO_peripheral, dac_handler->dac_GPIO_Pin, GPIO_PIN_SET);
 
 	return status;
-
 }
 
 HAL_StatusTypeDef send_config_to_dac(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel){

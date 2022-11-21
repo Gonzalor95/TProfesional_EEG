@@ -57,7 +57,7 @@ SPI_HandleTypeDef hspi5;
 // Para la prueba con USB tenemos solo 1 DAC = 8 Canales.
 // Cada Canal recibe un dato de 16 bits.
 // Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
-uint8_t bufferUSB[2]; // Buffer to receive in USB via CDC (Communication Device Class)
+uint8_t bufferUSB[4]= {0,0,0,0}; // Buffer to receive in USB via CDC (Communication Device Class)
 
 /* USER CODE END PV */
 
@@ -118,40 +118,22 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  DAC_Handler dac_handler;
-  DAC_Channel dac_channel = CHANNEL_A;
-  DAC_Tag dac_tag = DAC_A;
 
-  DAC_Handler dac_handler_2;
-  DAC_Channel dac_channel_2 = CHANNEL_A;
-  DAC_Tag dac_tag_2 = DAC_A;
+  DAC_Handler dac_handler_A;
+  DAC_Handler dac_handler_B;
+  // TODO: Add DAC_C and DAC_D
 
-  DAC_Channel list_of_channels[] = {CHANNEL_A,CHANNEL_B,CHANNEL_C,CHANNEL_D,CHANNEL_E,CHANNEL_F,CHANNEL_G,CHANNEL_H};
+  init_dac_handler(&dac_handler_A, DAC_A, &hspi1, GPIOA, GPIO_PIN_4);
+  init_dac_handler(&dac_handler_B, DAC_B, &hspi5, GPIOB, GPIO_PIN_1);
+  // TODO: Add DAC_C and DAC_D
 
-  size_t channel_count = sizeof(list_of_channels)/sizeof(list_of_channels[0]);
+  DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
 
-  init_dac_handler(&dac_handler, dac_tag, &hspi1, GPIOA, GPIO_PIN_4);
-  init_dac_handler(&dac_handler_2, dac_tag_2, &hspi5, GPIOB, GPIO_PIN_1);
-
-
-  uint32_t delay_in_ms = 0;
-
-  size_t i = 0;
-  HAL_Delay(50);
-  uint16_t data = 0x800C; // 0b 100x-xxxx-xx00-1100
-  uint16_t config = 0x800C; // buffered (usa Vref)
-  config = 0x8000;
-  uint8_t newBuffer[2] = {0, 0};
-
-  uint8_t dataToDAC[2];
-  dataToDAC[0] = (uint8_t) config;
-  dataToDAC[1] = (uint8_t) (config >> 8);
-
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); // TODO:Los puertos tienen que quedar en una variable. Hacer un struct/objeto DAC
-//  HAL_SPI_Transmit(&hspi1, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+  DAC_Channel DAC_channel = 0;
+  DAC_Tag DAC_tag = 0;
 
 
+  // TODO: Pre Configuration for LDAC
 
   while(1){
 
@@ -159,27 +141,22 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  /*
-	if( 1 && (bufferUSB[0] != newBuffer[0]) || (bufferUSB[1] != newBuffer[1]) ){
-		newBuffer[0] = bufferUSB[0];
-		newBuffer[1] = bufferUSB[1];
 
-		data = ( (uint16_t)newBuffer[1] << 8) | ( (uint16_t)  newBuffer[0]);
-	}else{
-	//	data = data + 1000;
-	}*/
-	 // send_triangular_wave_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
-//	  send_pulse_to_dac_channels(&dac_handler, list_of_channels, channel_count, delay_in_ms);
+	parse_receiving_buffer(&bufferUSB, &config, &data);
 
-	  if(HAL_OK != send_data_to_multiple_dac_channels(data, &dac_handler, list_of_channels, channel_count) ){
-		  Error_Handler();
-	  }
-	  if(HAL_OK != send_data_to_multiple_dac_channels(data, &dac_handler_2, list_of_channels, channel_count)){
-		  Error_Handler();
-	  }
-
-	  data = data + 1000;
-
+	// config entre [0, 31] es para escribir al DAC
+	if(config < 8){
+		process_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+		// Enviamos los datos al DAC y canal adecuados
+		if (HAL_OK != send_data_to_dac_channel(list_of_dacs[DAC_tag], DAC_channel, data)){
+			Error_Handler();
+		}
+	}
+	else{
+		// Si config no es entre [0, 31] es porque se pidio configurar el DAC
+		// TODO
+		continue;
+	}
   }
   /* USER CODE END 3 */
 }

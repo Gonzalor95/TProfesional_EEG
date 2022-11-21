@@ -88,6 +88,7 @@ typedef enum {
  	 * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
  	 * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
  */
+// TODO: Change GPIO name and explain further
 typedef struct DAC_Handler{
 	DAC_Tag dac_tag;
 	SPI_HandleTypeDef *dac_hspi;
@@ -97,6 +98,7 @@ typedef struct DAC_Handler{
 } DAC_Handler;
 
 typedef enum{
+	// DAC 0
 	CH_Fp1 = 0,
 	CH_Fz  = 1,
 	CH_Fp2 = 2,
@@ -105,6 +107,7 @@ typedef enum{
 	CH_C3  = 5,
 	CH_C4  = 6,
 	CH_P3  = 7,
+	// DAC 1
 	CH_P4  = 8,
 	CH_O1  = 9,
 	CH_O2  = 10,
@@ -113,6 +116,7 @@ typedef enum{
 	CH_T7  = 13,
 	CH_T8  = 14,
 	CH_P7  = 15,
+	// DAC 2
 	CH_P8  = 16,
 	CH_Pz  = 17,
 	CH_Cz  = 18,
@@ -121,6 +125,7 @@ typedef enum{
 	CH_AFz = 21,
 	CH_FCz = 22,
 	CH_CPz = 23,
+	// DAC 3
 	CH_CP3 = 24,
 	CH_CP4 = 25,
 	CH_FC3 = 26,
@@ -134,7 +139,7 @@ typedef enum{
 
 
 // Prototipos
-HAL_StatusTypeDef send_data_to_dac_channel(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel);
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint16_t *data);
 HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
 
 void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
@@ -147,6 +152,9 @@ void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeD
 
 
 uint8_t get_dac_channel_addr_mask(DAC_Channel dac_channel);
+
+void parse_recieving_buffer(uint8_t **bufferUSB, uint16_t *config, uint16_t *data);
+void process_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel);
 
 // Error functions
 
