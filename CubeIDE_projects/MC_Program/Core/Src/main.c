@@ -47,7 +47,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN PV */
@@ -58,7 +58,7 @@ SPI_HandleTypeDef hspi5;
 // Cada Canal recibe un dato de 16 bits.
 // Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
 uint8_t bufferUSB[4]= {0,0,0,0}; // Buffer to receive in USB via CDC (Communication Device Class)
-
+LDAC_Settings LDAC_settings;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,21 +121,29 @@ int main(void)
 
   DAC_Handler dac_handler_A;
   DAC_Handler dac_handler_B;
-  // TODO: Add DAC_C and DAC_D
+  DAC_Handler dac_handler_C;
+  DAC_Handler dac_handler_D;
 
   init_dac_handler(&dac_handler_A, DAC_A, &hspi1, GPIOA, GPIO_PIN_4);
   init_dac_handler(&dac_handler_B, DAC_B, &hspi5, GPIOB, GPIO_PIN_1);
   // TODO: Add DAC_C and DAC_D
 
-  DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
+  // LDAC Settings. Variable defined as "extern" in EEG_simulation.h
+  init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
 
+  DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
+  uint dacs_count = sizeof(list_of_dacs);
   DAC_Channel DAC_channel = 0;
+
   DAC_Tag DAC_tag = 0;
   uint16_t data = 0;
   uint16_t config = 0;
 
+  DAC_Channel arr_dac_channels[] = {0,1,2,3,4,5,6,7}; // Used to test pulse or triangular
+  uint32_t delay_in_ms = 10;
 
   // TODO: Pre Configuration for LDAC
+  init_LDAC_in_dacs(list_of_dacs);
 
   while(1){
 
@@ -147,18 +155,24 @@ int main(void)
 	parse_receiving_buffer(bufferUSB, &config, &data);
 
 	// config entre [0, 31] es para escribir al DAC
-	if(config < 8){
+	if(config < MAX_DAC_CHANNEL_WORD){
+
 		process_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+
 		// Enviamos los datos al DAC y canal adecuados
 		if (HAL_OK != send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data)){
 			Error_Handler();
 		}
 	}
 	else{
-		// Si config no es entre [0, 31] es porque se pidio configurar el DAC
-		// TODO
+		// En otro caso, se envia una configuracion a todos los DACs
+		if (HAL_OK != send_configuration_to_dacs(config, &list_of_dacs, dacs_count) ){
+			Error_handler();
+		}
 		continue;
 	}
+
+	//send_pulse_to_dac_channels(list_of_dacs[DAC_tag], arr_dac_channels, 8, delay_in_ms);
   }
   /* USER CODE END 3 */
 }

@@ -69,15 +69,53 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
     dataToDAC[1] = dataToDAC[1] | channel_addr_mask;
 
     // GPIO_Write sirve para avisar al DAC que le estamos escribiendo
-	HAL_GPIO_WritePin(dac_handler->dac_GPIO_peripheral, dac_handler->dac_GPIO_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
 	status = HAL_SPI_Transmit(dac_handler->dac_hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	HAL_GPIO_WritePin(dac_handler->dac_GPIO_peripheral, dac_handler->dac_GPIO_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_SET);
 
 	return status;
 }
 
-HAL_StatusTypeDef send_config_to_dac(uint16_t data, DAC_Handler *dac_handler, DAC_Channel dac_channel){
+
+/* Sends any word of 16 bits to the DAC. Used for configs*/
+HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler dac_handler){
 	HAL_StatusTypeDef status = HAL_OK;
+	uint8_t dataToDAC[2];
+
+	dataToDAC[0] = (uint8_t) word;
+	dataToDAC[1] = (uint8_t) word >> 8;
+
+	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
+	status = HAL_SPI_Transmit(dac_handler->dac_hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_SET);
+
+}
+
+void trigger_LDAC(){
+	// To trigger LDAC. Every pin 1 (LDAC) of the DACs must be set to low to update all channels at once
+
+	// LDAC_settings variable is declared as extern outside
+
+	//Setting LDAC Pin to 0 (zero/low)
+	HAL_GPIO_WritePin(LDAC_settings->GPIO_LDAC_control_port, LDAC_settings->GPIO_LDAC_control_pin, GPIO_PIN_RESET);
+
+	//Setting LDAC Pin to 1 (one/high)
+	HAL_GPIO_WritePin(LDAC_settings->GPIO_LDAC_control_port, LDAC_settings->GPIO_LDAC_control_pin, GPIO_PIN_SET);
+}
+
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint dacs_count){
+
+	HAL_StatusTypeDef status = HAL_OK;
+	if(config == CONF_LDAC_TRIGGER){
+
+		trigger_LDAC();
+
+		return status;
+
+	}else if(config == CONF_LDAC_LOW){
+		// TODO: Complete with other configs
+	}
+
 	return status;
 }
 
@@ -143,8 +181,13 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
 	dac_handler->dac_tag = dac_tag;
 	dac_handler->dac_hspi = hspi;
-	dac_handler->dac_GPIO_peripheral = GPIOx;
-	dac_handler->dac_GPIO_Pin = GPIO_Pin;
+	dac_handler->dac_SS_GPIO_port = GPIOx;
+	dac_handler->dac_ss_GPIO_pin = GPIO_Pin;
+}
+
+void init_LDAC_settings(LDAC_Settings *LDAC_settings,GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
+	LDAC_settings->GPIO_LDAC_control_port = GPIOx;
+	LDAC_settings->GPIO_LDAC_control_pin = GPIO_Pin;
 }
 
 

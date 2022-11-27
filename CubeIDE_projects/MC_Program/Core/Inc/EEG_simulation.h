@@ -65,7 +65,7 @@ typedef enum {
 	CHANNEL_F = 5, //0b101
 	CHANNEL_G = 6, //0b110
 	CHANNEL_H = 7  //0b111
-}DAC_Channel;
+} DAC_Channel;
 
 /*END: DAC Channels mask definitions */
 
@@ -84,64 +84,59 @@ typedef enum {
 /* Struct DAC:
  * dac_tag = numero identificador del DAC, relacionado con el hspi
  * *pdac_hspi = puntero al handler SPI del DAC
- * GPIO = maneja el SS (slave select)
+ * GPIO = maneja el SS (slave select). Necesita un port (de A...K) y un Pin (0...n)
  	 * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
  	 * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
  */
-// TODO: Change GPIO name and explain further
 typedef struct DAC_Handler{
 	DAC_Tag dac_tag;
 	SPI_HandleTypeDef *dac_hspi;
-	GPIO_TypeDef * dac_GPIO_peripheral;
-	uint16_t dac_GPIO_Pin;
+	GPIO_TypeDef * dac_SS_GPIO_port;
+	uint16_t dac_ss_GPIO_pin;
 
 } DAC_Handler;
 
+// Struct to sabe Port and Pin where LDAC is setted
+extern typedef struct LDAC_Settings{
+	GPIO_TypeDef * GPIO_LDAC_control_port = GPIOB;
+	uint16_t GPIO_LDAC_control_pin = GPIO_PIN_2;
+}LDAC_Settings;
+
+extern LDAC_Settings LDAC_settings; // Extern declaration to use in .c
+
 typedef enum{
-	// DAC 0
-	CH_Fp1 = 0,
-	CH_Fz  = 1,
-	CH_Fp2 = 2,
-	CH_F3  = 3,
-	CH_F4  = 4,
-	CH_C3  = 5,
-	CH_C4  = 6,
-	CH_P3  = 7,
-	// DAC 1
-	CH_P4  = 8,
-	CH_O1  = 9,
-	CH_O2  = 10,
-	CH_F7  = 11,
-	CH_F8  = 12,
-	CH_T7  = 13,
-	CH_T8  = 14,
-	CH_P7  = 15,
-	// DAC 2
-	CH_P8  = 16,
-	CH_Pz  = 17,
-	CH_Cz  = 18,
-	CH_PG1 = 19,
-	CH_PG2 = 20,
-	CH_AFz = 21,
-	CH_FCz = 22,
-	CH_CPz = 23,
-	// DAC 3
-	CH_CP3 = 24,
-	CH_CP4 = 25,
-	CH_FC3 = 26,
-	CH_FC4 = 27,
-	CH_TP7 = 28,
-	CH_TP8 = 29,
-	CH_FT7 = 30,
-	CH_FT8 = 31
-}protocol_word;
+	// DAC A
+	CH_Fp1 = 0,	CH_Fz  = 1,	CH_Fp2 = 2,	CH_F3  = 3,	CH_F4  = 4,	CH_C3  = 5,	CH_C4  = 6,	CH_P3  = 7,
+	// DAC B
+	CH_P4  = 8,	CH_O1= 9,	CH_O2 = 10, CH_F7  = 11,	CH_F8  = 12,	CH_T7  = 13,	CH_T8  = 14,	CH_P7  = 15,
+	// DAC C
+	CH_P8  = 16, CH_Pz  = 17, CH_Cz  = 18,	CH_PG1 = 19,	CH_PG2 = 20,	CH_AFz = 21,	CH_FCz = 22,	CH_CPz = 23,
+	// DAC D
+	CH_CP3 = 24, CH_CP4 = 25, CH_FC3 = 26,	CH_FC4 = 27,	CH_TP7 = 28,	CH_TP8 = 29,	CH_FT7 = 30,	CH_FT8 = 31,
+
+	MAX_DAC_CHANNEL_WORD = 32 // RESERVED: no significa nada, pero sirve para identificar que hasta el enum = 31 nos referimos a un canal de DAC
+} channel_protocol_word;
+
+typedef enum {
+	// LDAC TRIGGER
+	CONF_LDAC_TRIGGER = 33, // triggers all channels to write respective outputs
+	// LDAC Config
+	CONF_LDAC_LOW = 34
+	// RESET Config
+	// Power-down Config
+} config_protocol_word;
 
 
 
-// Prototipos
+// Prototypes
 HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data);
 HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
 
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint dacs_count);
+
+void trigger_LDAC();
+
+// Test functions
 void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
 void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
 
@@ -149,6 +144,7 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 /* initializer, gets and setters */
 
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
+void init_LDAC_settings(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
 
 
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);

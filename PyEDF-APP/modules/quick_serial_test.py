@@ -22,7 +22,7 @@ print (ser.name)
 #    ser.write(serial.to_bytes(cw))
 #    LSBy += 1
 
-config_MSB = 5
+config_MSB = 1
 config_LSB = 0
 
 data_MSB = 0xff
