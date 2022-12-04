@@ -97,12 +97,15 @@ typedef struct DAC_Handler{
 } DAC_Handler;
 
 // Struct to sabe Port and Pin where LDAC is setted
-extern typedef struct LDAC_Settings{
-	GPIO_TypeDef * GPIO_LDAC_control_port = GPIOB;
-	uint16_t GPIO_LDAC_control_pin = GPIO_PIN_2;
+typedef struct LDAC_Settings{
+	GPIO_TypeDef * GPIO_LDAC_control_port;
+	uint16_t GPIO_LDAC_control_pin;
 }LDAC_Settings;
 
 extern LDAC_Settings LDAC_settings; // Extern declaration to use in .c
+// GPIO_LDAC_control_port = GPIOB
+// GPIO_LDAC_control_pin = GPIO_PIN_2
+
 
 typedef enum{
 	// DAC A
@@ -132,7 +135,7 @@ typedef enum {
 HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data);
 HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint dacs_count);
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint8_t dacs_count);
 
 void trigger_LDAC();
 
@@ -144,7 +147,8 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 /* initializer, gets and setters */
 
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
-void init_LDAC_settings(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
+void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
+void init_LDAC_in_dacs(DAC_Handler ** list_of_dacs, uint8_t dacs_count);
 
 
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);

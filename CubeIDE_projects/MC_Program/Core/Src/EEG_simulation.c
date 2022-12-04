@@ -21,7 +21,7 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 };
 
 
-// Receives the USB buffer and parse it to config and data
+// Receives the USB buffer and parse it to config and data variables
 void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data){
 	// config = {1,0}
 	*config = ((uint16_t)bufferUSB[1] << 8) | ((uint16_t)bufferUSB[0]);
@@ -30,7 +30,11 @@ void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *dat
 }
 
 
-
+// Recovers the values for DAC_Tag and DAC_Channel
+/* We expect 0=< config <= 31. So:
+ * config / 8 = {0,1,2,3} -> which corresponds to one DAC, so we use the enum defined in DAC_Tag for correlation.
+ * config % 8 = {0,1,2,3,4,5,6,7} -> which corresponds to a DAC channel, so we use the enum defined in DAC_Channel for correlation.
+ * */
 void process_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel){
 	*DAC_tag = (*config) / 8;
 	*DAC_channel = (*config) % 8;
@@ -78,8 +82,9 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 
 
 /* Sends any word of 16 bits to the DAC. Used for configs*/
-HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler dac_handler){
-	HAL_StatusTypeDef status = HAL_OK;
+HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler * dac_handler){
+
+	HAL_StatusTypeDef status;
 	uint8_t dataToDAC[2];
 
 	dataToDAC[0] = (uint8_t) word;
@@ -87,8 +92,10 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler dac_handler){
 
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
 	status = HAL_SPI_Transmit(dac_handler->dac_hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_SET);
+	return status;
 
+	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_SET);
+	return status;
 }
 
 void trigger_LDAC(){
@@ -97,13 +104,13 @@ void trigger_LDAC(){
 	// LDAC_settings variable is declared as extern outside
 
 	//Setting LDAC Pin to 0 (zero/low)
-	HAL_GPIO_WritePin(LDAC_settings->GPIO_LDAC_control_port, LDAC_settings->GPIO_LDAC_control_pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
 
 	//Setting LDAC Pin to 1 (one/high)
-	HAL_GPIO_WritePin(LDAC_settings->GPIO_LDAC_control_port, LDAC_settings->GPIO_LDAC_control_pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_SET);
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint dacs_count){
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint8_t dacs_count){
 
 	HAL_StatusTypeDef status = HAL_OK;
 	if(config == CONF_LDAC_TRIGGER){
@@ -134,6 +141,7 @@ HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler 
 	return status;
 }
 
+// WARNING: TEST FUNCTION! Blocks functioning on infinite loop
 void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms){
 
 	uint16_t data = 0;
@@ -152,6 +160,7 @@ void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_ch
 
 }
 
+// WARNING: TEST FUNCTION! Blocks functioning on infinite loop
 void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms){
 
 	uint16_t data = DAC_CHANNEL_MIN_DATA+1;
@@ -165,10 +174,10 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 		else if (data <= DAC_CHANNEL_MIN_DATA) ascending = true;
 		//if(data > DAC_CHANNEL_MAX_DATA) data = DAC_CHANNEL_MIN_DATA;
 
-	//	if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
-	//		EEG_simulation_error_Handler();
-	//	}
-	//	HAL_Delay(delay_in_ms);
+		if(HAL_OK != send_data_to_multiple_dac_channels(data, dac_handler, arr_dac_channels, channel_count)){
+			EEG_simulation_error_Handler();
+		}
+		HAL_Delay(delay_in_ms);
 
 		if(ascending) data += freq_step;
 		else data -= freq_step;
@@ -178,6 +187,7 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 
 /* initializer, gets and setters */
 
+// Init variables for dac_handler variable
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
 	dac_handler->dac_tag = dac_tag;
 	dac_handler->dac_hspi = hspi;
@@ -185,9 +195,24 @@ void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeD
 	dac_handler->dac_ss_GPIO_pin = GPIO_Pin;
 }
 
-void init_LDAC_settings(LDAC_Settings *LDAC_settings,GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
+// Init the ports that control LDAC in the LDAC_settings variable.
+// LDAC_settings must be an "extern" variable to be accessible on trigger_LDAC()
+
+void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
 	LDAC_settings->GPIO_LDAC_control_port = GPIOx;
 	LDAC_settings->GPIO_LDAC_control_pin = GPIO_Pin;
+}
+
+void init_LDAC_in_dacs(DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+
+	for(int i = 0 ; i < dacs_count; i++){
+		uint16_t word = DAC_CONFIG_LDAC_HIGH;
+
+		if( _send_word_to_dac(word, list_of_dacs[i]) != HAL_OK){
+			break;
+		}
+
+	}
 }
 
 
