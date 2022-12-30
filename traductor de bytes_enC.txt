@@ -1,0 +1,113 @@
+// Este codigo se puede probar en https://www.onlinegdb.com/online_c_compiler
+
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdint.h>
+#include <stdio.h>
+#define B16_TO_BINARY_PATTERN "%c%c%c%c-%c%c%c%c-%c%c%c%c-%c%c%c%c"
+#define B16_TO_BINARY(byte)  \
+        (byte & 0x8000 ? '1' : '0'), \
+        (byte & 0x4000 ? '1' : '0'), \
+        (byte & 0x2000 ? '1' : '0'), \
+        (byte & 0x1000 ? '1' : '0'), \
+        (byte & 0x800 ? '1' : '0'), \
+        (byte & 0x400 ? '1' : '0'), \
+        (byte & 0x200 ? '1' : '0'), \
+        (byte & 0x100 ? '1' : '0'), \
+      (byte & 0x80 ? '1' : '0'), \
+      (byte & 0x40 ? '1' : '0'), \
+      (byte & 0x20 ? '1' : '0'), \
+      (byte & 0x10 ? '1' : '0'), \
+      (byte & 0x08 ? '1' : '0'), \
+      (byte & 0x04 ? '1' : '0'), \
+      (byte & 0x02 ? '1' : '0'), \
+      (byte & 0x01 ? '1' : '0') 
+
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c-%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+      (byte & 0x80 ? '1' : '0'), \
+      (byte & 0x40 ? '1' : '0'), \
+      (byte & 0x20 ? '1' : '0'), \
+      (byte & 0x10 ? '1' : '0'), \
+      (byte & 0x08 ? '1' : '0'), \
+      (byte & 0x04 ? '1' : '0'), \
+      (byte & 0x02 ? '1' : '0'), \
+      (byte & 0x01 ? '1' : '0') 
+
+
+int main()
+{
+    // dataToDAC = 0b 0AAA - DDDD - DDDD - DDDD
+    /* Donde:
+     * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
+     * AAA = Address (de 0 a 8)
+     * D...D = datos
+    */
+    uint8_t dataToDAC[2];
+    
+    // 1) Inicializar dataToDAC a 0:
+    dataToDAC[0] = 0;
+    dataToDAC[1] = 0;
+    printf("1)\n");
+    printf("dataToDAC[0] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[0]) );
+    printf("\n");
+    printf("dataToDAC[1] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[1]) );
+    printf("\n");  
+    
+    // 2) Recibo data:
+    
+    uint16_t data = 0x8A5F; // 0b 1000-1010-0101-1111
+    printf("2)\n");
+    printf("data = 0x8A5F = "B16_TO_BINARY_PATTERN, B16_TO_BINARY(data) );
+    printf("\n");
+    
+    // 3) Desestimo (shifteando) los ultimos 4 LSB (derecha de todo)
+    data = data >> 4; // 0b 0000-1000-1010-0101
+    printf("3)\n");
+    printf("data shiftada = "B16_TO_BINARY_PATTERN, B16_TO_BINARY(data) );
+    printf("\n");
+
+    // 4) Paste data
+    
+	dataToDAC[0] = (uint8_t) data;
+	dataToDAC[1] = (uint8_t) (data >> 8);
+	printf("4)\n");
+    printf("dataToDAC[0] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[0]) );
+    printf("\n");
+    printf("dataToDAC[1] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[1]) );
+    printf("\n");        
+
+    
+    // 5) aplico mascara
+    uint8_t mascara = 0x70; // 0b 0111-0000
+    dataToDAC[1] = dataToDAC[1] | mascara;
+    printf("5)\n");
+    printf("dataToDAC[0] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[0]) );
+    printf("\n");
+    printf("dataToDAC[1] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[1]) );
+    printf("\n");
+    
+	// Fijar el MSB a 0x8A5
+//	dataToDAC[1] = dataToDAC[1] & 0x7F;
+	
+	
+	
+	printf("Resultado final: \n");        
+    printf("dataToDAC[0] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[0]) );
+    printf("\n");
+    printf("dataToDAC[1] = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(dataToDAC[1]) );
+    printf("\n");        
+
+       
+
+
+    return 0;
+}
+
+

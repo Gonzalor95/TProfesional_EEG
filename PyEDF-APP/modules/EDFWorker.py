@@ -129,6 +129,7 @@ class EDFWorker():
         try:
             self.physical_signals, self.signal_headers, self.headers = pyedflib.highlevel.read_edf(
                 file_full_path, verbose=True)
+            print(f"Signal headers: {self.signal_headers}")
             # Clear selected channels upon reading a new file
             self.selected_channels_.clear()
             # As a default when reading a file, select all channels
@@ -196,9 +197,10 @@ class EDFWorker():
                 index]][start_time:end_time]
             axis[index][0].plot(signal_to_print, color=(
                 [168/255, 193/255, 5/255]), linewidth=0.4)
+            print(signal[index][0:100])
             # Hide axis values
             axis[index][0].get_xaxis().set_ticks([])
-            axis[index][0].get_yaxis().set_ticks([])
+            #axis[index][0].get_yaxis().set_ticks([])
             # Set plot title
             axis[index][0].set_ylabel(
                 self.signal_headers[self.selected_channels_[index]]["label"], rotation=0, labelpad=30)
