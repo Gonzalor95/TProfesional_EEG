@@ -88,12 +88,10 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler * dac_handler){
 	uint8_t dataToDAC[2];
 
 	dataToDAC[0] = (uint8_t) word;
-	dataToDAC[1] = (uint8_t) word >> 8;
+	dataToDAC[1] = (uint8_t) (word >> 8);
 
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
 	status = HAL_SPI_Transmit(dac_handler->dac_hspi, dataToDAC, (uint16_t) sizeof(dataToDAC), HAL_MAX_DELAY);
-	return status;
-
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_SET);
 	return status;
 }
@@ -206,7 +204,7 @@ void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uin
 void init_LDAC_in_dacs(DAC_Handler ** list_of_dacs, uint8_t dacs_count){
 
 	for(int i = 0 ; i < dacs_count; i++){
-		uint16_t word = DAC_CONFIG_LDAC_HIGH;
+		uint16_t word = DAC_CONFIG_RESET_DATA_AND_CONTROL;
 
 		if( _send_word_to_dac(word, list_of_dacs[i]) != HAL_OK){
 			break;

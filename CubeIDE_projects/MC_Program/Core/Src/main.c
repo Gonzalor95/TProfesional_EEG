@@ -138,13 +138,13 @@ int main(void)
 
 
   // LDAC Settings. Variable defined as "extern" in EEG_simulation.h
-  init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
+  //init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
 
   DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
-  uint8_t dacs_count = sizeof(list_of_dacs);
+  uint8_t dacs_count = sizeof(list_of_dacs)/sizeof(list_of_dacs[0]);
   DAC_Channel DAC_channel = 0;
 
-  DAC_Tag DAC_tag = 1;
+  DAC_Tag DAC_tag = DAC_B;
   uint16_t data = 0;
   uint16_t config = 0;
 
@@ -152,7 +152,7 @@ int main(void)
   uint32_t delay_in_ms = 10;
 
   // TODO: Pre Configuration for LDAC
-  init_LDAC_in_dacs(list_of_dacs, dacs_count);
+ // init_LDAC_in_dacs(&list_of_dacs, dacs_count);
 
   while(1){
 
@@ -161,9 +161,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	parse_receiving_buffer(bufferUSB, &config, &data);
-
-
+	//parse_receiving_buffer(bufferUSB, &config, &data);
 
 	// config entre [0, 31] es para escribir al DAC
 	if(config < MAX_DAC_CHANNEL_WORD){
@@ -183,7 +181,7 @@ int main(void)
 		continue;
 	}
 
-	//send_pulse_to_dac_channels(&(list_of_dacs[DAC_tag]), arr_dac_channels, 8, delay_in_ms);
+	send_pulse_to_dac_channels(&(list_of_dacs[DAC_B]), arr_dac_channels, 8, delay_in_ms);
   }
   /* USER CODE END 3 */
 }

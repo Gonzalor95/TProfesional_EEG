@@ -22,8 +22,8 @@ print (ser.name)
 #    ser.write(serial.to_bytes(cw))
 #    LSBy += 1
 
-config_MSB = 9
-config_LSB = 0
+config_MSB = 0
+config_LSB = 9
 
 data_MSB = 0xff
 data_LSB = 0xff
