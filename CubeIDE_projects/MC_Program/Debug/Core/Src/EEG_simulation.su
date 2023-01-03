@@ -9,6 +9,6 @@
 ../Core/Src/EEG_simulation.c:162:6:send_triangular_wave_to_dac_channels	40	static
 ../Core/Src/EEG_simulation.c:189:6:init_dac_handler	24	static
 ../Core/Src/EEG_simulation.c:199:6:init_LDAC_settings	24	static
-../Core/Src/EEG_simulation.c:204:6:init_LDAC_in_dacs	24	static
-../Core/Src/EEG_simulation.c:217:9:get_dac_channel_addr_mask	16	static
-../Core/Src/EEG_simulation.c:222:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm
+../Core/Src/EEG_simulation.c:206:6:init_LDAC_in_dacs	24	static
+../Core/Src/EEG_simulation.c:219:9:get_dac_channel_addr_mask	16	static
+../Core/Src/EEG_simulation.c:224:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm

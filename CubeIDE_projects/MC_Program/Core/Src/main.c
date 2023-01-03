@@ -138,7 +138,7 @@ int main(void)
 
 
   // LDAC Settings. Variable defined as "extern" in EEG_simulation.h
-  //init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
+  init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
 
   DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
   uint8_t dacs_count = sizeof(list_of_dacs)/sizeof(list_of_dacs[0]);
