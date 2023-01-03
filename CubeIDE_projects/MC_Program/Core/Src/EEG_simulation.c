@@ -201,12 +201,12 @@ void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uin
 	LDAC_settings->GPIO_LDAC_control_pin = GPIO_Pin;
 }
 
-void init_LDAC_in_dacs(DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+void init_LDAC_in_dacs(DAC_Handler  list_of_dacs[], uint8_t dacs_count){
 
 	for(int i = 0 ; i < dacs_count; i++){
 		uint16_t word = DAC_CONFIG_RESET_DATA_AND_CONTROL;
 
-		if( _send_word_to_dac(word, list_of_dacs[i]) != HAL_OK){
+		if( _send_word_to_dac(word, &(list_of_dacs[i])) != HAL_OK){
 			break;
 		}
 

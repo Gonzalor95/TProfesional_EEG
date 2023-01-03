@@ -152,7 +152,7 @@ int main(void)
   uint32_t delay_in_ms = 10;
 
   // TODO: Pre Configuration for LDAC
- // init_LDAC_in_dacs(&list_of_dacs, dacs_count);
+  init_LDAC_in_dacs(list_of_dacs, dacs_count);
 
   while(1){
 
