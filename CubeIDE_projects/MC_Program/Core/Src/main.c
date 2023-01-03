@@ -47,7 +47,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN PV */
@@ -151,7 +151,7 @@ int main(void)
   DAC_Channel arr_dac_channels[] = {0,1,2,3,4,5,6,7}; // Used to test pulse or triangular
   uint32_t delay_in_ms = 10;
 
-  // TODO: Pre Configuration for LDAC
+  reset_dacs_config(list_of_dacs, dacs_count);
   init_LDAC_in_dacs(list_of_dacs, dacs_count);
 
   while(1){
@@ -161,7 +161,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	//parse_receiving_buffer(bufferUSB, &config, &data);
+	parse_receiving_buffer(bufferUSB, &config, &data);
 
 	// config entre [0, 31] es para escribir al DAC
 	if(config < MAX_DAC_CHANNEL_WORD){
@@ -181,7 +181,7 @@ int main(void)
 		continue;
 	}
 
-	send_pulse_to_dac_channels(&(list_of_dacs[DAC_B]), arr_dac_channels, 8, delay_in_ms);
+	//send_pulse_to_dac_channels(&(list_of_dacs[DAC_B]), arr_dac_channels, 8, delay_in_ms);
   }
   /* USER CODE END 3 */
 }
@@ -328,6 +328,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PA4 */
   GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -335,8 +338,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  /*Configure GPIO pins : PB1 PB2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

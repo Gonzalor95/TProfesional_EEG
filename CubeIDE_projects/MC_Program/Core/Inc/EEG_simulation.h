@@ -149,6 +149,7 @@ void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel 
 void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
 void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin);
 void init_LDAC_in_dacs(DAC_Handler  list_of_dacs[], uint8_t dacs_count);
+void reset_dacs_config(DAC_Handler list_of_dacs[], uint8_t dacs_count);
 
 
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
