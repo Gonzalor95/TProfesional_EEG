@@ -108,7 +108,7 @@ void trigger_LDAC(){
 	HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_SET);
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler * list_of_dacs[], uint8_t dacs_count){
 
 	HAL_StatusTypeDef status = HAL_OK;
 	if(config == CONF_LDAC_TRIGGER){

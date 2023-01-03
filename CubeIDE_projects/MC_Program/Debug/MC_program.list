@@ -525,7 +525,7 @@ void trigger_LDAC(){
 
 080005c4 <send_configuration_to_dacs>:
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler * list_of_dacs[], uint8_t dacs_count){
  80005c4:	b580      	push	{r7, lr}
  80005c6:	b084      	sub	sp, #16
  80005c8:	af00      	add	r7, sp, #0
