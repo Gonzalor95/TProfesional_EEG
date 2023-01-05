@@ -24,9 +24,9 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 // Receives the USB buffer and parse it to config and data variables
 void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data){
 	// config = {1,0}
-	*config = ((uint16_t)bufferUSB[1] << 8) | ((uint16_t)bufferUSB[0]);
+	*config = ((uint16_t)bufferUSB[0] << 8) | ((uint16_t)bufferUSB[1]);
 	// data = {3,2}
-	*data = ((uint16_t)bufferUSB[3] << 8) | ((uint16_t)bufferUSB[2]);
+	*data = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
 }
 
 
@@ -102,13 +102,15 @@ void trigger_LDAC(){
 	// LDAC_settings variable is declared as extern outside
 
 	//Setting LDAC Pin to 0 (zero/low)
-	HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
+	// TODO: hardcode until figure extern problem HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
+
 
 	//Setting LDAC Pin to 1 (one/high)
-	HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler * list_of_dacs[], uint8_t dacs_count){
 
 	HAL_StatusTypeDef status = HAL_OK;
 	if(config == CONF_LDAC_TRIGGER){
@@ -199,14 +201,32 @@ void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeD
 void init_LDAC_settings(LDAC_Settings * LDAC_settings, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin){
 	LDAC_settings->GPIO_LDAC_control_port = GPIOx;
 	LDAC_settings->GPIO_LDAC_control_pin = GPIO_Pin;
+
+	// Initialize LDAC with fixed state
+	HAL_GPIO_WritePin(LDAC_settings->GPIO_LDAC_control_port, LDAC_settings->GPIO_LDAC_control_pin, GPIO_PIN_SET);
 }
 
-void init_LDAC_in_dacs(DAC_Handler ** list_of_dacs, uint8_t dacs_count){
+void init_LDAC_in_dacs(DAC_Handler  list_of_dacs[], uint8_t dacs_count){
+
+	for(int i = 0 ; i < dacs_count; i++){
+		uint16_t word = DAC_CONFIG_LDAC_HIGH;
+
+		if( _send_word_to_dac(word, &(list_of_dacs[i])) != HAL_OK){
+			break;
+		}
+
+	}
+}
+
+// Resets DACs.
+// Data in all channels  = 0
+// Config in all DACs = DEFAULT
+void reset_dacs_config(DAC_Handler list_of_dacs[], uint8_t dacs_count){
 
 	for(int i = 0 ; i < dacs_count; i++){
 		uint16_t word = DAC_CONFIG_RESET_DATA_AND_CONTROL;
 
-		if( _send_word_to_dac(word, list_of_dacs[i]) != HAL_OK){
+		if( _send_word_to_dac(word, &(list_of_dacs[i])) != HAL_OK){
 			break;
 		}
 
