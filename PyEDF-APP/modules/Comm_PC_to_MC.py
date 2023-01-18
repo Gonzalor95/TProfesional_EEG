@@ -32,18 +32,18 @@ Class to control communication between PC and EEG generator device
 
 class Comm_PC_to_MC():
 
-    ser_comm_port = None
+    ser_comm_port_obj = None
 
     def __init__(self, str_com_port = 'COM6'):
         try:
-            self.ser_comm_port = serial.Serial(str_com_port)  # open serial port
+            self.ser_comm_port_obj = serial.Serial(str_com_port)  # open serial port
             print("PC to device communication interface initialized")
         except Exception as err:
             logging.exception(f'Can not open port "{str_com_port}".')
             raise
 
     def __str__(self):
-        return f"Using port: {self.ser_comm_port}"
+        return f"Using port: {self.ser_comm_port_obj.name}"
             
 
     def send_word(self, config_word = channel_config_enum_dict.MAX_DAC_CHANNEL_WORD, data_word = 0):
@@ -53,3 +53,14 @@ class Comm_PC_to_MC():
         # The com protocol is designed to recieve a word of 32 bytes each time.
         # First 16 bytes for Config identification
         # Lates 16 bytes for data/instruction
+
+        config_MSB = 0
+        config_LSB = 8
+
+        data_MSB = 0xFf
+        data_LSB = 0xff
+
+        cw = [config_MSB, config_LSB, data_MSB, data_LSB]
+
+        print (serial.to_bytes(cw))
+        self.ser_comm_port_obj(serial.to_bytes(cw))
