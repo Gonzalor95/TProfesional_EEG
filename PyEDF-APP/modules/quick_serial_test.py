@@ -9,8 +9,8 @@ print (ser.name)
 config_MSB = 0
 config_LSB = 8
 
-data_MSB = 0x00
-data_LSB = 0x00
+data_MSB = 0xFf
+data_LSB = 0xff
 
 cw = [config_MSB, config_LSB, data_MSB, data_LSB]
 
