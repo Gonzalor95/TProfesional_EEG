@@ -11,36 +11,21 @@ sys.path.append(parent)
 import CommPCtoMC
 import unittest
 
+
+## Instanciar con CommPCtoMC.CommPCtoMC('None') ya que con el default falla si no hay nada conectado
+
 class TestCommPCtoMC(unittest.TestCase):
 
-    ### Examples: 
-    def test_list_int(self):
-        """
-        Test that it can sum a list of integers
-        """
-        data = [1, 2, 3]
-        result = sum(data)
-        self.assertEqual(result, 6)
 
-    def test_list_fraction(self):
-        """
-        Test that it can sum a list of fractions
-        """
-        self.assertEqual(1, 1)
 
-    def test_bad_type(self):
-        data = "banana"
-        with self.assertRaises(TypeError):
-            result = sum(data)
-    ###
+    def test_creating_CommPCtoMC_object_with_None_parameter(self):
+        commPCtoMC = CommPCtoMC.CommPCtoMC(None)
 
-    def test_creating_CommPCtoMC_object_with_default_values(self):
-        commPCtoMC = CommPCtoMC
+        
 
-        commPCtoMC.CommPCtoMC
+        result = commPCtoMC.__str__()
+        expected = "Using port: None"
 
-        result = 1
-        expected = 1
         self.assertEqual(result,expected)
 
 
