@@ -30,7 +30,7 @@ channel_config_enum_dict = {
 Class to control communication between PC and EEG generator device
 """
 
-class Comm_PC_to_MC():
+class CommPCtoMC():
 
     ser_comm_port_obj = None
 
@@ -46,7 +46,7 @@ class Comm_PC_to_MC():
         return f"Using port: {self.ser_comm_port_obj.name}"
             
 
-    def send_word(self, config_word = channel_config_enum_dict.MAX_DAC_CHANNEL_WORD, data_word = 0):
+    def send_word(self, config_word = channel_config_enum_dict["MAX_DAC_CHANNEL_WORD"], data_word = 0):
         """
         Sends a single word to the device
         """
