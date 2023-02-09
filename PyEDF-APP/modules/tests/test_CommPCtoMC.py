@@ -10,18 +10,17 @@ sys.path.append(parent)
 
 import CommPCtoMC
 import unittest
+from unittest import mock
+from unittest.mock import patch
+
 
 
 ## Instanciar con CommPCtoMC.CommPCtoMC('None') ya que con el default falla si no hay nada conectado
 
 class TestCommPCtoMC(unittest.TestCase):
 
-
-
     def test_creating_CommPCtoMC_object_with_None_parameter(self):
         commPCtoMC = CommPCtoMC.CommPCtoMC(None)
-
-        
 
         result = commPCtoMC.__str__()
         expected = "Using port: None"
@@ -30,4 +29,5 @@ class TestCommPCtoMC(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    os.system('cls') ## Clear screen
     unittest.main()
