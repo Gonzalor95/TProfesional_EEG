@@ -3,31 +3,36 @@
 import pyedflib
 import numpy as np
 import matplotlib.pyplot as plt
+from modules.ChannelToIntProtocol import ProtocolDict
 
 """
 Class used to work with the EDF files
 """
 
 
+# Structure tipe of class to hold the signal data
+# Array lenghts should all be the same
+class SignalData:
+    physical_signals = []  # Used only for previews
+    signal_headers = []  # Signal headers as read from the .edf file
+    digital_signals = []
+    # Parsed channel names, may not be the same as the ones present in the signal headers
+    channel_names = []
+
+
 class EDFWorker():
     # Class variables
     # Flag to state if an EDF file is loaded in the system or not
     file_loaded_ = False
-    # List with all the channels selected for the simulator
+    # Selected simulation channels in EEG standard
     selected_channels_ = []
     # Selected simulation time
     selected_sim_time_ = ()
-    # Flag to indicate if digital signals were generated or not
-    digital_signals_generated_ = False
+    # Data structure to hold the .edf data
+    signal_data_ = SignalData()
 
     def __init__(self):
         print("EDF Worker initialized")
-
-    def isFileLoaded(self):
-        """
-        Method to know if a file was loaded into the worker or not
-        """
-        return self.file_loaded_
 
     def resetWorker(self):
         """
@@ -37,88 +42,7 @@ class EDFWorker():
         self.selected_channels_ = []
         self.selected_sim_time_ = ()
         self.digital_signals_generated_ = False
-
-    def getSelectedSimTime(self):
-        """
-        Getter for the selected simulation time
-        """
-        return self.selected_sim_time_
-
-    def getSampleRate(self):
-        """
-        Getter for the signal sample rate
-        """
-        return self.signal_headers[0]["sample_rate"]
-
-    def getSignalDimension(self):
-        """
-        Getter for the signal unit dimension
-        """
-        return self.signal_headers[0]["dimension"]
-
-    def getNumberOfChannels(self):
-        """
-        Getter for the number of channels in the file
-        """
-        return self.physical_signals.shape[0]
-
-    def getChannels(self):
-        """
-        Getter for the channels of the EDF file
-        """
-        if self.file_loaded_:
-            channels_list = [header["label"] for header in self.signal_headers]
-            print(channels_list)
-            return channels_list
-        else:
-            print("File not loaded. Cannot get channels")
-            return []
-
-    def getDuration(self):
-        """
-        Getter for the measurement duration in seconds
-        """
-        return int(int(self.physical_signals.shape[1]) / int(self.getSampleRate()))
-
-    def getSignalInfo(self):
-        """
-        Returns a dictionary with the signal information:
-        Currently returns: Number of channels, dimension, sample_rate.
-        """
-        signal_info_dict = {}
-        signal_info_dict["Sample rate"] = self.getSampleRate()
-        signal_info_dict["Dimension"] = self.getSignalDimension()
-        signal_info_dict["Number of channels"] = self.getNumberOfChannels()
-        signal_info_dict["Duration [s]"] = self.getDuration()
-        return signal_info_dict
-
-    def setSelectedChannels(self, selected_channels):
-        """
-        Method to set the selected channels array
-        param[in]: "selected_channels" Array of integers with the selected channels
-        """
-        if self.file_loaded_:
-            number_of_channels = self.getNumberOfChannels()
-            # Check the size of the input array
-            if len(selected_channels) < 0 or len(selected_channels) > number_of_channels:
-                print("Invalid amount of selected channels")
-                return False
-            # Check that all channels are valid
-            for channel_number in selected_channels:
-                if (channel_number < 0) or (channel_number > number_of_channels - 1):
-                    print("Selected channel out of bounds")
-                    return False
-            self.selected_channels_ = selected_channels
-            return True
-        else:
-            print("File not loaded. Cannot select number of channels")
-            return False
-
-    def setSelectedSimTime(self, selected_sim_time):
-        """
-        Setter for the selected simulation time
-        """
-        self.selected_sim_time_ = selected_sim_time
+        self.signal_data_ = SignalData()
 
     def readEDF(self, file_full_path):
         """
@@ -127,63 +51,130 @@ class EDFWorker():
         returns: True if it was successful, false otherwise
         """
         try:
-            self.physical_signals, self.signal_headers, self.headers = pyedflib.highlevel.read_edf(
-                file_full_path, verbose=True)
-            print(f"Signal headers: {self.signal_headers}")
-            # Clear selected channels upon reading a new file
-            self.selected_channels_.clear()
-            # As a default when reading a file, select all channels
-            for signal_index in range(len(self.signal_headers)):
-                self.selected_channels_.append(signal_index)
+            physical_signals, signal_headers, header = pyedflib.highlevel.read_edf(file_full_path, verbose=True)
+            self.fillSignalData(physical_signals, signal_headers, header)
             # Set the simulation time
             self.selected_sim_time_ = (int(0), int(self.getDuration()))
+            # Set the selected channels to all
+            self.selected_channels_ = self.getChannels()
             self.file_loaded_ = True
             return True
         except:
             return False
 
-    def previewSignals(self, signal_type):
-        """
-        Method to plot a preview of the specified signal
-        """
-        if (self.file_loaded_):
-            if signal_type == "digital":
-                self.generateDigitalSignals()
-                self.plotSignals(self.digital_signals)
-                return True
-            elif signal_type == "physical":
-                self.plotSignals(self.physical_signals)
-                return True
-            else:
-                print("Incorrect type of signal specified to the preview method")
-                return False
-        else:
-            print("EDF file not loaded, cannot preview signals")
-            return False
+    def fillSignalData(self, physical_signals, signal_headers, header):
+        self.resetWorker()
+        self.signal_data_.physical_signals = physical_signals
+        self.signal_data_.signal_headers = signal_headers
+        self.signal_data_.channel_names = self.parseChannelsNames(
+            signal_headers)
+        self.signal_data_.digital_signals = self.generateDigitalSignals(
+            physical_signals, signal_headers)
 
-    def generateDigitalSignals(self):
+    def parseChannelsNames(self, signal_headers):
+        channels = [header["label"] for header in signal_headers]
+        parsed_channels = []
+        for key in ProtocolDict.channel_enum_dict_.keys():
+            for channel in channels:
+                all_chars_in_channel = True
+                for char in key:
+                    if channel.lower().find(char.lower()) == -1:
+                        all_chars_in_channel = False
+                if (all_chars_in_channel == True) and (key not in parsed_channels):
+                    parsed_channels.append(key)
+        return parsed_channels
+
+    def generateDigitalSignals(self, physical_signals, signal_headers):
         """
         Method to generate the digital signals from the physical ones
         """
-        if not self.digital_signals_generated_:
-            self.digital_signals = np.empty([1, len(self.physical_signals[1])])
-            for i in range(self.physical_signals.shape[0]):
-                # Iterate backwards to get the correct order when stacking
-                digital_signal = pyedflib.highlevel.phys2dig(self.physical_signals[-1-i],
-                                                             self.signal_headers[-1 -
-                                                                                 i]["digital_min"],
-                                                             self.signal_headers[-1 -
-                                                                                 i]["digital_max"],
-                                                             self.signal_headers[-1 -
-                                                                                 i]["physical_min"],
-                                                             self.signal_headers[-1-i]["physical_max"])
-                self.digital_signals = np.vstack(
-                    (self.digital_signals, digital_signal))
-            # Re-arrange the rows because they got disordered when stacking
-            for i in range(int(self.physical_signals.shape[0] / 2)):
-                self.digital_signals[[i, -1-i]
-                                     ] = self.digital_signals[[-1-i, i]]
-            self.digital_signals_generated_ = True
+        digital_signals = np.empty([1, len(physical_signals[1])])
+        for i in range(physical_signals.shape[0]):
+            # Iterate backwards to get the correct order when stacking
+            digital_signal = pyedflib.highlevel.phys2dig(physical_signals[-1-i], signal_headers[-1 - i]["digital_min"],
+                                                         signal_headers[-1 - i]["digital_max"], signal_headers[-1 - i]["physical_min"], signal_headers[-1 - i]["physical_max"])
+            digital_signals = np.vstack((digital_signals, digital_signal))
+        # Re-arrange the rows because they got disordered when stacking
+        for i in range(int(physical_signals.shape[0] / 2)):
+            digital_signals[[i, -1-i]] = digital_signals[[-1-i, i]]
+        return digital_signals
+
+    def isFileLoaded(self):
+        """
+        Method to know if a file was loaded into the worker or not
+        """
+        return self.file_loaded_
+
+    def getNumberOfChannels(self):
+        """
+        Getter for the number of channels in the file
+        """
+        return self.signal_data_.physical_signals.shape[0]
+
+    def getSampleRate(self):
+        """
+        Getter for the signal sample rate
+        """
+        return self.signal_data_.signal_headers[0]["sample_rate"]
+
+    def getSignalDimension(self):
+        """
+        Getter for the signal unit dimension
+        """
+        return self.signal_data_.signal_headers[0]["dimension"]
+
+    def getChannels(self):
+        """
+        Getter for the channels of the EDF file
+        """
+        return self.signal_data_.channel_names
+
+    def setSelectedChannels(self, selected_channels):
+        """
+        Setter for the selected channels to simulate
+        """
+        self.selected_channels_ = selected_channels
+
+    def getDuration(self):
+        """
+        Getter for the measurement duration in seconds
+        """
+        return int(int(self.signal_data_.physical_signals.shape[1]) / int(self.getSampleRate()))
+
+    def getSelectedSimTime(self):
+        """
+        Getter for the selected simulation time
+        """
+        return self.selected_sim_time_
+
+    def setSelectedSimTime(self, selected_sim_time):
+        """
+        Setter for the selected simulation time
+        """
+        self.selected_sim_time_ = selected_sim_time
+
+    def getSignalInfo(self):
+        """
+        Returns a dictionary with the signal information:
+        Currently returns: Number of channels, dimension, sample_rate and duration.
+        """
+        signal_info_dict = {}
+        signal_info_dict["Sample rate"] = self.getSampleRate()
+        signal_info_dict["Dimension"] = self.getSignalDimension()
+        signal_info_dict["Number of channels"] = self.getNumberOfChannels()
+        signal_info_dict["Duration [s]"] = self.getDuration()
+        return signal_info_dict
+
+    def previewSignals(self):
+        """
+        Method to plot a preview of the physical signal
+        """
+        if (self.file_loaded_):
+            self.plotSignals(self.signal_data_.physical_signals)
+            return True
+        else:
+            print("EDF file not loaded, cannot preview signals")
+            return False
 
     def plotSignals(self, signal):
         """
@@ -193,20 +184,20 @@ class EDFWorker():
         for index in range(len(self.selected_channels_)):
             start_time = self.selected_sim_time_[0]*int(self.getSampleRate())
             end_time = self.selected_sim_time_[1]*int(self.getSampleRate())
-            signal_to_print = signal[self.selected_channels_[
-                index]][start_time:end_time]
-            axis[index][0].plot(signal_to_print, color=(
-                [168/255, 193/255, 5/255]), linewidth=0.4)
-            print(signal[index][0:100])
+
+            # Get where that channel is in the array
+            signal_index = self.signal_data_.channel_names.index(self.selected_channels_[index])
+            # Get the piece of signal to plot
+            signal_to_print = signal[signal_index][start_time:end_time]
+            # Plot
+            axis[index][0].plot(signal_to_print, color=([168/255, 193/255, 5/255]), linewidth=0.4)
             # Hide axis values
             axis[index][0].get_xaxis().set_ticks([])
-            #axis[index][0].get_yaxis().set_ticks([])
+            # axis[index][0].get_yaxis().set_ticks([])
             # Set plot title
-            axis[index][0].set_ylabel(
-                self.signal_headers[self.selected_channels_[index]]["label"], rotation=0, labelpad=30)
+            axis[index][0].set_ylabel(self.signal_data_.channel_names[signal_index], rotation=0, labelpad=30)
             # Adjust axis range to better fit the signal
-            axis[index][0].set_xlim(
-                [0, end_time - start_time])
+            axis[index][0].set_xlim([0, end_time - start_time])
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()

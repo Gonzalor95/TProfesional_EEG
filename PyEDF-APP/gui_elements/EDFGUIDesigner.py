@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_elements/EDFGUIDesigner.ui'
+# Form implementation generated from reading ui file 'EDFGUIDesigner.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -124,26 +124,6 @@ class Ui_MainWindow(object):
         self.selected_channels_value.setText("")
         self.selected_channels_value.setObjectName("selected_channels_value")
         self.horizontalLayout.addWidget(self.selected_channels_value)
-        self.verticalLayout.addLayout(self.horizontalLayout)
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.channel_select_line_edit = QtWidgets.QLineEdit(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.channel_select_line_edit.sizePolicy().hasHeightForWidth())
-        self.channel_select_line_edit.setSizePolicy(sizePolicy)
-        self.channel_select_line_edit.setMinimumSize(QtCore.QSize(0, 0))
-        self.channel_select_line_edit.setObjectName("channel_select_line_edit")
-        self.horizontalLayout_5.addWidget(self.channel_select_line_edit)
-        self.select_channels_button = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.select_channels_button.sizePolicy().hasHeightForWidth())
-        self.select_channels_button.setSizePolicy(sizePolicy)
-        self.select_channels_button.setObjectName("select_channels_button")
-        self.horizontalLayout_5.addWidget(self.select_channels_button)
         self.channel_browse_button = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -151,8 +131,8 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.channel_browse_button.sizePolicy().hasHeightForWidth())
         self.channel_browse_button.setSizePolicy(sizePolicy)
         self.channel_browse_button.setObjectName("channel_browse_button")
-        self.horizontalLayout_5.addWidget(self.channel_browse_button)
-        self.verticalLayout.addLayout(self.horizontalLayout_5)
+        self.horizontalLayout.addWidget(self.channel_browse_button)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.selected_sim_time_key = QtWidgets.QLabel(self.centralwidget)
@@ -223,8 +203,6 @@ class Ui_MainWindow(object):
         self.information_title_label.setText(_translate("MainWindow", "Signal information"))
         self.configuration_title_label.setText(_translate("MainWindow", "Signal configuration"))
         self.selected_channels_key.setText(_translate("MainWindow", "Selected channels: "))
-        self.channel_select_line_edit.setPlaceholderText(_translate("MainWindow", "0, 1, 5 - 6,..."))
-        self.select_channels_button.setText(_translate("MainWindow", "Select"))
         self.channel_browse_button.setText(_translate("MainWindow", "Browse channels"))
         self.selected_sim_time_key.setText(_translate("MainWindow", "Simulation time [s]: "))
         self.preview_button.setText(_translate("MainWindow", "PREVIEW"))

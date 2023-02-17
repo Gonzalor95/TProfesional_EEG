@@ -2,6 +2,7 @@
 
 import serial
 import serial.tools.list_ports
+from modules.ChannelToIntProtocol import ProtocolDict
 import sys
 import glob
 import re

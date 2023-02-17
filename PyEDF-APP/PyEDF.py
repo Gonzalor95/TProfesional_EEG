@@ -12,16 +12,18 @@ from modules.TestingSignals import TestingSignalsWorker
 
 # GUI elements
 from gui_elements.EDFGUIDesigner import Ui_MainWindow
-from gui_elements.WelcomeDialog import WelcomeDialog
+from gui_elements.WelcomeScreenLogic import WelcomeDialog
 from gui_elements.PopUpWindow import PopUpWindow
 from gui_elements.ListSelectionPopUp import ListSelectionPopUp
 from gui_elements.Style import FontStyles
+from gui_elements.ChannelSelectionLogic import ChannelSelectionDialog
 
 # Utils
 from utils import utils
 
 # TODO: (Delete) Command to convert .ui files to python files
-# python -m PyQt5.uic.pyuic -x EDFGUIDesigner.ui -o EDFGUIDesigner.py
+# python -m PyQt5.uic.pyuic -x .\gui_elements\EDFGUIDesigner.ui -o .\gui_elements\EDFGUIDesigner.py
+# Common mode signals: https://physionet.org/content/eegmat/1.0.0/
 
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
@@ -61,9 +63,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Connect user inputs
         self.browse_edf_button.clicked.connect(self.browseEDFFiles)
         self.browse_devices_button.clicked.connect(self.browseDevices)
-        self.testing_signals_button.clicked.connect(
-            self.browseTestingSignals)
-        self.select_channels_button.clicked.connect(self.selectChannels)
+        self.testing_signals_button.clicked.connect(self.browseTestingSignals)
         self.channel_browse_button.clicked.connect(self.browseChannels)
         self.set_sim_time_button.clicked.connect(self.simTimeChanged)
         self.preview_button.clicked.connect(self.previewEDF)
@@ -83,8 +83,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         # Filter only for EDF files
         filter = "EDFFiles(*.edf)"
-        file_name = QFileDialog.getOpenFileName(
-            self, "Select EDF file", os.getcwd() + "\edf_samples", filter)[0]
+        file_name = QFileDialog.getOpenFileName(self, "Select EDF file", os.getcwd() + "\edf_samples", filter)[0]
         if file_name:
             self.loadEDFFile(file_name)
 
@@ -96,9 +95,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         if(self.edf_worker.readEDF(file_name)):
             # Check that the amount of channels doesn't exceed the configured one
             if self.edf_worker.getNumberOfChannels() >= self.max_channels_:
-                print(
-                    "Number of channels of the selected EDF file exceeds the max amount, "
-                    "please select a different EDF file")
+                print("Number of channels of the selected EDF file exceeds the max amount, please select a different EDF file")
                 self.edf_worker.resetWorker()
                 PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
                             "please select a different EDF file",
@@ -112,7 +109,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             self.edf_worker.setSelectedSimTime(
                 (int(0), int(self.edf_worker.getDuration())))
             # Set selected channels to ALL
-            self.selected_channels_value.setText("ALL")
+            self.selected_channels_value.setText("-".join(self.edf_worker.getChannels()))
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
                 utils.delete_box_from_layout(
@@ -212,7 +209,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             if(self.testing_signals_worker.previewSignal() == False):
                 print("Error when previewing testing signal. Check if a file was loaded")
         else:
-            if(self.edf_worker.previewSignals("digital") == False):
+            if(self.edf_worker.previewSignals() == False):
                 print("Error in preview EDF signal. Check if a file was loaded")
 
     def runEDFSimulator(self):
@@ -221,59 +218,21 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         print("Run EDF simulator requested")
 
-    def selectChannels(self):
-        """
-        Callback method for the "select channels" button
-        This method reads the selected channels line edit, parses it into an array of
-        integers and set the EDF worker with it
-        """
-        raw_string = self.channel_select_line_edit.text()
-        if raw_string:
-            if raw_string == "ALL":
-                selected_channels = [i for i in range(
-                    0, self.edf_worker.getNumberOfChannels())]
-            else:
-                # Remove all whitespaces
-                raw_string = raw_string.replace(" ", "")
-                selected_channels = utils.parse_selected_channels_string(
-                    raw_string)
-            if not selected_channels:
-                print("Error when parsing input into channels")
-            if self.is_testing_signal_:
-                if self.testing_signals_worker.setSelectedChannels(selected_channels) == False:
-                    PopUpWindow("Channel selection", "Error when trying to set the selected channels in the testing signal worker, please try again",
-                                QMessageBox.Abort, QMessageBox.Critical)
-                    print(
-                        "Error when trying to set the selected channels in the testing signal worker")
-                else:
-                    self.selected_channels_value.setText(
-                        ",".join([str(int) for int in selected_channels]))
-            else:
-                if self.edf_worker.setSelectedChannels(selected_channels) == False:
-                    PopUpWindow("Channel selection", "Error when trying to set the selected channels in the EDF worker, please try again",
-                                QMessageBox.Abort, QMessageBox.Critical)
-                    print(
-                        "Error when trying to set the selected channels in the EDF worker")
-                else:
-                    self.selected_channels_value.setText(
-                        ",".join([str(int) for int in selected_channels]))
-        else:
-            print("Empty input in channel selector")
-        # Clear line edit
-        self.channel_select_line_edit.clear()
-
     def browseChannels(self):
         """
         Callback for the browseChannels button click
         """
-        channels = self.edf_worker.getChannels()
-        self.signal_channels_list = ListSelectionPopUp(
-            self.parseSelectedChannels)
-        self.signal_channels_list.addCheckableList(channels)
-        self.signal_channels_list.show()
+        ChannelSelectionDialog(self.setChannels, self.edf_worker.getChannels())
 
-    def parseSelectedChannels(self):
-        print("asd")
+    def setChannels(self, selected_channels):
+        """
+        Method to set the channels in the EDF Worker
+        """
+        if not selected_channels:
+            print("No channels selected, keeping old selection")
+        else:
+            self.selected_channels_value.setText("-".join(selected_channels))
+            self.edf_worker.setSelectedChannels(selected_channels)
 
     def simTimeChanged(self):
         """
