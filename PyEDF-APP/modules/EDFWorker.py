@@ -10,7 +10,7 @@ Class used to work with the EDF files
 """
 
 
-# Structure tipe of class to hold the signal data
+# Structure type of class to hold the signal data
 # Array lenghts should all be the same
 class SignalData:
     physical_signals = []  # Used only for previews

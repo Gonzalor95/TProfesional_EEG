@@ -3,10 +3,24 @@
 from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
+from modules.ChannelToIntProtocol import ProtocolDict
 
 """
 Class to handle the testing signals
 """
+
+
+# Structure type of class to hold the signal data
+# Array lenghts should all be the same
+class SignalData:
+    signal_name = ""  # ["Square", "Sinusoidal", "Triangular"]
+    signal = []
+    frecuency = 0
+    sample_rate = 0
+    amplitude = 0
+    duration = 0
+    # Parsed channel names, may not be the same as the ones present in the signal headers
+    channel_names = []
 
 
 class TestingSignalsWorker():
@@ -14,26 +28,20 @@ class TestingSignalsWorker():
     selected_channels_ = []
     # Selected simulation time
     selected_sim_time_ = ()
-    # Selected testing signal. If empty, no current testing signal is selected
-    selected_testing_signal_ = ""
     # Possible testing signals
     testing_signals_ = ["Square", "Sinusoidal", "Triangular"]
+    # Default values for the signal
+    DEFAULT_FRECUENCY = 50  # Hz
+    DEFAULT_AMPLITUD = 20  # uV
+    DEFAULT_TIME_SPAN = 60  # sec
+    DEFAULT_SAMPLE_RATE = 2048  # points per second
 
     def __init__(self, max_channels):
         self.max_channels_ = max_channels
         self.selected_channels_ = range(max_channels)
-        self.duration_ = 300  # Max duration in seconds
-        self.amplitud_ = 1
-        self.frecuency_ = 1  # In Hz
-        self.sample_rate_ = 1000 # In points per sec
-        self.selected_sim_time_ = (0, self.duration_)
+        self.selected_sim_time_ = ()
+        self.signal_data_ = SignalData()
         print("Testing signals worker initialized")
-
-    def listTestingSignals(self):
-        """
-        Method to create a list of all corresponding testing signals
-        """
-        return self.testing_signals_
 
     def getSignalInfo(self):
         """
@@ -44,6 +52,9 @@ class TestingSignalsWorker():
         signal_info_dict["Dimension"] = self.getSignalDimension()
         signal_info_dict["Number of channels"] = self.getNumberOfChannels()
         signal_info_dict["Duration [s]"] = self.getDuration()
+        signal_info_dict["Frecuency [Hz]"] = self.getFrecuency()
+        signal_info_dict["Amplitude [uV]"] = self.getAmplitud()
+        signal_info_dict["Sample Rate [1/seg]"] = self.getSampleRate()
         return signal_info_dict
 
     def getNumberOfChannels(self):
@@ -56,7 +67,7 @@ class TestingSignalsWorker():
         """
         Getter for the testing signal duration in seconds
         """
-        return self.duration_
+        return self.signal_data_.duration
 
     def getSignalDimension(self):
         """
@@ -68,33 +79,27 @@ class TestingSignalsWorker():
         """
         Getter for the testing signal amplitud
         """
-        return self.amplitud_
+        return self.signal_data_.amplitude
 
     def getFrecuency(self):
         """
         Getter for the testing signal frecuency
         """
-        return self.frecuency_
+        return self.signal_data_.frecuency
 
     def getSampleRate(self):
         """
         Getter for the testing signal sample rate
         """
-        return self.sample_rate_
-
-    def selectTestingSignal(self, selected_signal):
-        """
-        TODO
-        """
-        self.resetTestSignalWorker()
-        self.generateSignal(selected_signal)
-        self.selected_testing_signal_ = selected_signal
+        return self.signal_data_.sample_rate
 
     def resetTestSignalWorker(self):
         """
-        TODO
+        Method to re-initialize the testing signal module
         """
-        self.selected_testing_signal_ = ""
+        self.signal_data_ = SignalData()
+        self.selected_channels_ = []
+        self.selected_sim_time_ = ()
 
     def setSelectedChannels(self, selected_channels):
         """
@@ -128,46 +133,50 @@ class TestingSignalsWorker():
         """
         Method to plot a preview of the specified signal
         """
-        if self.selected_testing_signal_:
-            self.plotSignal(self.signal_)
+        if self.signal_data_.signal_name:
+            self.plotSignal(self.signal_data_.signal)
         else:
             print("Testing signal not loaded, cannot preview signals")
             return False
 
-    def generateSignal(self, selected_signal):
+    def generateTestingSignal(self, signal_name, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate the selected signal
         """
-        if selected_signal == self.testing_signals_[0]:
-            self.signal_ = self.generateSquareSignal()
-        if selected_signal == self.testing_signals_[1]:
-            self.signal_ = self.generateSinSignal()
-        if selected_signal == self.testing_signals_[2]:
-            self.signal_ = self.generateTriangSignal()
+        self.resetTestSignalWorker()
+        if signal_name == self.testing_signals_[0]:
+            self.signal_data_.signal = self.generateSquareSignal(frecuency, amplitude, sample_rate, duration)
+        if signal_name == self.testing_signals_[1]:
+            self.signal_data_.signal = self.generateSinSignal(frecuency, amplitude, sample_rate, duration)
+        if signal_name == self.testing_signals_[2]:
+            self.signal_data_.signal = self.generateTriangSignal(frecuency, amplitude, sample_rate, duration)
+        self.signal_data_.signal_name = signal_name
+        self.signal_data_.frecuency = frecuency
+        self.signal_data_.amplitude = amplitude
+        self.signal_data_.sample_rate = sample_rate
+        self.signal_data_.duration = duration
 
-    def generateSquareSignal(self):
+    def generateSquareSignal(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a square signal
         """
-        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
-        squarewave = signal.square(2 * np.pi * self.getFrecuency() * t)
-        return squarewave
+        time = np.arange(0, duration, 1 / sample_rate)
+        return amplitude * signal.square(2*np.pi * frecuency * time)
 
-    def generateSinSignal(self):
+    def generateSinSignal(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a sinusoidal signal
         """
-        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
-        sinewave = self.getAmplitud() * np.sin(2 * np.pi * self.getFrecuency() * t)
-        return sinewave
+        time = np.arange(0, duration, 1 / sample_rate)
+        print(time.size)
+        return amplitude * np.sin(2*np.pi * frecuency * time)
 
-    def generateTriangSignal(self):
+    def generateTriangSignal(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a triangular signal
         """
-        t = np.arange(0, self.duration_, 1 / self.getSampleRate())
-        triangle = np.abs(signal.sawtooth(2 * np.pi * self.getFrecuency() * t))
-        return triangle
+        time = np.arange(0, duration, 1 / sample_rate)
+        return amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
 
     def plotSignal(self, signal):
         """
@@ -176,14 +185,11 @@ class TestingSignalsWorker():
         fig, axis = plt.subplots(1)
         start_time = self.selected_sim_time_[0] * int(self.getSampleRate())
         end_time = self.selected_sim_time_[1] * int(self.getSampleRate())
-        axis.plot(signal[start_time:end_time], color=(
+        time = np.arange(0, self.signal_data_.duration, 1 / self.signal_data_.sample_rate)
+        axis.plot(time, signal[start_time:end_time], color=(
             [168/255, 193/255, 5/255]), linewidth=0.4)
-        # Hide axis values
-        axis.set_yticklabels([])
-        axis.set_xticklabels([])
-        # Adjust axis range to better fit the signal
-        axis.set_xlim(
-            [0, end_time - start_time])
+        axis.set_ylabel("Amplitude [uV]", rotation=0, labelpad=30)
+        axis.set_xlabel("Time [sec]", rotation=0, labelpad=30)
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()

@@ -12,11 +12,12 @@ from modules.TestingSignals import TestingSignalsWorker
 
 # GUI elements
 from gui_elements.EDFGUIDesigner import Ui_MainWindow
-from gui_elements.WelcomeScreenLogic import WelcomeDialog
+from gui_elements.WelcomeScreenDesignLogic import WelcomeDialog
 from gui_elements.PopUpWindow import PopUpWindow
 from gui_elements.ListSelectionPopUp import ListSelectionPopUp
 from gui_elements.Style import FontStyles
-from gui_elements.ChannelSelectionLogic import ChannelSelectionDialog
+from gui_elements.ChannelSelectionDesignLogic import ChannelSelectionDialog
+from gui_elements.TestingSignalsDesignLogic import TestingSignalsDialog
 
 # Utils
 from utils import utils
@@ -159,45 +160,43 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Callback method for the "Testing signals" button press.
         """
-        testing_signals = self.testing_signals_worker.listTestingSignals()
+        testing_signal_dialog = TestingSignalsDialog()
+        self.loadTestingSignal(testing_signal_dialog.getSelection())
 
-        self.testing_signals_list = ListSelectionPopUp(
-            self.loadTestingSignal, testing_signals)
-        self.testing_signals_list.show()
-
-    def loadTestingSignal(self, chosen_signal):
+    def loadTestingSignal(self, selection_dict):
         """
         Method to load a testing signal into the testing signal worker and its information on the GUI
         """
-        # Load testing signal into worker and GUI
-        self.testing_signals_worker.selectTestingSignal(chosen_signal)
-        # Place the file name in the dialog box
-        self.current_file_name_label.setText(chosen_signal)
-        # Set the maximun time selector slider value to the signal duration
-        self.selected_sim_time_value.setText(
-            str(0) + " - " + str(self.testing_signals_worker.getDuration()))
-        self.testing_signals_worker.setSelectedSimTime(
-            (int(0), int(self.testing_signals_worker.getDuration())))
-        # Set selected channels to ALL
-        self.selected_channels_value.setText("ALL")
-        # Delete info h layouts in the info v layout (not the title)
-        for widget_index in range(self.information_labels_layout.count()):
-            utils.delete_box_from_layout(
-                self.information_labels_layout, self.info_h_boxes[widget_index])
-        # Generate the information h boxes and add them to the info v layout
-        signal_info_dict = self.testing_signals_worker.getSignalInfo()
-        self.info_h_boxes.clear()
-        for key in signal_info_dict:
-            info_key = QLabel(str(key) + ": ")
-            info_key.setFont(self.font_styles.info_key_font)
-            info_value = QLabel(str(signal_info_dict[key]))
-            h_box = QHBoxLayout()
-            h_box.addWidget(info_key)
-            h_box.addWidget(info_value, stretch=1)
-            self.info_h_boxes.append(h_box)
-            self.information_labels_layout.addLayout(h_box)
-        # Set the flag to indicate that the signal loaded is a testing signal
-        self.is_testing_signal_ = True
+        if selection_dict:
+            # Load testing signal into worker and GUI
+            self.testing_signals_worker.generateTestingSignal(
+                selection_dict["signal_name"], selection_dict["frecuency"], selection_dict["amplitude"], selection_dict["sample_rate"], selection_dict["duration"])
+            # Place the file name in the dialog box
+            self.current_file_name_label.setText(selection_dict["signal_name"])
+            # Set the maximun time selector slider value to the signal duration
+            self.selected_sim_time_value.setText(str(0) + " - " + str(selection_dict["duration"]))
+            self.testing_signals_worker.setSelectedSimTime((int(0), int(selection_dict["duration"])))
+            # Set selected channels to ALL
+            self.selected_channels_value.setText("ALL")
+            # Delete info h layouts in the info v layout (not the title)
+            for widget_index in range(self.information_labels_layout.count()):
+                utils.delete_box_from_layout(
+                    self.information_labels_layout, self.info_h_boxes[widget_index])
+            # Generate the information h boxes and add them to the info v layout
+            self.info_h_boxes.clear()
+            for key in selection_dict:
+                info_key = QLabel(str(key) + ": ")
+                info_key.setFont(self.font_styles.info_key_font)
+                info_value = QLabel(str(selection_dict[key]))
+                h_box = QHBoxLayout()
+                h_box.addWidget(info_key)
+                h_box.addWidget(info_value, stretch=1)
+                self.info_h_boxes.append(h_box)
+                self.information_labels_layout.addLayout(h_box)
+            # Set the flag to indicate that the signal loaded is a testing signal
+            self.is_testing_signal_ = True
+        else:
+            print("No testing signal selected")
 
     def previewEDF(self):
         """
@@ -207,7 +206,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         print("Preview EDF requested")
         if self.is_testing_signal_:
             if(self.testing_signals_worker.previewSignal() == False):
-                print("Error when previewing testing signal. Check if a file was loaded")
+                print("Error when previewing testing signal. Check if a signal was loaded")
         else:
             if(self.edf_worker.previewSignals() == False):
                 print("Error in preview EDF signal. Check if a file was loaded")

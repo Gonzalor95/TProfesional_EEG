@@ -36,7 +36,7 @@ class ChannelSelectionDialog(QDialog):
 
     def acceptButtonClicked(self):
         """
-        Callback method for the Back button. Should only be enabled and work if in the second "device" state
+        Callback method for the Back button
         """
         # Get list of selected channels and return it
         self.cb_method(self.selected_channels)
@@ -44,7 +44,7 @@ class ChannelSelectionDialog(QDialog):
 
     def cancelButtonClicked(self):
         """
-        Callback method for the Skip button. Only enabled when in the first "file" device
+        Callback method for the Skip button
         """
         # Return an empty array of selected channels
         self.cb_method([])
