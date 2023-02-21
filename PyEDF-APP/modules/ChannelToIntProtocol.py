@@ -12,3 +12,10 @@ class ProtocolDict():
         # DAC D
         "CP3": 24, "CP4": 25, "FC3": 26, "FC4": 27, "TP7": 28, "TP8": 29, "FT7": 30, "FT8": 31
     }
+
+    # Used to look for channels in the edf file. Some may have aliases (two names for the same channel). See Contect EEG image, T3/T7 channels
+    possible_channels_array_ = ["Fp1", "Fz", "Fp2", "F3", "F4", "C3", "C4", "P3", "P4", "O1", "O2", "F7", "F8", "T7", "T3", "T8", "T4",
+                                "P7", "T5", "P8", "T6", "Pz", "Cz", "PG1", "PG2", "AFz", "FCz", "CPz", "CP3", "CP4", "FC3", "FC4", "TP7", "TP8", "FT7", "FT8"]
+
+    # Some connectors in the Contec EEg have two names assigned. This dict will be used to map those aliases to the name we give those
+    alias_dict_ = {"T3": "T7", "T5": "P7", "T4": "T8", "T6": "P8"}

@@ -9,6 +9,7 @@ from PyQt5.QtCore import *
 from modules.EDFWorker import EDFWorker
 from modules.SerialComWorker import SerialComWorker
 from modules.TestingSignals import TestingSignalsWorker
+from modules.utils import *
 
 # GUI elements
 from gui_elements.EDFGUIDesigner import Ui_MainWindow
@@ -19,8 +20,6 @@ from gui_elements.Style import FontStyles
 from gui_elements.ChannelSelectionDesignLogic import ChannelSelectionDialog
 from gui_elements.TestingSignalsDesignLogic import TestingSignalsDialog
 
-# Utils
-from utils import utils
 
 # TODO: (Delete) Command to convert .ui files to python files
 # python -m PyQt5.uic.pyuic -x .\gui_elements\EDFGUIDesigner.ui -o .\gui_elements\EDFGUIDesigner.py
@@ -113,7 +112,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             self.selected_channels_value.setText("-".join(self.edf_worker.getChannels()))
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
-                utils.delete_box_from_layout(
+                delete_box_from_layout(
                     self.information_labels_layout, self.info_h_boxes[widget_index])
             # Generate the information h boxes and add them to the info v layout
             signal_info_dict = self.edf_worker.getSignalInfo()
@@ -180,7 +179,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             self.selected_channels_value.setText("ALL")
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
-                utils.delete_box_from_layout(
+                delete_box_from_layout(
                     self.information_labels_layout, self.info_h_boxes[widget_index])
             # Generate the information h boxes and add them to the info v layout
             self.info_h_boxes.clear()
@@ -215,6 +214,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Callback method for the "run" button
         """
+
         print("Run EDF simulator requested")
 
     def browseChannels(self):
@@ -239,7 +239,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         raw_min_time_str = self.min_time_input.text()
         raw_max_time_str = self.max_time_input.text()
-        if utils.validate_sim_time(raw_min_time_str, raw_max_time_str, self.edf_worker.getDuration()) == False:
+        if validate_sim_time(raw_min_time_str, raw_max_time_str, self.edf_worker.getDuration()) == False:
             PopUpWindow("Simulation time selection", "Bad user input for the simulation time, try again",
                         QMessageBox.Abort, QMessageBox.Critical)
             return
@@ -270,6 +270,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             device_params = yaml.safe_load(file)
             try:
                 self.max_channels_ = device_params["max_channels"]
+                self.max_physical_ = device_params["max_physical"]
+                self.bit_resolution_ = device_params["bit_resolution"]
             except(KeyError):
                 PopUpWindow("Configuration file", "Error in configuration file",
                             QMessageBox.Abort, QMessageBox.Critical)

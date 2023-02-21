@@ -168,7 +168,6 @@ class TestingSignalsWorker():
         Method to generate a sinusoidal signal
         """
         time = np.arange(0, duration, 1 / sample_rate)
-        print(time.size)
         return amplitude * np.sin(2*np.pi * frecuency * time)
 
     def generateTriangSignal(self, frecuency, amplitude, sample_rate, duration):
