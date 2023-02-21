@@ -218,7 +218,6 @@ class EDFWorker():
         channels = []
         for header, _ in self.signal_data_.physical_signals_and_headers:
             channels.append(header)
-        print (channels)
         return channels
 
     def setSelectedChannels(self, selected_channels):
@@ -297,3 +296,14 @@ class EDFWorker():
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()
+
+    def getSimulationSignals(self):
+        """
+        Gets an array of header/signals pair that will be sent to the generator
+        """
+        signals_to_send = []
+        for channel in self.selected_channels_:
+            for pair in self.signal_data_.digital_signals_and_headers:
+                if channel == pair[0]:
+                    signals_to_send.append(pair)
+        return signals_to_send

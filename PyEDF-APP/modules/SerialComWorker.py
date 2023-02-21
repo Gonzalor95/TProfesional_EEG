@@ -72,7 +72,7 @@ class SerialComWorker():
                     print("Selected port: " + device.name)
                     self.chosen_device = device
 
-    def beginTransmision(self, signals, sample_rate, channels):
+    def beginTransmision(self, headers_and_signals, sample_rate):
         """
         Method to start the transmition to the generator
         """

@@ -19,8 +19,6 @@ class SignalData:
     sample_rate = 0
     amplitude = 0
     duration = 0
-    # Parsed channel names, may not be the same as the ones present in the signal headers
-    channel_names = []
 
 
 class TestingSignalsWorker():
@@ -104,24 +102,13 @@ class TestingSignalsWorker():
     def setSelectedChannels(self, selected_channels):
         """
         Method to set the selected channels array
-        param[in]: "selected_channels" Array of integers with the selected channels
+        param[in]: "selected_channels" Array with the selected channels
         """
-        if self.selected_testing_signal_:
-            number_of_channels = self.getNumberOfChannels()
-            # Check the size of the input array
-            if len(selected_channels) < 0 or len(selected_channels) > number_of_channels:
-                print("Invalid amount of selected channels")
-                return False
-            # Check that all channels are valid
-            for channel_number in selected_channels:
-                if (channel_number < 0) or (channel_number > number_of_channels - 1):
-                    print("Selected channel out of bounds")
-                    return False
-            self.selected_channels_ = selected_channels
-            return True
-        else:
-            print("Testing signal not loaded. Cannot select number of channels")
-            return False
+        self.selected_channels_ = selected_channels
+
+    def getChannels(self):
+        return ProtocolDict.channel_enum_dict_.keys()
+
 
     def setSelectedSimTime(self, selected_sim_time):
         """
@@ -192,3 +179,12 @@ class TestingSignalsWorker():
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()
+
+    def getSimulationSignals(self):
+        """
+        Gets an array of header/signals pair that will be sent to the generator
+        """
+        signals_to_send = []
+        for channel in self.selected_channels_:
+            signals_to_send.append((channel, self.signal_data_.signal))
+        return signals_to_send

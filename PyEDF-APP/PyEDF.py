@@ -214,14 +214,20 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Callback method for the "run" button
         """
-
+        if self.is_testing_signal_:
+            headers_and_signals_to_send = self.testing_signals_worker.getSimulationSignals()
+        else:
+            headers_and_signals_to_send = self.edf_worker.getSimulationSignals()
         print("Run EDF simulator requested")
 
     def browseChannels(self):
         """
         Callback for the browseChannels button click
         """
-        ChannelSelectionDialog(self.setChannels, self.edf_worker.getChannels())
+        if self.is_testing_signal_:
+            ChannelSelectionDialog(self.setChannels, self.testing_signals_worker.getChannels())
+        else:
+            ChannelSelectionDialog(self.setChannels, self.edf_worker.getChannels())
 
     def setChannels(self, selected_channels):
         """
@@ -231,7 +237,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             print("No channels selected, keeping old selection")
         else:
             self.selected_channels_value.setText("-".join(selected_channels))
-            self.edf_worker.setSelectedChannels(selected_channels)
+            if self.is_testing_signal_:
+                self.testing_signals_worker.setSelectedChannels(selected_channels)
+            else:
+                self.edf_worker.setSelectedChannels(selected_channels)
 
     def simTimeChanged(self):
         """
@@ -243,13 +252,12 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             PopUpWindow("Simulation time selection", "Bad user input for the simulation time, try again",
                         QMessageBox.Abort, QMessageBox.Critical)
             return
-        if self.is_testing_signal_:
-            self.testing_signals_worker.setSelectedSimTime(
+        # Set in both testing signal worker and edf worker
+        self.testing_signals_worker.setSelectedSimTime(
+            (int(raw_min_time_str), int(raw_max_time_str)))
+        if self.edf_worker.isFileLoaded():
+            self.edf_worker.setSelectedSimTime(
                 (int(raw_min_time_str), int(raw_max_time_str)))
-        else:
-            if self.edf_worker.isFileLoaded():
-                self.edf_worker.setSelectedSimTime(
-                    (int(raw_min_time_str), int(raw_max_time_str)))
         self.selected_sim_time_value.setText(
             raw_min_time_str + " - " + raw_max_time_str)
 
