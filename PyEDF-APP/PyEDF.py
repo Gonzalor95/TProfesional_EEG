@@ -218,6 +218,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             headers_and_signals_to_send = self.testing_signals_worker.getSimulationSignals()
         else:
             headers_and_signals_to_send = self.edf_worker.getSimulationSignals()
+        headers_and_signals_to_send = pre_process_signal(self.is_testing_signal_, headers_and_signals_to_send)
         print("Run EDF simulator requested")
 
     def browseChannels(self):

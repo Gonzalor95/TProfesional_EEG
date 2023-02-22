@@ -14,7 +14,8 @@ Class to handle the testing signals
 # Array lenghts should all be the same
 class SignalData:
     signal_name = ""  # ["Square", "Sinusoidal", "Triangular"]
-    signal = []
+    physical_signal = []
+    digital_signal = []
     frecuency = 0
     sample_rate = 0
     amplitude = 0
@@ -116,32 +117,36 @@ class TestingSignalsWorker():
         """
         self.selected_sim_time_ = selected_sim_time
 
-    def previewSignal(self):
-        """
-        Method to plot a preview of the specified signal
-        """
-        if self.signal_data_.signal_name:
-            self.plotSignal(self.signal_data_.signal)
-        else:
-            print("Testing signal not loaded, cannot preview signals")
-            return False
-
     def generateTestingSignal(self, signal_name, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate the selected signal
         """
         self.resetTestSignalWorker()
         if signal_name == self.testing_signals_[0]:
-            self.signal_data_.signal = self.generateSquareSignal(frecuency, amplitude, sample_rate, duration)
+            self.signal_data_.physical_signal = self.generateSquareSignal(frecuency, amplitude, sample_rate, duration)
         if signal_name == self.testing_signals_[1]:
-            self.signal_data_.signal = self.generateSinSignal(frecuency, amplitude, sample_rate, duration)
+            self.signal_data_.physical_signal = self.generateSinSignal(frecuency, amplitude, sample_rate, duration)
         if signal_name == self.testing_signals_[2]:
-            self.signal_data_.signal = self.generateTriangSignal(frecuency, amplitude, sample_rate, duration)
+            self.signal_data_.physical_signal = self.generateTriangSignal(frecuency, amplitude, sample_rate, duration)
+        self.createDigitalSignal()
         self.signal_data_.signal_name = signal_name
         self.signal_data_.frecuency = frecuency
         self.signal_data_.amplitude = amplitude
         self.signal_data_.sample_rate = sample_rate
         self.signal_data_.duration = duration
+        selected_channels = []
+        for channel in ProtocolDict.channel_enum_dict_.keys():
+            selected_channels.append(channel)
+        self.selected_channels_ = selected_channels # Select all channels
+
+    def createDigitalSignal(self):
+        # 150 uV is the max physical we will represent
+        # 4095 is the max digital represented by 12 bits
+        # Will make it go from 0 to 4095 as we will not send negative values to the generator
+        m = (150-(-150)) / (4095-(0))
+        b = 150 / m - 4095
+        digital = self.signal_data_.physical_signal / m - b
+        self.signal_data_.digital_signal = digital
 
     def generateSquareSignal(self, frecuency, amplitude, sample_rate, duration):
         """
@@ -163,6 +168,16 @@ class TestingSignalsWorker():
         """
         time = np.arange(0, duration, 1 / sample_rate)
         return amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
+
+    def previewSignal(self):
+        """
+        Method to plot a preview of the specified signal
+        """
+        if self.signal_data_.signal_name:
+            self.plotSignal(self.signal_data_.physical_signal)
+        else:
+            print("Testing signal not loaded, cannot preview signals")
+            return False
 
     def plotSignal(self, signal):
         """
@@ -186,5 +201,5 @@ class TestingSignalsWorker():
         """
         signals_to_send = []
         for channel in self.selected_channels_:
-            signals_to_send.append((channel, self.signal_data_.signal))
+            signals_to_send.append((channel, self.signal_data_.digital_signal))
         return signals_to_send
