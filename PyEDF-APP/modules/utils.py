@@ -1,5 +1,6 @@
 from gui_elements.PopUpWindow import PopUpWindow
 from PyQt5.QtWidgets import *
+from modules.ChannelToIntProtocol import ProtocolDict
 
 
 def parse_selected_channels_string(raw_selected_channels_string):
@@ -83,3 +84,31 @@ def validate_sim_time(selected_min_time, selected_max_time, max_allowable_time):
         return False
     return True
 
+def pre_process_signal(is_testing_signal, headers_and_signals_to_send):
+    """
+    Pre-processes the signals before beginning the transmision
+    """
+    # We will need to adequate the signal before beginning the transmition. Every pre-processing that can be done before the transmission is time we save
+    # 1. Make it go from (-edf_digital_min, edf_digital_max) to (0, our_digital_max)
+    # 2. Normalize it to our digital_max / physical_max range instead of the one present in the edf
+    # 3. Convert the channels from strings to a byte by mapping then with the dict, then applying "to_bytes"
+    # 4. Convert the signal data to 2 bytes using the "to_bytes" method
+    processed_headers_and_signals = []
+
+    # Step 1 and 2
+    if not is_testing_signal:
+        print ("for .edf signals we must perform step 1 and 2")
+
+    # Step 3 and 4
+    for header,signal in headers_and_signals_to_send:
+        try:
+            bytes_header = int(ProtocolDict.channel_enum_dict_[header]).to_bytes(2, byteorder="big", signed=False)
+            bytes_signal = []
+            for datum in signal:
+                bytes_datum = int(datum).to_bytes(2, byteorder="big", signed=False)
+                bytes_signal.append(bytes_datum)
+            processed_headers_and_signals.append((bytes_header, bytes_signal))
+        except Exception as e:
+            print("There was a problem pre-processing the signal, cancelling transmission")
+            return []
+    return processed_headers_and_signals
