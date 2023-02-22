@@ -218,7 +218,10 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             headers_and_signals_to_send = self.testing_signals_worker.getSimulationSignals()
         else:
             headers_and_signals_to_send = self.edf_worker.getSimulationSignals()
-        headers_and_signals_to_send = pre_process_signal(self.is_testing_signal_, headers_and_signals_to_send)
+        # It's up to each worker to return a "headers_and_signals" array ready for transmission, which means:
+        # - Channel names present in the channel to int dictionary
+        # - Signals in digital form, going from 0 to 4096 (12 bits) where 4096 represents 150mV
+        headers_and_signals_to_send = to_bytes_packages(self.is_testing_signal_, headers_and_signals_to_send)
         print("Run EDF simulator requested")
 
     def browseChannels(self):

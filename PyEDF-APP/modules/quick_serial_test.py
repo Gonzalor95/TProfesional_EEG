@@ -1,18 +1,20 @@
 import serial
 import numpy as np
 
-
-strada = "asd asd ee"
-
-print(strada.replace("EEG", ""))
-
 channel = 8
-data = -453
-config_bytes = channel.to_bytes(1, byteorder="big", signed=False)
-data_bytes = data.to_bytes(2, byteorder="big", signed=True)
+data = 4000
+config_bytes = channel.to_bytes(2, byteorder="big", signed=False)
+data_bytes = data.to_bytes(2, byteorder="big", signed=False)
 
 print(config_bytes)
 print(data_bytes)
+
+package = [config_bytes, data_bytes]
+package2 = b"".join(package)
+print (package)
+print (package2)
+print (type(package2))
+
 
 # ser = serial.Serial('COM6')  # open serial port. Verify for your computer
 

@@ -8,6 +8,7 @@ import sys
 import glob
 import re
 import subprocess
+import time
 
 """
 Class to handle the serial communication between the PC and the EDF signal generator
@@ -78,28 +79,16 @@ class SerialComWorker():
         """
         serial_connection = serial.Serial(self.chosen_device)
         trigger = np.uint16(33)  # Using numpy ints to make sure size is 16 bits
-        LDAC_trigger_package = bytearray([0, trigger, 0, 0])
+        LDAC_trigger_package = bytearray([trigger, 0, 0])
 
-        # For each data type we will need to do this:
-        channel = 8
-        data = 453
-        config_bytes = channel.to_bytes(1, byteorder="big", signed=False)
-        data_bytes = data.to_bytes(2, byteorder="big", signed=True)
-
-        print(config_bytes)
-        print(data_bytes)
-
-        config_MSB = 0
-        config_LSB = 8
-        data_MSB = 0xFf
-        data_LSB = 0xff
-        package = [config_MSB, config_LSB, data_MSB, data_LSB]
-
-        print(serial.to_bytes(package))
-        serial_connection.write(serial.to_bytes(package))
-
-        # Trigger LDAC after filling all channels:
-        serial_connection.write(serial.to_bytes(LDAC_trigger_package))
+        for i in range(0, len(headers_and_signals[0][1], len(headers_and_signals))):
+            for j in range(len(headers_and_signals)):
+                package = b"".join([headers_and_signals[i + j][0], headers_and_signals[i + j][1]])
+                serial_connection.write(package)
+            # Trigger LDAC after filling all channels:
+            serial_connection.write(LDAC_trigger_package)
+            # Rate
+            time.sleep(1/sample_rate)
 
         serial_connection.close()
 

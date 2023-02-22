@@ -306,4 +306,19 @@ class EDFWorker():
             for pair in self.signal_data_.digital_signals_and_headers:
                 if channel == pair[0]:
                     signals_to_send.append(pair)
+
+        # Pre-processing of the edf signal
+        # 1. Make it go from (-edf_digital_min, edf_digital_max) to (0, our_digital_max)
+        # 2. Normalize it to our (digital_max, physical_max) ratio instead of the one present in the edf
+        processed_signal_to_send = []
+        for header,signal in signals_to_send:
+            # Step 1
+            processed_signal = (signal + self.signal_data_.original_signal_headers["digital_min"]) / 2
+            
+            
+            # Step2
+
+
+            processed_signal_to_send.append((header, processed_signal))
+
         return signals_to_send
