@@ -1,45 +1,45 @@
 import serial
 import numpy as np
-import mne
+#import mne
 import pyedflib
 import matplotlib.pyplot as plt
 
 ######################## diff signal separation test
-
-time = np.arange(0, 1, 1 / 500)
-s1 = np.sin(2*np.pi * 10 * time)
-s2 = 2 * np.sin(2*np.pi * 50 * time)
-s3 = 3 * np.sin(2*np.pi * 20 * time)
-
-s_diff = s1 - s2
-s_diff2 = s2 - s3
-
-# Calculate the common mode signal
-mean = np.mean(s_diff)
-mean2 = np.mean(s_diff2)
-# Subtract the common mode signal from the differential signal
-signal_diff_zero_mean = s_diff - mean
-signal_diff_zero_mean2 = s_diff2 - mean2
-
-# Add the common mode signal to the differential signal with a zero mean
-signal_common1 = mean + signal_diff_zero_mean
-signal_common2 = mean - signal_diff_zero_mean
-signal_common3 = mean2 + signal_diff_zero_mean2
-signal_common4 = mean2 - signal_diff_zero_mean2
-
-fig, axis = plt.subplots(5, squeeze=False)
-axis[0][0].plot(time, signal_common1, color=([168/255, 193/255, 5/255]), linewidth=0.4)
-axis[0][0].set_ylabel("s1", rotation=0, labelpad=30)
-axis[1][0].plot(time, signal_common2, color=([168/255, 193/255, 5/255]), linewidth=0.4)
-axis[1][0].set_ylabel("s2", rotation=0, labelpad=30)
-axis[2][0].plot(time, signal_common3, color=([168/255, 193/255, 5/255]), linewidth=0.4)
-axis[2][0].set_ylabel("s2", rotation=0, labelpad=30)
-axis[3][0].plot(time, signal_common4, color=([168/255, 193/255, 5/255]), linewidth=0.4)
-axis[3][0].set_ylabel("s3", rotation=0, labelpad=30)
-# axis[4][0].plot(time, signal_common1- signal_common2, color=([168/255, 193/255, 5/255]), linewidth=0.4)
-# axis[4][0].set_ylabel("s-s", rotation=0, labelpad=30)
-plt.show()
-
+#
+#time = np.arange(0, 1, 1 / 500)
+#s1 = np.sin(2*np.pi * 10 * time)
+#s2 = 2 * np.sin(2*np.pi * 50 * time)
+#s3 = 3 * np.sin(2*np.pi * 20 * time)
+#
+#s_diff = s1 - s2
+#s_diff2 = s2 - s3
+#
+## Calculate the common mode signal
+#mean = np.mean(s_diff)
+#mean2 = np.mean(s_diff2)
+## Subtract the common mode signal from the differential signal
+#signal_diff_zero_mean = s_diff - mean
+#signal_diff_zero_mean2 = s_diff2 - mean2
+#
+## Add the common mode signal to the differential signal with a zero mean
+#signal_common1 = mean + signal_diff_zero_mean
+#signal_common2 = mean - signal_diff_zero_mean
+#signal_common3 = mean2 + signal_diff_zero_mean2
+#signal_common4 = mean2 - signal_diff_zero_mean2
+#
+#fig, axis = plt.subplots(5, squeeze=False)
+#axis[0][0].plot(time, signal_common1, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+#axis[0][0].set_ylabel("s1", rotation=0, labelpad=30)
+#axis[1][0].plot(time, signal_common2, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+#axis[1][0].set_ylabel("s2", rotation=0, labelpad=30)
+#axis[2][0].plot(time, signal_common3, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+#axis[2][0].set_ylabel("s2", rotation=0, labelpad=30)
+#axis[3][0].plot(time, signal_common4, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+#axis[3][0].set_ylabel("s3", rotation=0, labelpad=30)
+## axis[4][0].plot(time, signal_common1- signal_common2, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+## axis[4][0].set_ylabel("s-s", rotation=0, labelpad=30)
+#plt.show()
+#
 
 # # Open the EDF file
 # f = pyedflib.EdfReader('my_file.edf')
@@ -68,19 +68,17 @@ plt.show()
 
 ######################## bytes test
 
-# channel = 8
-# data = 4000
-# config_bytes = channel.to_bytes(2, byteorder="big", signed=False)
-# data_bytes = data.to_bytes(2, byteorder="big", signed=False)
-
-# print(config_bytes)
-# print(data_bytes)
-
-# package = [config_bytes, data_bytes]
-# package2 = b"".join(package)
-# print (package)
-# print (package2)
-# print (type(package2))
+channel = 8
+data = 4000
+config_bytes = channel.to_bytes(1, byteorder="big", signed=False)
+data_bytes = data.to_bytes(2, byteorder="big", signed=False)
+print(config_bytes)
+print(data_bytes)
+package = [config_bytes, data_bytes]
+package2 = b"".join(package)
+print (package)
+print (package2)
+print (type(package2))
 
 
 ######################## Serial test

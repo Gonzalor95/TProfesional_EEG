@@ -77,15 +77,23 @@ class SerialComWorker():
         """
         Method to start the transmition to the generator
         """
-        serial_connection = serial.Serial(self.chosen_device)
+        config_LSB = 33
+        cw = [0, config_LSB, 0, 0]
+
+        
+        serial_connection = serial.Serial('COM6')
         trigger = np.uint16(33)  # Using numpy ints to make sure size is 16 bits
         LDAC_trigger_package = bytearray([trigger, 0, 0])
-
-        for i in range(0, signal_lenght, channels_amount):
+        print (LDAC_trigger_package)
+        for i in range(0, len(bytes_packages), channels_amount):
+            print (i)
             for j in range(channels_amount):
                 serial_connection.write(bytes_packages[j + i])
+            
+            
             # Trigger LDAC after filling all channels:
-            serial_connection.write(LDAC_trigger_package)
+            serial_connection.write(serial.to_bytes(cw))
+            #serial_connection.write(LDAC_trigger_package)
             # Rate
             time.sleep(1 / sample_rate)
 

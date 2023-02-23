@@ -141,10 +141,10 @@ class TestingSignalsWorker():
 
     def createDigitalSignal(self):
         # 150 uV is the max physical we will represent
-        # 4095 is the max digital represented by 12 bits
-        # Will make it go from 0 to 4095 as we will not send negative values to the generator
-        m = (150-(-150)) / (4095-(0))
-        b = 150 / m - 4095
+        # 65535 is the max digital represented by 16 bits
+        # Will make it go from 0 to 65535 as we will not send negative values to the generator
+        m = (150-(-150)) / (65535-(0))
+        b = 150 / m - 65535
         digital = self.signal_data_.physical_signal / m - b
         self.signal_data_.digital_signal = digital
 
