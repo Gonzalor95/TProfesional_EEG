@@ -18,7 +18,7 @@ class ChannelSelectionDialog(QDialog):
         # Connect buttons with callbacks
         self.ui.channel_selection_accept_button.clicked.connect(self.acceptButtonClicked)
         self.ui.channel_selection_cancel_button.clicked.connect(self.cancelButtonClicked)
-        self.ui.channel_list_view.itemClicked.connect(self.trackSelectedChannels)
+        self.ui.channel_list_view.itemSelectionChanged.connect(self.trackSelectedChannels)
 
         # Set up for initial state
         self.setUpInitialState(channels)
@@ -50,7 +50,5 @@ class ChannelSelectionDialog(QDialog):
         self.cb_method([])
         self.close()
 
-    def trackSelectedChannels(self, item):
-        clicked_channel = item.text()
-        if clicked_channel not in self.selected_channels:
-            self.selected_channels.append(clicked_channel)
+    def trackSelectedChannels(self):
+        self.selected_channels = [item.text() for item in self.ui.channel_list_view.selectedItems()]
