@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>401</width>
+     <width>408</width>
      <height>301</height>
     </rect>
    </property>
@@ -71,16 +71,16 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="next_button">
+         <widget class="QPushButton" name="skip_button">
           <property name="text">
-           <string>Next</string>
+           <string>Skip</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="skip_button">
+         <widget class="QPushButton" name="next_button">
           <property name="text">
-           <string>Skip</string>
+           <string>Next</string>
           </property>
          </widget>
         </item>
