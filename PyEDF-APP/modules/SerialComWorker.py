@@ -73,7 +73,7 @@ class SerialComWorker():
                     print("Selected port: " + device.name)
                     self.chosen_device = device
 
-    def beginTransmision(self, headers_and_signals, sample_rate):
+    def beginTransmision(self, bytes_packages, channels_amount, signal_lenght, sample_rate):
         """
         Method to start the transmition to the generator
         """
@@ -81,14 +81,13 @@ class SerialComWorker():
         trigger = np.uint16(33)  # Using numpy ints to make sure size is 16 bits
         LDAC_trigger_package = bytearray([trigger, 0, 0])
 
-        for i in range(0, len(headers_and_signals[0][1], len(headers_and_signals))):
-            for j in range(len(headers_and_signals)):
-                package = b"".join([headers_and_signals[i + j][0], headers_and_signals[i + j][1]])
-                serial_connection.write(package)
+        for i in range(0, signal_lenght, channels_amount):
+            for j in range(channels_amount):
+                serial_connection.write(bytes_packages[j + i])
             # Trigger LDAC after filling all channels:
             serial_connection.write(LDAC_trigger_package)
             # Rate
-            time.sleep(1/sample_rate)
+            time.sleep(1 / sample_rate)
 
         serial_connection.close()
 
