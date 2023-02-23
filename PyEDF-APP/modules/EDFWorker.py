@@ -132,6 +132,7 @@ class EDFWorker():
 
         clean_headers_and_signals = []
         if bipolar_mode:
+            # TODO
             print("Implement this with what Nachi sent")
         else:
             reference_signal_set = False
@@ -315,7 +316,7 @@ class EDFWorker():
             # Step 1
             processed_signal = (signal + self.signal_data_.original_signal_headers["digital_min"]) / 2
             
-            
+            # TODO
             # Step2
 
 
