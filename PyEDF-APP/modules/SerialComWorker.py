@@ -80,7 +80,7 @@ class SerialComWorker():
         config_LSB = 33
         LDAC_trigger_package = [0, config_LSB, 0, 0]
 
-        serial_connection = serial.Serial('COM3', baudrate=115200, bytesize=serial.EIGHTBITS)
+        serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
         for i in range(0, len(bytes_packages), channels_amount):
             for j in range(channels_amount):
                 serial_connection.write(bytes_packages[j + i])
