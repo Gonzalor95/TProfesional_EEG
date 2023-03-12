@@ -49,7 +49,7 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-extern uint8_t bufferUSB[2];
+extern uint8_t bufferUSB[4];
 /* USER CODE END PRIVATE_TYPES */
 
 /**
