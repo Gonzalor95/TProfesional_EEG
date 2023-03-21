@@ -50,6 +50,7 @@
 
 /* USER CODE BEGIN PRIVATE_TYPES */
 extern uint8_t receiveBuffer[BUFFER_SIZE];
+extern bool bufferSet;
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -266,6 +267,7 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
   uint8_t len = (uint8_t)*Len;
   memcpy(receiveBuffer, Buf, len); // copy the data to the buffer
   memset(Buf, '\0', len);          // clear the Buf also
+  bufferSet = true;
 
   return (USBD_OK);
   /* USER CODE END 6 */
