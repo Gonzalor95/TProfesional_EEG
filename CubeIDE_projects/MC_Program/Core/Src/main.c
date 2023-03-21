@@ -181,6 +181,7 @@ int main(void)
         }
         continue;
       }
+      memcpy(receiveBuffer, '\0', BUFFER_SIZE);
       bufferSet = false;
     }
   }
