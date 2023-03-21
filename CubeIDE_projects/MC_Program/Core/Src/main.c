@@ -37,8 +37,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define BUFFER_SIZE 4
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,7 +56,7 @@ SPI_HandleTypeDef hspi5;
 // Cada Canal recibe un dato de 16 bits.
 // Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
 uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive in USB via CDC (Communication Device Class)
-int bufferSet = 0;
+int bufferSet = 0; // Flag to indicate if a new buffer has been received
 LDAC_Settings LDAC_settings;
 /* USER CODE END PV */
 
@@ -144,8 +142,8 @@ int main(void)
   DAC_Channel DAC_channel = 0;
 
   DAC_Tag DAC_tag = DAC_B;
-  uint16_t data = 0;
-  uint16_t config = 0;
+  uint8_t data[2];
+  uint8_t config[2];
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE); // Initialize buffer
   reset_dacs_config(list_of_dacs, dacs_count);
@@ -167,19 +165,12 @@ int main(void)
       {
         parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
         // Send the data to the corresponding channel of the corresponding DAC
-        if (HAL_OK != send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data))
-        {
-          Error_Handler();
-        }
+        send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
       }
       else
       {
         // A config value > 31 means a device configuration
-        if (HAL_OK != send_configuration_to_dacs(config, &list_of_dacs, dacs_count))
-        {
-          Error_Handler();
-        }
-        continue;
+        send_configuration_to_dacs(config, &list_of_dacs, dacs_count)
       }
       memcpy(receiveBuffer, '\0', BUFFER_SIZE);
       bufferSet = 0;

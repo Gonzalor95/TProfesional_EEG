@@ -31,6 +31,8 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_RESET_DATA 0xE			  // All outputs to zero
 #define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
 
+
+#define BUFFER_SIZE 4
 // Gain of output and reference selection
 
 // Power-down:
@@ -178,7 +180,7 @@ void reset_dacs_config(DAC_Handler list_of_dacs[], uint8_t dacs_count);
 
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
 
-void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data);
+void parse_receiving_buffer(uint8_t *bufferUSB, uint16_t *config, uint16_t *data);
 void parse_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel);
 
 // Error functions

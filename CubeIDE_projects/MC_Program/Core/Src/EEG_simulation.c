@@ -19,11 +19,12 @@ uint8_t DAC_Channel_Addr8bit_mask_Dictionary[] = {
 	DAC_CHANNEL_H_ADDR_8Bit_MASK};
 
 // Receives the USB buffer and parse it to config and data variables
-void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data)
+void parse_receiving_buffer(uint8_t *bufferUSB, uint8_t *config, uint8_t *data)
 {
-	// config = {1,0}
+	// We know the size of the buffer will be 4
+	// Configuration bytes = {1,0}
 	*config = ((uint16_t)bufferUSB[0] << 8) | ((uint16_t)bufferUSB[1]);
-	// data = {3,2}
+	// Data bytes = {3,2}
 	*data = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
 }
 

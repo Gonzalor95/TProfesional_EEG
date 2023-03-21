@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 00000cd8  00000000  00000000  000351d8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00018879  00000000  00000000  00035eb0  2**0
+ 16 .debug_macro  00018891  00000000  00000000  00035eb0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0001150e  00000000  00000000  0004e729  2**0
+ 17 .debug_line   0001152f  00000000  00000000  0004e741  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00089423  00000000  00000000  0005fc37  2**0
+ 18 .debug_str    00089423  00000000  00000000  0005fc70  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  000e905a  2**0
+ 19 .comment      00000050  00000000  00000000  000e9093  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00003750  00000000  00000000  000e90ac  2**2
+ 20 .debug_frame  00003750  00000000  00000000  000e90e4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -355,7 +355,7 @@ Disassembly of section .text:
 	DAC_CHANNEL_H_ADDR_8Bit_MASK};
 
 // Receives the USB buffer and parse it to config and data variables
-void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *data)
+void parse_receiving_buffer(uint8_t *bufferUSB, uint16_t *config, uint16_t *data)
 {
  80004dc:	b480      	push	{r7}
  80004de:	b085      	sub	sp, #20
@@ -363,6 +363,7 @@ void parse_receiving_buffer(uint8_t bufferUSB[], uint16_t *config, uint16_t *dat
  80004e2:	60f8      	str	r0, [r7, #12]
  80004e4:	60b9      	str	r1, [r7, #8]
  80004e6:	607a      	str	r2, [r7, #4]
+	// We know the size of the buffer will be 4
 	// config = {1,0}
 	*config = ((uint16_t)bufferUSB[0] << 8) | ((uint16_t)bufferUSB[1]);
  80004e8:	68fb      	ldr	r3, [r7, #12]

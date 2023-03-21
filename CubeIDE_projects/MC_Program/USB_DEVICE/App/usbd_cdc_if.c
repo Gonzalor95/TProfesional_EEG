@@ -22,6 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
+#include "EEG_simulation.h"
 
 /* USER CODE END INCLUDE */
 

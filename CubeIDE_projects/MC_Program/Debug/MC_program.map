@@ -203,7 +203,7 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0xba ./Core/Src/main.o
  .debug_macro   0x0000000000000000      0x126 ./Core/Src/main.o
  .debug_macro   0x0000000000000000       0x22 ./Core/Src/main.o
- .debug_macro   0x0000000000000000       0x5e ./Core/Src/main.o
+ .debug_macro   0x0000000000000000       0x64 ./Core/Src/main.o
  .group         0x0000000000000000        0xc ./Core/Src/stm32f4xx_hal_msp.o
  .group         0x0000000000000000        0xc ./Core/Src/stm32f4xx_hal_msp.o
  .group         0x0000000000000000        0xc ./Core/Src/stm32f4xx_hal_msp.o
@@ -3665,6 +3665,8 @@ Discarded input sections
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_cdc_if.o
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_cdc_if.o
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_cdc_if.o
+ .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_cdc_if.o
+ .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_cdc_if.o
  .text          0x0000000000000000        0x0 ./USB_DEVICE/App/usbd_cdc_if.o
  .data          0x0000000000000000        0x0 ./USB_DEVICE/App/usbd_cdc_if.o
  .bss           0x0000000000000000        0x0 ./USB_DEVICE/App/usbd_cdc_if.o
@@ -3745,6 +3747,8 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x65 ./USB_DEVICE/App/usbd_cdc_if.o
  .debug_macro   0x0000000000000000      0x20f ./USB_DEVICE/App/usbd_cdc_if.o
  .debug_macro   0x0000000000000000       0x95 ./USB_DEVICE/App/usbd_cdc_if.o
+ .debug_macro   0x0000000000000000       0x22 ./USB_DEVICE/App/usbd_cdc_if.o
+ .debug_macro   0x0000000000000000       0x64 ./USB_DEVICE/App/usbd_cdc_if.o
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_desc.o
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_desc.o
  .group         0x0000000000000000        0xc ./USB_DEVICE/App/usbd_desc.o
@@ -5236,7 +5240,7 @@ LOAD c:/st/stm32cubeide_1.12.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_ranges  0x0000000000000b88       0x50 ./USB_DEVICE/App/usbd_desc.o
  .debug_ranges  0x0000000000000bd8      0x100 ./USB_DEVICE/Target/usbd_conf.o
 
-.debug_macro    0x0000000000000000    0x18879
+.debug_macro    0x0000000000000000    0x18891
  .debug_macro   0x0000000000000000      0x1f6 ./Core/Src/EEG_simulation.o
  .debug_macro   0x00000000000001f6      0xa78 ./Core/Src/EEG_simulation.o
  .debug_macro   0x0000000000000c6e      0x29b ./Core/Src/EEG_simulation.o
@@ -5278,8 +5282,8 @@ LOAD c:/st/stm32cubeide_1.12.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_macro   0x0000000000013a0b       0xba ./Core/Src/EEG_simulation.o
  .debug_macro   0x0000000000013ac5      0x126 ./Core/Src/EEG_simulation.o
  .debug_macro   0x0000000000013beb       0x22 ./Core/Src/EEG_simulation.o
- .debug_macro   0x0000000000013c0d       0x5e ./Core/Src/EEG_simulation.o
- .debug_macro   0x0000000000013c6b      0x3f1 ./Core/Src/main.o
+ .debug_macro   0x0000000000013c0d       0x64 ./Core/Src/EEG_simulation.o
+ .debug_macro   0x0000000000013c71      0x3eb ./Core/Src/main.o
  .debug_macro   0x000000000001405c       0x52 ./Core/Src/main.o
  .debug_macro   0x00000000000140ae       0x1e ./Core/Src/main.o
  .debug_macro   0x00000000000140cc       0x3c ./Core/Src/main.o
@@ -5337,13 +5341,13 @@ LOAD c:/st/stm32cubeide_1.12.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_macro   0x00000000000177ac      0x424 ./USB_DEVICE/App/usb_device.o
  .debug_macro   0x0000000000017bd0       0x22 ./USB_DEVICE/App/usb_device.o
  .debug_macro   0x0000000000017bf2       0x1c ./USB_DEVICE/App/usb_device.o
- .debug_macro   0x0000000000017c0e      0x409 ./USB_DEVICE/App/usbd_cdc_if.o
- .debug_macro   0x0000000000018017       0x16 ./USB_DEVICE/App/usbd_cdc_if.o
- .debug_macro   0x000000000001802d      0x428 ./USB_DEVICE/App/usbd_desc.o
- .debug_macro   0x0000000000018455       0x1c ./USB_DEVICE/App/usbd_desc.o
- .debug_macro   0x0000000000018471      0x408 ./USB_DEVICE/Target/usbd_conf.o
+ .debug_macro   0x0000000000017c0e      0x421 ./USB_DEVICE/App/usbd_cdc_if.o
+ .debug_macro   0x000000000001802f       0x16 ./USB_DEVICE/App/usbd_cdc_if.o
+ .debug_macro   0x0000000000018045      0x428 ./USB_DEVICE/App/usbd_desc.o
+ .debug_macro   0x000000000001846d       0x1c ./USB_DEVICE/App/usbd_desc.o
+ .debug_macro   0x0000000000018489      0x408 ./USB_DEVICE/Target/usbd_conf.o
 
-.debug_line     0x0000000000000000    0x1150e
+.debug_line     0x0000000000000000    0x1152f
  .debug_line    0x0000000000000000      0x995 ./Core/Src/EEG_simulation.o
  .debug_line    0x0000000000000995      0xb41 ./Core/Src/main.o
  .debug_line    0x00000000000014d6      0x769 ./Core/Src/stm32f4xx_hal_msp.o
@@ -5363,14 +5367,14 @@ LOAD c:/st/stm32cubeide_1.12.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_line    0x000000000000cb56     0x1138 ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.o
  .debug_line    0x000000000000dc8e      0xa7f ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.o
  .debug_line    0x000000000000e70d      0xa3b ./USB_DEVICE/App/usb_device.o
- .debug_line    0x000000000000f148      0xaab ./USB_DEVICE/App/usbd_cdc_if.o
- .debug_line    0x000000000000fbf3      0xb04 ./USB_DEVICE/App/usbd_desc.o
- .debug_line    0x00000000000106f7      0xe17 ./USB_DEVICE/Target/usbd_conf.o
+ .debug_line    0x000000000000f148      0xacc ./USB_DEVICE/App/usbd_cdc_if.o
+ .debug_line    0x000000000000fc14      0xb04 ./USB_DEVICE/App/usbd_desc.o
+ .debug_line    0x0000000000010718      0xe17 ./USB_DEVICE/Target/usbd_conf.o
 
 .debug_str      0x0000000000000000    0x89423
- .debug_str     0x0000000000000000    0x80a93 ./Core/Src/EEG_simulation.o
-                                      0x80de3 (size before relaxing)
- .debug_str     0x0000000000080a93     0x4d01 ./Core/Src/main.o
+ .debug_str     0x0000000000000000    0x80aa1 ./Core/Src/EEG_simulation.o
+                                      0x80df1 (size before relaxing)
+ .debug_str     0x0000000000080aa1     0x4cf3 ./Core/Src/main.o
                                       0x85958 (size before relaxing)
  .debug_str     0x0000000000085794       0x5e ./Core/Src/stm32f4xx_hal_msp.o
                                       0x80902 (size before relaxing)
@@ -5407,7 +5411,7 @@ LOAD c:/st/stm32cubeide_1.12.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_str     0x0000000000088f9c      0x105 ./USB_DEVICE/App/usb_device.o
                                       0x854ee (size before relaxing)
  .debug_str     0x00000000000890a1       0xa1 ./USB_DEVICE/App/usbd_cdc_if.o
-                                      0x8555b (size before relaxing)
+                                      0x8579c (size before relaxing)
  .debug_str     0x0000000000089142      0x26e ./USB_DEVICE/App/usbd_desc.o
                                       0x8502d (size before relaxing)
  .debug_str     0x00000000000893b0       0x73 ./USB_DEVICE/Target/usbd_conf.o
