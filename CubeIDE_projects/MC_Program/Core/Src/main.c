@@ -58,7 +58,7 @@ SPI_HandleTypeDef hspi5;
 // Cada Canal recibe un dato de 16 bits.
 // Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
 uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive in USB via CDC (Communication Device Class)
-bool bufferSet = false;
+int bufferSet = 0;
 LDAC_Settings LDAC_settings;
 /* USER CODE END PV */
 
@@ -158,7 +158,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    if (bufferSet)
+    if (bufferSet == 1)
     {
 
       parse_receiving_buffer(receiveBuffer, &config, &data);
@@ -182,7 +182,7 @@ int main(void)
         continue;
       }
       memcpy(receiveBuffer, '\0', BUFFER_SIZE);
-      bufferSet = false;
+      bufferSet = 0;
     }
   }
   /* USER CODE END 3 */
