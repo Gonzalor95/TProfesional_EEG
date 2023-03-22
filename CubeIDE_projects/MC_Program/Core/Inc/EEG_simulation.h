@@ -65,19 +65,6 @@ typedef enum
 } DAC_Channel;
 
 /**
- * @brief Array containing the masks for the DAC channels
- */
-uint8_t DAC_Channel_Masks[] = {
-	0x00,
-	0x10,
-	0x20,
-	0x30,
-	0x40,
-	0x50,
-	0x60,
-	0x70};
-
-/**
  * @brief Struct to save the information about a DAC
  *
  * @param dac_tag Identifier for the DAC

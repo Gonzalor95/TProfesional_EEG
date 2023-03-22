@@ -91,6 +91,18 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 	return status;
 }
 
+/**
+ * @brief Array containing the masks for the DAC channels
+ */
+uint8_t DAC_Channel_Masks[] = {
+	0x00,
+	0x10,
+	0x20,
+	0x30,
+	0x40,
+	0x50,
+	0x60,
+	0x70};
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 {
 	return DAC_Channel_Masks[*dac_channel];
