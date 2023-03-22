@@ -52,6 +52,7 @@ SPI_HandleTypeDef hspi5;
 
 uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive data through USB via CDC (Communication Device Class)
 int bufferSet = 0; // Flag to indicate if a new buffer has been received
+int firstTransmision = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

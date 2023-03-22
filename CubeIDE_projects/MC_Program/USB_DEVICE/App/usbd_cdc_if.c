@@ -52,6 +52,7 @@
 /* USER CODE BEGIN PRIVATE_TYPES */
 extern uint8_t receiveBuffer[BUFFER_SIZE];
 extern int bufferSet;
+extern int firstTransmision;
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -265,8 +266,14 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-  // Check if main is still processing or not
-  if (bufferSet == 1)
+  if (firstTransmision == 1)
+  {
+    memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
+    memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
+    bufferSet = 1;                             // Indicate that our buffer was set
+    firstTransmision = 0;
+  }
+  else if(bufferSet == 0) // Check if main is still processing or not
   {
     memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
     memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
