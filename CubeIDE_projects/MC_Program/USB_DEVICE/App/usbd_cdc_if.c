@@ -265,10 +265,13 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-  uint8_t len = (uint8_t)*Len;
-  memcpy(receiveBuffer, Buf, len); // copy the data to the buffer
-  memset(Buf, '\0', len);          // clear the Buf also
-  bufferSet = 1;
+  // Check if main is still processing or not
+  if (bufferSet == 1)
+  {
+    memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
+    memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
+    bufferSet = 1;                             // Indicate that our buffer was set
+  }
 
   return (USBD_OK);
   /* USER CODE END 6 */

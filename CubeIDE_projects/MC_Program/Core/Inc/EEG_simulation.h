@@ -31,7 +31,6 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_RESET_DATA 0xE			  // All outputs to zero
 #define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
 
-
 #define BUFFER_SIZE 4
 // Gain of output and reference selection
 
@@ -39,21 +38,20 @@ Azul = DAC 2 =SYNC = PA4
 
 /* END: Control Words  */
 
-/*BEGIN: DAC Channels mask definitions */
+/**
+ * @brief Array defining the DAC identifier
+ */
+typedef enum
+{
+	DAC_A = 0,
+	DAC_B = 1,
+	DAC_C = 2,
+	DAC_D = 3
+} DAC_Tag;
 
-// Mask servers to write required address in the 16bit word to write to DACs
-#define DAC_CHANNEL_A_ADDR_8Bit_MASK 0x00 // 0b00000000
-#define DAC_CHANNEL_B_ADDR_8Bit_MASK 0x10 // 0b00010000
-#define DAC_CHANNEL_C_ADDR_8Bit_MASK 0x20 // 0b00100000
-#define DAC_CHANNEL_D_ADDR_8Bit_MASK 0x30 // 0b00110000
-#define DAC_CHANNEL_E_ADDR_8Bit_MASK 0x40 // 0b01000000
-#define DAC_CHANNEL_F_ADDR_8Bit_MASK 0x50 // 0b01010000
-#define DAC_CHANNEL_G_ADDR_8Bit_MASK 0x60 // 0b01100000
-#define DAC_CHANNEL_H_ADDR_8Bit_MASK 0x70 // 0b01110000
-
-#define DAC_CHANNEL_MAX_DATA 0XFFF0 // 0b 1111-1111-1111-xxxx. x = ignored
-#define DAC_CHANNEL_MIN_DATA 0X000F // 0b 0000-0000-0000-xxxx. x = ignored
-
+/**
+ * @brief Array defining the DAC channels identifiers
+ */
 typedef enum
 {
 	CHANNEL_A = 0, // 0b000
@@ -66,26 +64,26 @@ typedef enum
 	CHANNEL_H = 7  // 0b111
 } DAC_Channel;
 
-/*END: DAC Channels mask definitions */
+/**
+ * @brief Array containing the masks for the DAC channels
+ */
+uint8_t DAC_Channel_Masks[] = {
+	0x00,
+	0x10,
+	0x20,
+	0x30,
+	0x40,
+	0x50,
+	0x60,
+	0x70};
 
-/*BEGIN: DACs identification */
-
-typedef enum
-{
-	DAC_A = 0,
-	DAC_B = 1,
-	DAC_C = 2,
-	DAC_D = 3
-} DAC_Tag;
-
-/*END: DACs identification */
-
-/* Struct DAC:
- * dac_tag = numero identificador del DAC, relacionado con el hspi
- * *pdac_hspi = puntero al handler SPI del DAC
- * GPIO = maneja el SS (slave select). Necesita un port (de A...K) y un Pin (0...n)
- * pGPIOx = GPIOx where x can be (A..K) to select the GPIO peripheral
- * GPIO_Pin = GPIO_Pin specifies the port bit to be written. This parameter can be one of GPIO_PIN_x where x can be (0..15).
+/**
+ * @brief Struct to save the information about a DAC
+ *
+ * @param dac_tag Identifier for the DAC
+ * @param dac_hspi SPI handler assigned to this DAC
+ * @param dac_SS_GPIO_port Slave select port assigned to this DAC
+ * @param dac_ss_GPIO_pin Slave select pin assigned to this DAC
  */
 typedef struct DAC_Handler
 {
@@ -93,20 +91,30 @@ typedef struct DAC_Handler
 	SPI_HandleTypeDef *dac_hspi;
 	GPIO_TypeDef *dac_SS_GPIO_port;
 	uint16_t dac_ss_GPIO_pin;
-
 } DAC_Handler;
 
-// Struct to sabe Port and Pin where LDAC is setted
-typedef struct LDAC_Settings
+/**
+ * @brief Struct to save port and pin where LDAC is configured
+ */
+typedef struct LDAC_Handler
 {
 	GPIO_TypeDef *GPIO_LDAC_control_port;
 	uint16_t GPIO_LDAC_control_pin;
-} LDAC_Settings;
+} LDAC_Handler;
 
-extern LDAC_Settings LDAC_settings; // Extern declaration to use in .c
-// GPIO_LDAC_control_port = GPIOB
-// GPIO_LDAC_control_pin = GPIO_PIN_2
+typedef enum
+{
+	// LDAC TRIGGER
+	CONF_LDAC_TRIGGER = 33, // triggers all channels to write respective outputs
+	// LDAC Config
+	CONF_LDAC_LOW = 34
+	// RESET Config
+	// Power-down Config
+} config_protocol_word;
 
+/**
+ * @brief Enum that relates EEG channels to values
+ */
 typedef enum
 {
 	// DAC A
@@ -149,42 +157,104 @@ typedef enum
 	MAX_DAC_CHANNEL_WORD = 32 // RESERVED: no significa nada, pero sirve para identificar que hasta el enum = 31 nos referimos a un canal de DAC
 } channel_protocol_word;
 
-typedef enum
-{
-	// LDAC TRIGGER
-	CONF_LDAC_TRIGGER = 33, // triggers all channels to write respective outputs
-							// LDAC Config
-	CONF_LDAC_LOW = 34
-	// RESET Config
-	// Power-down Config
-} config_protocol_word;
+/* Functions */
 
-// Prototypes
-HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data);
-HAL_StatusTypeDef send_data_to_multiple_dac_channels(uint16_t data, DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count); // TODO: verificar qe no se pase de 8 canales
+/**
+ * @brief Initializes a DAC handler structure
+ *
+ * @param[in] dac_tag DAC tag assigned to this DAC
+ * @param[in] hspi SPI handler assigned to this DAC
+ * @param[in] GPIOx GPIO group assigned to this DAC
+ * @param[in] GPIO_Pin GPIO pin assigned to this DAC
+ * @param[out] dac_handler Filled structure containing the DAC information
+ */
+void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler);
 
-HAL_StatusTypeDef send_configuration_to_dacs(uint16_t config, DAC_Handler *list_of_dacs[], uint8_t dacs_count);
+/**
+ * @brief Resets DACs configuration
+ *
+ * @param[in] list_of_dacs List of DACs to reset
+ * @param[in] dacs_count Amount of DACs in list
+ */
+void reset_dacs_config(const DAC_Handler list_of_dacs[], const uint8_t *dacs_count);
 
-void trigger_LDAC();
+/**
+ * @brief Sets the LDAC flag in the DACs
+ *
+ * @param[in] list_of_dacs List of DACs to reset
+ * @param[in] dacs_count Amount of DACs in list
+ */
+void init_LDAC_in_dacs(const DAC_Handler list_of_dacs[], const uint8_t *dacs_count);
 
-// Test functions
-void send_pulse_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
-void send_triangular_wave_to_dac_channels(DAC_Handler *dac_handler, DAC_Channel arr_dac_channels[], size_t channel_count, uint32_t delay_in_ms);
+// Init the ports that control LDAC in the LDAC_settings variable.
+/**
+ * @brief Initializes the LDAC handler variable
+ *
+ * @param[in] GPIOx GPIO group assigned to the LDAC
+ * @param[in] GPIO_Pin GPIO pin assigned to the LDAC
+ * @param[out] LDAC_settings LDAC structure to fill
+ */
+void init_LDAC(const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, LDAC_Handler *LDAC_settings);
 
-/* initializer, gets and setters */
+/**
+ * @brief Parses the configuration from the incoming package
+ *
+ * @param[in] bufferUSB Received bytes package
+ *
+ * @return Integer representing the configuration received
+ */
+uint16_t parse_config(const uint8_t *bufferUSB);
 
-void init_dac_handler(DAC_Handler *dac_handler, DAC_Tag dac_tag, SPI_HandleTypeDef *hspi, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
-void init_LDAC_settings(LDAC_Settings *LDAC_settings, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
-void init_LDAC_in_dacs(DAC_Handler list_of_dacs[], uint8_t dacs_count);
-void reset_dacs_config(DAC_Handler list_of_dacs[], uint8_t dacs_count);
-
-uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
-
-void parse_receiving_buffer(uint8_t *bufferUSB, uint16_t *config, uint16_t *data);
+/**
+ * @brief Parses the DAC_tag and DAC_channel from the received config
+ * @details Used only if the received configuration indicates to send this package to a DAC
+ *
+ * @param[in] config Received configuration
+ * @param[out] DAC_tag Tag representing which DAC to send the data to
+ * @param[out] DAC_channel Int representing which channel of the DAC to send the data to
+ */
 void parse_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel);
 
-// Error functions
+/**
+ * @brief Sends data to the channel of a DAC
+ * @details Does not trigger the DAC output, this is done separately
+ *
+ * @param[in] dac_handler Indicates to which DAC to send the data to
+ * @param[in] dac_channel Indicates the DAC channel to sent the data to
+ * @param[in] bufferUSB Received buffer containing the data
+ */
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint8_t *bufferUSB);
 
+/**
+ * @brief Gets the channel address mask
+ *
+ * @returns The channel address mask for a particular DAC channel
+ */
+uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
+
+/**
+ * @brief Sends a configuration package to the DAC
+ *
+ * @param[in] config Configuration package to send
+ * @param[in] list_of_dacs DACs to send the config to
+ * @param[in] dacs_count Amount of DACs in the list
+ */
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
+
+/**
+ * @brief Sends a word to the DAC, used for the configs
+ *
+ * @param[in] word Word to send
+ * @param[in] dac_handler DAC handler containing the information of where to send it
+*/
+HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler);
+
+/**
+ * @brief Triggers the LDAC pin
+ */
+void trigger_LDAC();
+
+// Error functions
 void EEG_simulation_error_Handler(void);
 
 #endif /* INC_EEG_SIMULATION_H_ */
