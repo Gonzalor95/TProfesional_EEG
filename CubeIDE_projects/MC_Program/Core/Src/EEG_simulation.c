@@ -69,17 +69,17 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 	 * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
 	 * AAA = Address (de 0 a 8)
 	 * D...D = datos
+	 * dataToDAC[0] =
+	 * dataToDAC[1] =
 	 */
 	HAL_StatusTypeDef status = HAL_OK;
 	uint8_t dataToDAC[2];
 	uint8_t channel_addr_mask = get_dac_channel_addr_mask(dac_channel);
 
 	// Copy data
-	dataToDAC[0] = bufferUSB[0];
-	dataToDAC[1] = bufferUSB[1];
+	dataToDAC[0] = bufferUSB[2];
+	dataToDAC[1] = bufferUSB[3] >> 4;
 
-	// Clear first 4 bits
-	dataToDAC[1] = dataToDAC[1] & 0xF;
 	// Apply channel_addr_mask: 0b 0AAA-0000
 	dataToDAC[1] = dataToDAC[1] | channel_addr_mask;
 
@@ -111,12 +111,12 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
 {
 	HAL_StatusTypeDef status = HAL_OK;
-	if (config == CONF_LDAC_TRIGGER)
+	if (*config == CONF_LDAC_TRIGGER)
 	{
 		trigger_LDAC();
 		return status;
 	}
-	else if (config == CONF_LDAC_LOW)
+	else if (*config == CONF_LDAC_LOW)
 	{
 		// TODO: Complete with other configs
 	}

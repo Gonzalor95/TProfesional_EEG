@@ -113,11 +113,11 @@ int main(void)
   DAC_Handler dac_handler_C;
   DAC_Handler dac_handler_D;
   // TODO: Un-comment this when DACs are soldered
-  // init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
+  init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
   init_dac_handler(DAC_B, &hspi5, GPIOB, GPIO_PIN_1, &dac_handler_B);
   // init_dac_handler(DAC_C, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_C);
   // init_dac_handler(DAC_D, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_D);
-  DAC_Handler list_of_dacs[] = {dac_handler_B}; // TODO: Add DAC_A, DAC_C and DAC_D
+  DAC_Handler list_of_dacs[] = {dac_handler_A,dac_handler_B}; // TODO: Add DAC_A, DAC_C and DAC_D
   static uint8_t dacs_count = sizeof(list_of_dacs) / sizeof(list_of_dacs[0]);
   reset_dacs_config(list_of_dacs, &dacs_count);
   init_LDAC_in_dacs(list_of_dacs, &dacs_count);
