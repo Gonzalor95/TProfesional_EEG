@@ -50,9 +50,14 @@ SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN PV */
 
-uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive data through USB via CDC (Communication Device Class)
-int bufferSet = 0; // Flag to indicate if a new buffer has been received
-int firstTransmision = 1;
+DAC_Handler dac_handler_A;
+DAC_Handler dac_handler_B;
+DAC_Handler dac_handler_C;
+DAC_Handler dac_handler_D;
+uint8_t dacs_count = 1;
+DAC_Handler *list_of_dacs; // TODO: Add DAC_A, DAC_C and DAC_D
+LDAC_Handler LDAC;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,28 +113,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   // DACs configuration
-  DAC_Handler dac_handler_A;
-  DAC_Handler dac_handler_B;
-  DAC_Handler dac_handler_C;
-  DAC_Handler dac_handler_D;
-  // TODO: Un-comment this when DACs are soldered
-  init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
+  // init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
   init_dac_handler(DAC_B, &hspi5, GPIOB, GPIO_PIN_1, &dac_handler_B);
   // init_dac_handler(DAC_C, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_C);
   // init_dac_handler(DAC_D, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_D);
-  DAC_Handler list_of_dacs[] = {dac_handler_A,dac_handler_B}; // TODO: Add DAC_A, DAC_C and DAC_D
-  static uint8_t dacs_count = sizeof(list_of_dacs) / sizeof(list_of_dacs[0]);
+
+  list_of_dacs = malloc(dacs_count * sizeof(DAC_Handler));
+  list_of_dacs[0] = dac_handler_B;
+
   reset_dacs_config(list_of_dacs, &dacs_count);
   init_LDAC_in_dacs(list_of_dacs, &dacs_count);
 
   // LDAC configuration
-  LDAC_Handler LDAC;
   init_LDAC(GPIOB, GPIO_PIN_2, &LDAC);
-
-  // Variables and initial config
-  DAC_Channel DAC_channel = 0;
-  DAC_Tag DAC_tag = DAC_B;
-  memcpy(receiveBuffer, '\0', BUFFER_SIZE);
 
   // Main loop
   while (1)
@@ -138,26 +134,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-    if (bufferSet == 1)
-    {
-      uint16_t config = parse_config(receiveBuffer);
-      // A config value of [0, 31] means writing to a DAC
-      if (config < MAX_DAC_CHANNEL_WORD)
-      {
-        parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-        // Send the data to the corresponding channel of the corresponding DAC
-        send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, receiveBuffer);
-      }
-      else
-      {
-        // A config value > 31 means a device configuration
-        send_configuration_to_dacs(&config, &list_of_dacs, &dacs_count);
-      }
-      memcpy(receiveBuffer, '\0', BUFFER_SIZE);
-      bufferSet = 0;
-    }
   }
+  free(list_of_dacs);
   /* USER CODE END 3 */
 }
 
