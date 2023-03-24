@@ -54,8 +54,8 @@ extern DAC_Handler dac_handler_A;
 extern DAC_Handler dac_handler_B;
 extern DAC_Handler dac_handler_C;
 extern DAC_Handler dac_handler_D;
-extern DAC_Handler list_of_dacs[];
-static uint8_t dacs_count;
+extern DAC_Handler *list_of_dacs;
+extern uint8_t dacs_count;
 extern LDAC_Handler LDAC;
 
 /* USER CODE END PRIVATE_TYPES */
