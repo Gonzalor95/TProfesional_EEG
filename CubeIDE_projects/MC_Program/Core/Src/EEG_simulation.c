@@ -79,7 +79,7 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 
 	// Copy data
 	dataToDAC[0] = ( (bufferUSB[3] >> 4) & 0x0F ) | ( (bufferUSB[2] << 4 ) & 0xF0 );
-	dataToDAC[1] = ( (bufferUSB[2] >> 4) & 0x0F ) | channel_addr_mask;; // Apply channel_addr_mask: 0b 0AAA-0000
+	dataToDAC[1] = ( (bufferUSB[2] >> 4) & 0x0F ) | channel_addr_mask; // Apply channel_addr_mask: 0b 0AAA-0000
 
 	// GPIO_Write sirve para avisar al DAC que le estamos escribiendo
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
