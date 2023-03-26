@@ -50,8 +50,14 @@
  */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-extern uint8_t receiveBuffer[BUFFER_SIZE];
-extern int bufferSet;
+extern DAC_Handler dac_handler_A;
+extern DAC_Handler dac_handler_B;
+extern DAC_Handler dac_handler_C;
+extern DAC_Handler dac_handler_D;
+extern DAC_Handler *list_of_dacs;
+extern uint8_t dacs_count;
+extern LDAC_Handler LDAC;
+
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -265,10 +271,26 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-  uint8_t len = (uint8_t)*Len;
-  memcpy(receiveBuffer, Buf, len); // copy the data to the buffer
-  memset(Buf, '\0', len);          // clear the Buf also
-  bufferSet = 1;
+  uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive data through USB via CDC (Communication Device Class)
+  memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
+  memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
+
+  uint16_t config = parse_config(receiveBuffer);
+  DAC_Channel DAC_channel = 0;
+  DAC_Tag DAC_tag = DAC_B;
+  // A config value of [0, 31] means writing to a DAC
+  if (config < MAX_DAC_CHANNEL_WORD)
+  {
+    parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+    // Send the data to the corresponding channel of the corresponding DAC
+    send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, receiveBuffer);
+  }
+  else
+  {
+    // A config value > 31 means a device configuration
+    send_configuration_to_dacs(&config, &list_of_dacs, &dacs_count);
+  }
+  memcpy(receiveBuffer, '\0', BUFFER_SIZE);
 
   return (USBD_OK);
   /* USER CODE END 6 */
