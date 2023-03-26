@@ -8,7 +8,8 @@ import sys
 import glob
 import re
 import subprocess
-import time
+from modules.utils import timeit
+
 
 """
 Class to handle the serial communication between the PC and the EDF signal generator
@@ -73,6 +74,7 @@ class SerialComWorker():
                     print("Selected port: " + device.name)
                     self.chosen_device = device
 
+    @timeit
     def beginTransmision(self, bytes_packages, channels_amount, sample_rate):
         """
         Method to start the transmition to the generator
