@@ -23,8 +23,9 @@ void reset_dacs_config(const DAC_Handler list_of_dacs[], const uint8_t *dacs_cou
 
 		if (_send_word_to_dac(word, &(list_of_dacs[i])) != HAL_OK)
 		{
-			break;
+			continue;
 		}
+
 	}
 }
 
@@ -35,7 +36,7 @@ void init_LDAC_in_dacs(const DAC_Handler list_of_dacs[], const uint8_t *dacs_cou
 		uint16_t word = DAC_CONFIG_LDAC_HIGH;
 		if (_send_word_to_dac(word, &(list_of_dacs[i])) != HAL_OK)
 		{
-			break;
+			continue;
 		}
 	}
 }
@@ -69,19 +70,16 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 	 * 0 = MSB (izquierda de todo) en cero para tener el "modo escritura"
 	 * AAA = Address (de 0 a 8)
 	 * D...D = datos
-	 * dataToDAC[0] =
-	 * dataToDAC[1] =
+	 * dataToDAC[0] = DDDD-DDDD (LSB)
+	 * dataToDAC[1] = 0AAA-DDDD (MSB)
 	 */
 	HAL_StatusTypeDef status = HAL_OK;
 	uint8_t dataToDAC[2];
 	uint8_t channel_addr_mask = get_dac_channel_addr_mask(dac_channel);
 
 	// Copy data
-	dataToDAC[0] = bufferUSB[2];
-	dataToDAC[1] = bufferUSB[3] >> 4;
-
-	// Apply channel_addr_mask: 0b 0AAA-0000
-	dataToDAC[1] = dataToDAC[1] | channel_addr_mask;
+	dataToDAC[0] = ( (bufferUSB[3] >> 4) & 0x0F ) | ( (bufferUSB[2] << 4 ) & 0xF0 );
+	dataToDAC[1] = ( (bufferUSB[2] >> 4) & 0x0F ) | channel_addr_mask;; // Apply channel_addr_mask: 0b 0AAA-0000
 
 	// GPIO_Write sirve para avisar al DAC que le estamos escribiendo
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);

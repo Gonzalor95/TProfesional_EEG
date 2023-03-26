@@ -54,7 +54,7 @@ DAC_Handler dac_handler_A;
 DAC_Handler dac_handler_B;
 DAC_Handler dac_handler_C;
 DAC_Handler dac_handler_D;
-uint8_t dacs_count = 1;
+uint8_t dacs_count = 2;
 DAC_Handler *list_of_dacs; // TODO: Add DAC_A, DAC_C and DAC_D
 LDAC_Handler LDAC;
 
@@ -119,7 +119,8 @@ int main(void)
   // init_dac_handler(DAC_D, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_D);
 
   list_of_dacs = malloc(dacs_count * sizeof(DAC_Handler));
-  list_of_dacs[0] = dac_handler_B;
+  list_of_dacs[0] = dac_handler_A;
+  list_of_dacs[1] = dac_handler_B;
 
   reset_dacs_config(list_of_dacs, &dacs_count);
   init_LDAC_in_dacs(list_of_dacs, &dacs_count);
