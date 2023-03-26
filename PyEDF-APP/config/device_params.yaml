@@ -1,2 +1,8 @@
+# Configuration file with parameters of the generator
+
 # Max number of channels allowed
 max_channels: 32
+# Resolution in bits
+bit_resolution: 16
+# Max physical value (in uV)
+max_physical: 150

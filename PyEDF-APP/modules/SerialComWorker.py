@@ -1,11 +1,15 @@
 #!/usr/bin/python
 
 import serial
+import numpy as np
 import serial.tools.list_ports
+from modules.ChannelToIntProtocol import ProtocolDict
 import sys
 import glob
 import re
 import subprocess
+from modules.utils import timeit
+
 
 """
 Class to handle the serial communication between the PC and the EDF signal generator
@@ -15,7 +19,7 @@ This class will be in charge of managing the ports and sending the data to the d
 
 
 class SerialComWorker():
-    chosen_device = {}  # Selected serial communication port
+    chosen_device = ""  # Selected serial communication port
     """
     List of key-value pairs of EDF signal generators found. Should contain:
     Name: Identifier for the device
@@ -69,3 +73,40 @@ class SerialComWorker():
                 if device.name in user_chosen_device:
                     print("Selected port: " + device.name)
                     self.chosen_device = device
+
+    @timeit
+    def beginTransmision(self, bytes_packages, channels_amount, sample_rate):
+        """
+        Method to start the transmition to the generator
+        """
+        config_LSB = 33
+        LDAC_trigger_package = [0, config_LSB, 0, 0]
+
+        serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
+        for i in range(0, len(bytes_packages), channels_amount):
+            for j in range(channels_amount):
+                serial_connection.write(bytes_packages[j + i])
+
+            # Trigger LDAC after filling all channels:
+            serial_connection.write(serial.to_bytes(LDAC_trigger_package))
+            # Rate
+            time.sleep(1 / sample_rate)
+
+        serial_connection.close()
+
+        # print(f'package ={serial.to_bytes(package)}')
+        # Looping test function. Needs to change since DAC_A not working
+        #MSBy = 0x00
+        #LSBy = 0x00
+        # while True:
+        #
+        #    if LSBy > 0xff:
+        #        MSBy += 1
+        #        LSBy = 0x00
+        #    if MSBy == 0xff:
+        #        MSBy = 0x00
+        #
+        #    cw = [MSBy,LSBy]
+        #    print (serial.to_bytes(cw))
+        #    ser.write(serial.to_bytes(cw))
+        #    LSBy += 1

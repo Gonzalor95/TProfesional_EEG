@@ -1,0 +1,12 @@
+EEG_simulation.c:10:6:init_dac_handler	1
+EEG_simulation.c:18:6:reset_dacs_config	3
+EEG_simulation.c:31:6:init_LDAC_in_dacs	3
+EEG_simulation.c:43:6:init_LDAC	1
+EEG_simulation.c:52:10:parse_config	1
+EEG_simulation.c:57:6:parse_tag_and_channel_from_config	1
+EEG_simulation.c:65:19:send_data_to_dac_channel	1
+EEG_simulation.c:106:9:get_dac_channel_addr_mask	1
+EEG_simulation.c:111:19:send_configuration_to_dacs	2
+EEG_simulation.c:126:6:trigger_LDAC	1
+EEG_simulation.c:137:19:_send_word_to_dac	1
+EEG_simulation.c:152:6:EEG_simulation_error_Handler	1

@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -23,10 +23,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-
 #include "string.h"
 #include "EEG_simulation.h"
-//#include "usbd_cdc_if.h"
+// #include "usbd_cdc_if.h"
 #include <stdbool.h>
 /* USER CODE END Includes */
 
@@ -38,7 +37,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,18 +45,19 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN PV */
 
-/*Each SPI will be assigned to a particular DAC*/
+DAC_Handler dac_handler_A;
+DAC_Handler dac_handler_B;
+DAC_Handler dac_handler_C;
+DAC_Handler dac_handler_D;
+uint8_t dacs_count = 2;
+DAC_Handler *list_of_dacs; // TODO: Add DAC_A, DAC_C and DAC_D
+LDAC_Handler LDAC;
 
-// Para la prueba con USB tenemos solo 1 DAC = 8 Canales.
-// Cada Canal recibe un dato de 16 bits.
-// Entonces para la prueba con USB, la cantidad máxima del buffer de USB es = 16 datos de 8bits
-uint8_t bufferUSB[4]= {0,0,0,0}; // Buffer to receive in USB via CDC (Communication Device Class)
-LDAC_Settings LDAC_settings;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,20 +67,17 @@ static void MX_SPI1_Init(void);
 static void MX_SPI5_Init(void);
 /* USER CODE BEGIN PFP */
 
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -111,98 +107,56 @@ int main(void)
   MX_SPI5_Init();
   /* USER CODE BEGIN 2 */
 
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  DAC_Handler dac_handler_A;
-  DAC_Handler dac_handler_B;
-  DAC_Handler dac_handler_C;
-  DAC_Handler dac_handler_D;
+  // DACs configuration
+  // init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
+  init_dac_handler(DAC_B, &hspi5, GPIOB, GPIO_PIN_1, &dac_handler_B);
+  // init_dac_handler(DAC_C, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_C);
+  // init_dac_handler(DAC_D, &hspiX, GPIOX, GPIO_PIN_X, &dac_handler_D);
 
-  init_dac_handler(&dac_handler_A, DAC_A, &hspi1, GPIOA, GPIO_PIN_4);
-  init_dac_handler(&dac_handler_B, DAC_B, &hspi5, GPIOB, GPIO_PIN_1);
-  /* Pins and DACs correlation to PCB:
-   * hspi1 = Udac4
-   * 	PA5 = SCK
-   * 	PA7 = MOSI
-   * 	PA4 = SS
-   * hspi5 = Udac3,
-   * 	PB0 = SCK
-   * 	PA10 = MOSI
-   * 	PB1 = SS
-   * */
-  // TODO: Add DAC_C and DAC_D
+  list_of_dacs = malloc(dacs_count * sizeof(DAC_Handler));
+  list_of_dacs[0] = dac_handler_A;
+  list_of_dacs[1] = dac_handler_B;
 
+  reset_dacs_config(list_of_dacs, &dacs_count);
+  init_LDAC_in_dacs(list_of_dacs, &dacs_count);
 
-  // LDAC Settings. Variable defined as "extern" in EEG_simulation.h
-  init_LDAC_settings(&LDAC_settings, GPIOB, GPIO_PIN_2);
+  // LDAC configuration
+  init_LDAC(GPIOB, GPIO_PIN_2, &LDAC);
 
-  DAC_Handler list_of_dacs[] = {dac_handler_A, dac_handler_B}; // TODO: Add DAC_C and DAC_D
-  uint8_t dacs_count = sizeof(list_of_dacs)/sizeof(list_of_dacs[0]);
-  DAC_Channel DAC_channel = 0;
-
-  DAC_Tag DAC_tag = DAC_B;
-  uint16_t data = 0;
-  uint16_t config = 0;
-
-  DAC_Channel arr_dac_channels[] = {0,1,2,3,4,5,6,7}; // Used to test pulse or triangular
-  uint32_t delay_in_ms = 10;
-
-  reset_dacs_config(list_of_dacs, dacs_count);
-  init_LDAC_in_dacs(list_of_dacs, dacs_count);
-
-  while(1){
-
+  // Main loop
+  while (1)
+  {
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-	parse_receiving_buffer(bufferUSB, &config, &data);
-
-	// config entre [0, 31] es para escribir al DAC
-	if(config < MAX_DAC_CHANNEL_WORD){
-
-		process_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-
-		// Enviamos los datos al DAC y canal adecuados
-		if (HAL_OK != send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data)){
-			Error_Handler();
-		}
-	}
-	else{
-		// En otro caso, se envia una configuracion a todos los DACs
-		if (HAL_OK != send_configuration_to_dacs(config, &list_of_dacs, dacs_count) ){
-			Error_Handler();
-		}
-		continue;
-	}
-
-	//send_pulse_to_dac_channels(&(list_of_dacs[DAC_B]), arr_dac_channels, 8, delay_in_ms);
   }
+  free(list_of_dacs);
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -217,9 +171,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -232,10 +185,10 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SPI1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SPI1_Init(void)
 {
 
@@ -266,14 +219,13 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
-
 }
 
 /**
-  * @brief SPI5 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SPI5 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SPI5_Init(void)
 {
 
@@ -304,14 +256,13 @@ static void MX_SPI5_Init(void)
   /* USER CODE BEGIN SPI5_Init 2 */
 
   /* USER CODE END SPI5_Init 2 */
-
 }
 
 /**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -339,12 +290,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PB1 PB2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;
+  GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_2;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
@@ -352,9 +302,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -366,14 +316,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
