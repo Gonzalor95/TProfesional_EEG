@@ -1,0 +1,55 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# Maxim MAX680CSA+T
+#
+DEF MAX680CSA+T U 0 40 Y Y 1 L N
+F0 "U" 0 200 50 H V L CNN 
+F1 "MAX680CSA+T" 0 300 50 H V L CNN 
+F2 "Maxim-S8-4-0-P-*" 0 400 50 H I L CNN 
+F3 "https://datasheets.maximintegrated.com/en/ds/MAX680-MAX681.pdf" 0 500 50 H I L CNN 
+F4 "No" 0 600 50 H I L CNN "automotive"
+F5 "IC" 0 700 50 H I L CNN "category"
+F6 "Integrated Circuits (ICs)" 0 800 50 H I L CNN "device class L1"
+F7 "Power Management ICs" 0 900 50 H I L CNN "device class L2"
+F8 "Voltage Regulators - Switching" 0 1000 50 H I L CNN "device class L3"
+F9 "IC REG SWTCHD CAP INV 10MA 8SOIC" 0 1100 50 H I L CNN "digikey description"
+F10 "MAX680CSA+TCT-ND" 0 1200 50 H I L CNN "digikey part number"
+F11 "https://pdfserv.maximintegrated.com/land_patterns/90-0096.PDF" 0 1300 50 H I L CNN "footprint url"
+F12 "1.75mm" 0 1400 50 H I L CNN "height"
+F13 "Yes" 0 1500 50 H I L CNN "lead free"
+F14 "6cb2b217d5907b21" 0 1600 50 H I L CNN "library id"
+F15 "Maxim" 0 1700 50 H I L CNN "manufacturer"
+F16 "50%" 0 1800 50 H I L CNN "max duty cycle"
+F17 "471mW" 0 1900 50 H I L CNN "max power dissipation"
+F18 "6V" 0 2000 50 H I L CNN "max supply voltage"
+F19 "1.5V" 0 2100 50 H I L CNN "min supply voltage"
+F20 "Voltage Regulators - Switching Regulators 5V to +/-10V Voltage Converter" 0 2200 50 H I L CNN "mouser description"
+F21 "700-MAX680CSAT" 0 2300 50 H I L CNN "mouser part number"
+F22 "true" 0 2400 50 H I L CNN "negative voltage available"
+F23 "0.5-1mA" 0 2500 50 H I L CNN "nominal supply current"
+F24 "2" 0 2600 50 H I L CNN "number of outputs"
+F25 "10mA" 0 2700 50 H I L CNN "output current"
+F26 "Other" 0 2800 50 H I L CNN "output type"
+F27 "12V" 0 2900 50 H I L CNN "output voltage"
+F28 "SO8" 0 3000 50 H I L CNN "package"
+F29 "Yes" 0 3100 50 H I L CNN "rohs"
+F30 "0.1mm" 0 3200 50 H I L CNN "standoff height"
+F31 "8kHz" 0 3300 50 H I L CNN "switching frequency"
+F32 "Charge Pump" 0 3400 50 H I L CNN "switching topology"
+F33 "+70°C" 0 3500 50 H I L CNN "temperature range high"
+F34 "0°C" 0 3600 50 H I L CNN "temperature range low"
+DRAW
+X VCC 6 100 0 100 R 40 40 1 1 W 
+X C1+ 7 100 -200 100 R 40 40 1 1 P 
+X C1- 1 100 -400 100 R 40 40 1 1 P 
+X C2+ 2 100 -600 100 R 40 40 1 1 P 
+X C2- 3 100 -800 100 R 40 40 1 1 P 
+X V+ 8 1000 0 100 L 40 40 1 1 W 
+X V- 4 1000 -400 100 L 40 40 1 1 W 
+X GND 5 1000 -800 100 L 40 40 1 1 W 
+S 200 100 900 -900 1 1 0 f
+ENDDRAW
+ENDDEF
+#
+# End Library
