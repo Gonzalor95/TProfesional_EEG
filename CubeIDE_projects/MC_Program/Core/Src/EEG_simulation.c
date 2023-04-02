@@ -7,6 +7,8 @@
 
 #include <EEG_simulation.h>
 
+uint32_t sample_rate = SAMPLE_RATE;
+
 void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler)
 {
 	dac_handler->dac_tag = dac_tag;
@@ -106,17 +108,17 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 	return DAC_Channel_Masks[*dac_channel];
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8_t *bufferUSB, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
 {
 	HAL_StatusTypeDef status = HAL_OK;
-	if (*config == CONF_LDAC_TRIGGER)
-	{
+
+	switch (*config) {
+	case CONF_LDAC_TRIGGER:
 		trigger_LDAC();
-		return status;
-	}
-	else if (*config == CONF_LDAC_LOW)
-	{
-		// TODO: Complete with other configs
+	case CONF_LDAC_LOW:
+		//TODO: Complete with other configs
+	case CONF_SAMPLE_RATE:
+		config_sample_rate_delay(bufferUSB);
 	}
 	return status;
 }
@@ -130,6 +132,19 @@ void trigger_LDAC()
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
 	// Setting LDAC Pin to 1 (one/high)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
+
+	//HAL_Delay(1);
+}
+
+void config_sample_rate_delay(const uint8_t * bufferUSB)
+{
+	sample_rate = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
+	sample_rate = 1000/sample_rate;
+
+	if (sample_rate  <= 0){
+		sample_rate = 1;
+	}
+
 }
 
 HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)

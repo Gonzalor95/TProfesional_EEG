@@ -32,6 +32,7 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
 
 #define BUFFER_SIZE 4
+#define SAMPLE_RATE 10		// Default sample_rate in msecs
 // Gain of output and reference selection
 
 // Power-down:
@@ -94,9 +95,10 @@ typedef enum
 	// LDAC TRIGGER
 	CONF_LDAC_TRIGGER = 33, // triggers all channels to write respective outputs
 	// LDAC Config
-	CONF_LDAC_LOW = 34
+	CONF_LDAC_LOW = 34,
 	// RESET Config
 	// Power-down Config
+	CONF_SAMPLE_RATE = 40
 } config_protocol_word;
 
 /**
@@ -226,7 +228,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
  * @param[in] list_of_dacs DACs to send the config to
  * @param[in] dacs_count Amount of DACs in the list
  */
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8_t *bufferUSB, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
 
 /**
  * @brief Sends a word to the DAC, used for the configs
@@ -240,6 +242,11 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler);
  * @brief Triggers the LDAC pin
  */
 void trigger_LDAC();
+
+/**
+ * @brief Sets sample_rate global variable value
+ */
+void config_sample_rate_delay(const uint8_t *bufferUSB);
 
 // Error functions
 void EEG_simulation_error_Handler(void);
