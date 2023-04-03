@@ -116,10 +116,12 @@ HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8
 	switch (*config) {
 	case CONF_LDAC_TRIGGER:
 		trigger_LDAC();
+		break;
 	case CONF_LDAC_LOW:
 		//TODO: Complete with other configs
 	case CONF_SAMPLE_RATE:
 		config_sample_rate_delay(bufferUSB);
+		break;
 	}
 	return status;
 }

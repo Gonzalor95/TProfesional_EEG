@@ -83,13 +83,13 @@ class SerialComWorker():
         config_LSB = 33
         LDAC_trigger_package = [0, config_LSB, 0, 0]
 
-        #config_sample_rate_package = int(40).to_bytes(2, byteorder="big", signed=False)
-        #data_sample_rate_package = int(sample_rate).to_bytes(2, byteorder="big", signed=False)
-        #config_sample_rate_package.append(data_sample_rate_package)
-        config_sample_rate_package = [0, 40, 0x08, 0]
-
-        print(f"config_sample_rate_package = {config_sample_rate_package}")
+        enum_sample_rate_package = int(40).to_bytes(2, byteorder="big", signed=False)
+        data_sample_rate_package = int(sample_rate).to_bytes(2, byteorder="big", signed=False)
+        config_sample_rate_package  = b"".join([enum_sample_rate_package, data_sample_rate_package])
+ 
         print(f"len of bytes_packages = {len(bytes_packages)}")
+        print(f"sample rate = {sample_rate}")
+        print(f"config_sample_rate_package = {config_sample_rate_package}")
 
         serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
 
