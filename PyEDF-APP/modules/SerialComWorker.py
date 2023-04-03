@@ -8,6 +8,7 @@ import sys
 import glob
 import re
 import subprocess
+import time
 from modules.utils import timeit
 
 
@@ -82,15 +83,24 @@ class SerialComWorker():
         config_LSB = 33
         LDAC_trigger_package = [0, config_LSB, 0, 0]
 
+        enum_sample_rate_package = int(40).to_bytes(2, byteorder="big", signed=False)
+        data_sample_rate_package = int(sample_rate).to_bytes(2, byteorder="big", signed=False)
+        config_sample_rate_package  = b"".join([enum_sample_rate_package, data_sample_rate_package])
+ 
+        print(f"len of bytes_packages = {len(bytes_packages)}")
+        print(f"sample rate = {sample_rate}")
+        print(f"config_sample_rate_package = {config_sample_rate_package}")
+
         serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
+
+        serial_connection.write(serial.to_bytes(config_sample_rate_package))
+        
         for i in range(0, len(bytes_packages), channels_amount):
             for j in range(channels_amount):
                 serial_connection.write(bytes_packages[j + i])
 
             # Trigger LDAC after filling all channels:
             serial_connection.write(serial.to_bytes(LDAC_trigger_package))
-            # Rate
-            time.sleep(1 / sample_rate)
 
         serial_connection.close()
 
