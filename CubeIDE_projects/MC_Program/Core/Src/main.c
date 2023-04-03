@@ -45,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
@@ -59,6 +59,9 @@ DAC_Handler dac_handler_D;
 uint8_t dacs_count = 4;
 DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
+
+extern uint32_t sample_rate;
+extern uint8_t delay_flag;
 
 /* USER CODE END PV */
 
@@ -112,7 +115,6 @@ int main(void)
   MX_SPI3_Init();
   MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -143,6 +145,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if(delay_flag){
+		  HAL_Delay(sample_rate);
+		  delay_flag = 0;
+	  }
   }
   free(list_of_dacs);
   /* USER CODE END 3 */

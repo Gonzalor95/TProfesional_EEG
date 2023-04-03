@@ -8,6 +8,7 @@
 #include <EEG_simulation.h>
 
 uint32_t sample_rate = SAMPLE_RATE;
+uint8_t delay_flag = 0;
 
 void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler)
 {
@@ -133,7 +134,7 @@ void trigger_LDAC()
 	// Setting LDAC Pin to 1 (one/high)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 
-	//HAL_Delay(1);
+	delay_flag = 1;
 }
 
 void config_sample_rate_delay(const uint8_t * bufferUSB)
