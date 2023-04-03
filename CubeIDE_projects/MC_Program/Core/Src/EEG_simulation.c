@@ -142,10 +142,6 @@ void config_sample_rate_delay(const uint8_t * bufferUSB)
 	sample_rate = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
 	sample_rate = 1000/sample_rate;
 
-	if (sample_rate  <= 0){
-		sample_rate = 1;
-	}
-
 }
 
 HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)

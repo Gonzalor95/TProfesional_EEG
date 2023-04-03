@@ -9,5 +9,5 @@
 ../Core/Src/EEG_simulation.c:112:19:send_configuration_to_dacs	32	static
 ../Core/Src/EEG_simulation.c:127:6:trigger_LDAC	8	static
 ../Core/Src/EEG_simulation.c:140:6:config_sample_rate_delay	16	static
-../Core/Src/EEG_simulation.c:151:19:_send_word_to_dac	24	static
-../Core/Src/EEG_simulation.c:166:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm
+../Core/Src/EEG_simulation.c:147:19:_send_word_to_dac	24	static
+../Core/Src/EEG_simulation.c:162:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm

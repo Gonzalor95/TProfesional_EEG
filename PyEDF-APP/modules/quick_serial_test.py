@@ -3,6 +3,23 @@ import numpy as np
 #import mne
 import pyedflib
 import matplotlib.pyplot as plt
+from functools import wraps
+import time
+
+def timeit(func):
+    """
+    Function to time functions with a decorator
+    """
+
+    @wraps(func)
+    def timeit_wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        print(f'Took {total_time:.4f} seconds')
+        return result
+    return timeit_wrapper
 
 ######################## diff signal separation test
 #
@@ -83,22 +100,31 @@ import matplotlib.pyplot as plt
 
 ######################## Serial test
 
+
+
+
+
+@timeit
+def send_1_word(ser):
+    print (ser.name)
+    config_MSB = 0
+    config_LSB = 8
+    data_MSB = 0x00
+    data_LSB = 0x00
+    cw = [config_MSB, config_LSB, data_MSB, data_LSB]
+    print (serial.to_bytes(cw))
+    ser.write(serial.to_bytes(cw))
+    ## TRIGGER LDAC:
+    config_MSB = 0
+    config_LSB = 33
+    cw = [config_MSB, config_LSB, data_MSB, data_LSB]
+    print (f'This word should be config = 33 and data = xx (does not matter). cw ={serial.to_bytes(cw)}')
+    ser.write(serial.to_bytes(cw))
+    ser.close()
+
 ser = serial.Serial('COM6')  # open serial port. Verify for your computer
-print (ser.name)
-config_MSB = 0
-config_LSB = 8
-data_MSB = 0x00
-data_LSB = 0x00
-cw = [config_MSB, config_LSB, data_MSB, data_LSB]
-print (serial.to_bytes(cw))
-ser.write(serial.to_bytes(cw))
-## TRIGGER LDAC:
-config_MSB = 0
-config_LSB = 33
-cw = [config_MSB, config_LSB, data_MSB, data_LSB]
-print (f'This word should be config = 33 and data = xx (does not matter). cw ={serial.to_bytes(cw)}')
-ser.write(serial.to_bytes(cw))
-ser.close()
+
+send_1_word(ser)
 
 
 # Looping test functioseaon. Needs to change since DAC_A not working
