@@ -31,7 +31,7 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_RESET_DATA 0xE			  // All outputs to zero
 #define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
 
-#define BUFFER_SIZE 8
+#define BUFFER_SIZE 64
 #define PROTOCOL_WORD_SIZE 4 // in bytes
 #define SAMPLE_RATE 10		// Default sample_rate in msecs
 // Gain of output and reference selection
