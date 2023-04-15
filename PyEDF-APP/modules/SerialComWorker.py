@@ -76,12 +76,10 @@ class SerialComWorker():
                     self.chosen_device = device
 
     @timeit
-    def beginTransmision(self, bytes_packages, channels_amount, sample_rate):
+    def beginTransmision(self, bytes_packages: list, channels_amount, sample_rate):
         """
         Method to start the transmition to the generator
         """
-        config_LSB = 33
-        LDAC_trigger_package = [0, config_LSB, 0, 0]
 
         enum_sample_rate_package = int(40).to_bytes(2, byteorder="big", signed=False)
         data_sample_rate_package = int(sample_rate).to_bytes(2, byteorder="big", signed=False)
@@ -90,17 +88,15 @@ class SerialComWorker():
         print(f"len of bytes_packages = {len(bytes_packages)}")
         print(f"sample rate = {sample_rate}")
         print(f"config_sample_rate_package = {config_sample_rate_package}")
+        print(f"bytes_packages is: {bytes_packages}")
 
         serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
 
         serial_connection.write(serial.to_bytes(config_sample_rate_package))
         
-        for i in range(0, len(bytes_packages), channels_amount):
-            for j in range(channels_amount):
-                serial_connection.write(bytes_packages[j + i])
-
-            # Trigger LDAC after filling all channels:
-            serial_connection.write(serial.to_bytes(LDAC_trigger_package))
+        for i in range(len(bytes_packages)):
+            #for j in range(channels_amount):
+            serial_connection.write(bytes_packages[i])
 
         serial_connection.close()
 

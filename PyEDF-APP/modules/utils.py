@@ -4,6 +4,8 @@ from modules.ChannelToIntProtocol import ProtocolDict
 from functools import wraps
 import time
 
+CONFIG_LSB = 33
+LDAC_TRIGGER_PKG = [0, CONFIG_LSB, 0, 0]
 
 def timeit(func):
     """
@@ -126,7 +128,7 @@ def to_bytes_packages(is_testing_signal, headers_and_signals_to_send):
     # Group header and signal datum in a single 4 bytes package
     # This will create a list of 4 bytes packages that can be sent directly to the generator
     # Example ouput to channels 1 and 3: [ b"\0x01\0xff", b"\0x03\0xff", b"\0x01\0x14", b"\0x03\0x16", ... ]
-
+    LDAC_trigger_bytes = [data.to_bytes(1, byteorder="big", signed=False) for data in LDAC_TRIGGER_PKG]
     amount_of_channels = len(headers_and_signals_to_send)
     signal_len = len(headers_and_signals_to_send[0][1])
 
@@ -134,5 +136,6 @@ def to_bytes_packages(is_testing_signal, headers_and_signals_to_send):
     for i in range(signal_len):
         for j in range(amount_of_channels):
             bytes_packages.append(b"".join([processed_headers_and_signals[j][0], processed_headers_and_signals[j][1][i]]))
-
+        # Append trigger LDAC after adding data for all channels:
+        bytes_packages.append(b"".join(LDAC_trigger_bytes))
     return bytes_packages
