@@ -31,14 +31,29 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_RESET_DATA 0xE			  // All outputs to zero
 #define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
 
-#define BUFFER_SIZE 64
-#define PROTOCOL_WORD_SIZE 4 // in bytes
-#define SAMPLE_RATE 10		// Default sample_rate in msecs
 // Gain of output and reference selection
 
 // Power-down:
 
 /* END: Control Words  */
+
+#define BUFFER_SIZE 64			// in bytess
+#define PROTOCOL_WORD_SIZE 4 	// in bytes
+#define SAMPLE_RATE 10			// Default sample_rate in msecs
+#define DATA_QUEUE_CAPACITY 1024  // in DAC packages (16 bits or 2 bytes). Must be 32 at minimun
+
+/**
+ * @brief Structure of FIFO data queue
+ */
+typedef struct Data_Queue{
+	int front;	// = 0
+	int rear; 	// = DATA_QUEUE_CAPACITY - 1;
+	int size; 	// = 0;
+	uint16_t capacity;	// = DATA_QUEUE_CAPACITY;
+    uint16_t array[DATA_QUEUE_CAPACITY][2];
+    	// [*][0] = config
+    	// [*][1] = data
+} Data_Queue;
 
 /**
  * @brief Array defining the DAC identifier
@@ -190,10 +205,12 @@ void init_LDAC(const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, LDAC_Handler 
  * @brief Parses the configuration from the incoming package
  *
  * @param[in] bufferUSB Received bytes package
+ * @param[in] pconfig to store config word
+ * @param[in] pdata to store data word
  *
- * @return Integer representing the configuration received
+ * @return config and data with respective values
  */
-uint16_t parse_config(const uint8_t *bufferUSB);
+void parse_receiving_buffer(const uint8_t *bufferUSB, uint16_t *config, uint16_t *data);
 
 /**
  * @brief Parses the DAC_tag and DAC_channel from the received config
@@ -211,9 +228,9 @@ void parse_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag,
  *
  * @param[in] dac_handler Indicates to which DAC to send the data to
  * @param[in] dac_channel Indicates the DAC channel to sent the data to
- * @param[in] bufferUSB Received buffer containing the data
+ * @param[in] data to send
  */
-HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint8_t *bufferUSB);
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data);
 
 /**
  * @brief Gets the channel address mask
@@ -229,7 +246,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
  * @param[in] list_of_dacs DACs to send the config to
  * @param[in] dacs_count Amount of DACs in the list
  */
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8_t *bufferUSB, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
 
 /**
  * @brief Sends a word to the DAC, used for the configs
@@ -247,9 +264,38 @@ void trigger_LDAC();
 /**
  * @brief Sets sample_rate global variable value
  */
-void config_sample_rate_delay(const uint8_t *bufferUSB);
+void config_sample_rate_delay(const uint16_t data);
 
-// Error functions
+/************* Error functions *************/
 void EEG_simulation_error_Handler(void);
+
+
+/************* Queue functions *************/
+
+/**
+ * @brief enqueue data in the rear of the queue
+ */
+void init_data_queue(Data_Queue * data_queue);
+
+/**
+ * @brief enqueue data in the rear of the queue
+ */
+void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue);
+
+/**
+ * @brief dequeue data in the front of the queue
+ */
+void dequeue_data(uint16_t * config, uint16_t * data, Data_Queue * data_queue);
+
+/**
+ * @brief Is the queue full?. 1 = True. 0 = False
+ */
+int is_queue_full(Data_Queue * data_queue);
+
+
+/**
+ * @brief Is the queue empty?. 1 = True. 0 = False
+ */
+int is_queue_empty(Data_Queue * data_queue);
 
 #endif /* INC_EEG_SIMULATION_H_ */

@@ -45,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
@@ -61,6 +61,7 @@ DAC_Handler dac_handler_D;
 uint8_t dacs_count = 4;
 DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
+Data_Queue data_queue;
 
 extern uint32_t sample_rate;
 extern uint8_t delay_flag;
@@ -142,6 +143,14 @@ int main(void)
   // LDAC configuration
   init_LDAC(GPIOB, GPIO_PIN_2, &LDAC);
 
+
+  // Data queue init
+  init_data_queue(&data_queue);
+
+  uint16_t data = 0;
+  uint16_t config = 0;
+  DAC_Channel DAC_channel = 0;
+  DAC_Tag DAC_tag = DAC_B;
   // Main loop
   while (1)
   {
@@ -149,8 +158,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	  if(!is_queue_empty(&data_queue)){
+		  dequeue_data(&config,&data,&data_queue);
+		  // A config value of [0, 31] means writing to a DAC
+		  if (config < MAX_DAC_CHANNEL_WORD)
+		  {
+			parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+			// Send the data to the corresponding channel of the corresponding DAC
+			send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+		  }
+		  else
+		  {
+			// A config value > 31 means a device configuration
+			send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+		  }
+	  }
 	  if(delay_flag){
-		  HAL_Delay(sample_rate);
+//		  HAL_Delay(sample_rate); // TODO: delay + queue -> empeora mucho la senal (descarta muchas muestras). Sin el delay se llega a ver algo
 		  delay_flag = 0;
 	  }
   }
