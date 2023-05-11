@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
+#include "usbd_cdc_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,12 +46,14 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
 
 USART_HandleTypeDef husart1;
+
+
 
 /* USER CODE BEGIN PV */
 
@@ -65,6 +68,8 @@ Data_Queue data_queue;
 
 extern uint32_t sample_rate;
 extern uint8_t delay_flag;
+
+extern USBD_HandleTypeDef hUsbDeviceFS; // Do not delete
 
 /* USER CODE END PV */
 
@@ -159,6 +164,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  CDC_Receive_FS(uint8_t* pbuf, uint32_t *Len); // TODO: need to find where the pbuf and Len are created.
 	  if(!is_queue_empty(&data_queue)){
 		  dequeue_data(&config,&data,&data_queue);
 		  // A config value of [0, 31] means writing to a DAC
