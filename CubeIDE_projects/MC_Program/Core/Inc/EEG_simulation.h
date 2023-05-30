@@ -266,6 +266,21 @@ void trigger_LDAC();
  */
 void config_sample_rate_delay(const uint16_t data);
 
+
+/************* Test functions *************/
+
+/**
+ * @brief Test a pulse signal in all DACs and Channels
+ */
+void test_send_pulse(const DAC_Handler list_of_dacs[]);
+
+/**
+ * @brief Test a pulse signal in all DACs and Channels
+ */
+void test_send_saw(const DAC_Handler list_of_dacs[]);
+
+
+
 /************* Error functions *************/
 void EEG_simulation_error_Handler(void);
 

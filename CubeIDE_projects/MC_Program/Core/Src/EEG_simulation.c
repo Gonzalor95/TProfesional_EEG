@@ -162,6 +162,59 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)
 	return status;
 }
 
+// Test signals (do not delete):
+
+void test_send_pulse(const DAC_Handler  list_of_dacs[]){
+
+	uint16_t data = 0;
+	DAC_Channel dac_channel[] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};
+
+	int channel_count = 8;
+	int dac_count = 4;
+	int i = 0;
+
+	while(1){
+		if(i % 2)
+			data = 0x00;
+		else
+			data = 0xFFFF;
+
+		for(int j = 0 ; j < dac_count; j++){
+			for(int k = 0; k < channel_count; k++){
+				send_data_to_dac_channel(&(list_of_dacs[j]), &(dac_channel[k]), data);
+			}
+		}
+		trigger_LDAC();
+		HAL_Delay(10);
+		i++;
+	}
+
+
+}
+
+void test_send_saw(const DAC_Handler list_of_dacs[]){
+
+	DAC_Channel dac_channel[] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};
+
+	int channel_count = 8;
+	int dac_count = 4;
+	uint16_t i = 0;
+
+	while(1){
+
+		for(int j = 0 ; j < dac_count; j++){
+			for(int k = 0; k < channel_count; k++){
+				send_data_to_dac_channel(&(list_of_dacs[j]), &(dac_channel[k]), i);
+			}
+		}
+		trigger_LDAC();
+		i += 1000 ;
+	}
+
+
+}
+
+
 // Errors:
 void EEG_simulation_error_Handler(void)
 {

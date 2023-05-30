@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
-#include "usbd_cdc_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,14 +45,12 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
 
 USART_HandleTypeDef husart1;
-
-
 
 /* USER CODE BEGIN PV */
 
@@ -65,6 +62,8 @@ uint8_t dacs_count = 4;
 DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
+
+extern uint8_t receive_buff_flag;
 
 extern uint32_t sample_rate;
 extern uint8_t delay_flag;
@@ -125,11 +124,6 @@ int main(void)
   MX_SPI4_Init();
   MX_USART1_Init();
   /* USER CODE BEGIN 2 */
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
   // DACs configuration
   init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
   init_dac_handler(DAC_B, &hspi5, GPIOB, GPIO_PIN_1, &dac_handler_B);
@@ -156,6 +150,18 @@ int main(void)
   uint16_t config = 0;
   DAC_Channel DAC_channel = 0;
   DAC_Tag DAC_tag = DAC_B;
+
+  uint8_t receiveBuffer[BUFFER_SIZE];
+
+
+  memset(receiveBuffer, '\0', BUFFER_SIZE);
+
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+
   // Main loop
   while (1)
   {
@@ -163,8 +169,34 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  test_send_saw(list_of_dacs);
+	  /* do not do the while
 
-	  CDC_Receive_FS(uint8_t* pbuf, uint32_t *Len); // TODO: need to find where the pbuf and Len are created.
+	  while(receive_buff_flag){
+
+	  }
+	  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &receiveBuffer[0]);
+	  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+	  uint8_t protocolWord[PROTOCOL_WORD_SIZE];
+
+	  for(uint32_t i = 0; i<BUFFER_SIZE; i +=PROTOCOL_WORD_SIZE){
+
+		  protocolWord[0] = receiveBuffer[i];
+		  protocolWord[1] = receiveBuffer[i+1];
+		  protocolWord[2] = receiveBuffer[i+2];
+		  protocolWord[3] = receiveBuffer[i+3];
+
+
+		  parse_receiving_buffer(protocolWord, &config, &data);
+
+		  if( !is_queue_full(&data_queue)){
+			  enqueue_data(config,data,&data_queue);
+		  }else{
+			  // TODO: Discard for now, but need to resolve.
+			  	  // Create a Buffer hold with last receiving buffer, send NACK until queue is available again
+		  }
+	  }
+
 	  if(!is_queue_empty(&data_queue)){
 		  dequeue_data(&config,&data,&data_queue);
 		  // A config value of [0, 31] means writing to a DAC
@@ -184,7 +216,10 @@ int main(void)
 //		  HAL_Delay(sample_rate); // TODO: delay + queue -> empeora mucho la senal (descarta muchas muestras). Sin el delay se llega a ver algo
 		  delay_flag = 0;
 	  }
+	  receive_buff_flag = 1;
+	  */
   }
+
   free(list_of_dacs);
   /* USER CODE END 3 */
 }

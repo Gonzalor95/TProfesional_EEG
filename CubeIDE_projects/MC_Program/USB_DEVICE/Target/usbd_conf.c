@@ -95,7 +95,6 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
   /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
 
-    HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
 
   /* USER CODE END USB_OTG_FS_MspInit 1 */
   }
