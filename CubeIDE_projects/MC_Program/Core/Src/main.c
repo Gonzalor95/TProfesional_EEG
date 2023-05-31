@@ -155,16 +155,11 @@ int main(void)
   // Data queue init
   init_data_queue(&data_queue);
 
-  uint16_t data = 0;
-  uint16_t config = 0;
-  DAC_Channel DAC_channel = 0;
-  DAC_Tag DAC_tag = DAC_B;
+
 
   uint8_t receiveBuffer[BUFFER_SIZE];
 
-
   memset(receiveBuffer, '\0', BUFFER_SIZE);
-
 
   /* USER CODE END 2 */
 
@@ -211,57 +206,9 @@ int main(void)
   {
 
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
 
-	  /* do not do the while
 
-	  while(receive_buff_flag){
-
-	  }
-	  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &receiveBuffer[0]);
-	  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-	  uint8_t protocolWord[PROTOCOL_WORD_SIZE];
-
-	  for(uint32_t i = 0; i<BUFFER_SIZE; i +=PROTOCOL_WORD_SIZE){
-
-		  protocolWord[0] = receiveBuffer[i];
-		  protocolWord[1] = receiveBuffer[i+1];
-		  protocolWord[2] = receiveBuffer[i+2];
-		  protocolWord[3] = receiveBuffer[i+3];
-
-
-		  parse_receiving_buffer(protocolWord, &config, &data);
-
-		  if( !is_queue_full(&data_queue)){
-			  enqueue_data(config,data,&data_queue);
-		  }else{
-			  // TODO: Discard for now, but need to resolve.
-			  	  // Create a Buffer hold with last receiving buffer, send NACK until queue is available again
-		  }
-	  }
-
-	  if(!is_queue_empty(&data_queue)){
-		  dequeue_data(&config,&data,&data_queue);
-		  // A config value of [0, 31] means writing to a DAC
-		  if (config < MAX_DAC_CHANNEL_WORD)
-		  {
-			parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-			// Send the data to the corresponding channel of the corresponding DAC
-			send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-		  }
-		  else
-		  {
-			// A config value > 31 means a device configuration
-			send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
-		  }
-	  }
-	  if(delay_flag){
-//		  HAL_Delay(sample_rate); // TODO: delay + queue -> empeora mucho la senal (descarta muchas muestras). Sin el delay se llega a ver algo
-		  delay_flag = 0;
-	  }
-	  receive_buff_flag = 1;
-	  */
   }
 
   free(list_of_dacs);
@@ -550,21 +497,35 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartSendDataToDACs */
-void StartSendDataToDACs(void *argument)
-{
-  /* init code for USB_DEVICE */
-  //MX_USB_DEVICE_Init();
-  /* USER CODE BEGIN 5 */
+void StartSendDataToDACs(void *argument){
+	/* init code for USB_DEVICE */
+	MX_USB_DEVICE_Init();
+	/* USER CODE BEGIN 5 */
 	DAC_Handler * list_of_dacs;
+
+	DAC_Tag DAC_tag = 0;
+	DAC_Channel DAC_channel = 0;
+	uint16_t config = 0;
+	uint16_t data = 0;
+
 	list_of_dacs = (DAC_Handler *) argument;
 
-  /* Infinite loop */
-  for(;;)
-  {
-	test_send_saw(list_of_dacs);
-    osDelay(1);
-  }
-  /* USER CODE END 5 */
+	/* Infinite loop */
+	for(;;){
+		dequeue_data(&config, &data, &data_queue);
+		// A config value of [0, 31] means writing to a DAC
+		if (config < MAX_DAC_CHANNEL_WORD){
+			parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+			// Send the data to the corresponding channel of the corresponding DAC
+			send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+		}
+		else{
+		// A config value > 31 means a device configuration
+		send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+		}
+    //osDelay(1);
+	}
+	/* USER CODE END 5 */
 }
 
 /**

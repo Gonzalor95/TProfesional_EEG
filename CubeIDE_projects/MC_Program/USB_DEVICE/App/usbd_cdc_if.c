@@ -272,7 +272,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
 	receive_buff_flag = 0;
-	/*
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
@@ -298,32 +298,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
 	  parse_receiving_buffer(protocolWord, &config, &data);
 
-	  if( !is_queue_full(&data_queue)){
-		  enqueue_data(config,data,&data_queue);
-	  }else{
-		  // TODO: Discard for now, but need to resolve.
-		  	  // Create a Buffer hold with last receiving buffer, send NACK until queue is available again
+	  while(is_queue_full(&data_queue)){
+		  // Do nothing until it sends data
 	  }
-
-
-	  // A config value of [0, 31] means writing to a DAC
-	  if (config < MAX_DAC_CHANNEL_WORD)
-	  {
-		parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-		// Send the data to the corresponding channel of the corresponding DAC
-		send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-	  }
-	  else
-	  {
-		// A config value > 31 means a device configuration
-		send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
-	  }
+	  enqueue_data(config,data,&data_queue);
 
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);
 
-  return (USBD_OK); */
+  return (USBD_OK);
   /* USER CODE END 6 */
 }
 
