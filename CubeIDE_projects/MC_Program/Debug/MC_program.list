@@ -1964,6 +1964,8 @@ void StartSendDataToDACs(void *argument){
 
 	/* Infinite loop */
 	for(;;){
+
+		// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
 		dequeue_data(&config, &data, &data_queue);
  8000e64:	f107 010e 	add.w	r1, r7, #14
  8000e68:	f107 0310 	add.w	r3, r7, #16

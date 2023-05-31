@@ -71,12 +71,8 @@ DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
 
-extern uint8_t receive_buff_flag;
-
 extern uint32_t sample_rate;
-extern uint8_t delay_flag;
 
-extern USBD_HandleTypeDef hUsbDeviceFS; // Do not delete
 
 /* USER CODE END PV */
 
@@ -512,6 +508,8 @@ void StartSendDataToDACs(void *argument){
 
 	/* Infinite loop */
 	for(;;){
+
+		// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
 		dequeue_data(&config, &data, &data_queue);
 		// A config value of [0, 31] means writing to a DAC
 		if (config < MAX_DAC_CHANNEL_WORD){
