@@ -18,6 +18,8 @@ Class to handle the serial communication between the PC and the EDF signal gener
 This class will be in charge of managing the ports and sending the data to the device
 """
 
+CHANNEL_AMOUNT_CONFIG = 39
+SAMPLE_RATE_CONFIG = 40
 
 class SerialComWorker():
     chosen_device = ""  # Selected serial communication port
@@ -75,15 +77,28 @@ class SerialComWorker():
                     print("Selected port: " + device.name)
                     self.chosen_device = device
 
+    def create_config_package(self, config_num: int, config_data: int):
+        """
+        This method creates a custom configuration package to send config_data to the microcontroller.
+        """
+        enum_pkg = int(config_num).to_bytes(2, byteorder="big", signed=False)
+        data_pkg = int(config_data).to_bytes(2, byteorder="big", signed=False)
+        return b"".join([enum_pkg, data_pkg])
+
     @timeit
     def beginTransmision(self, bytes_packages: list, channels_amount, sample_rate):
         """
         Method to start the transmition to the generator
         """
+        ## With this implementation we could make a single call to serial.write(configurations) for all configurations
+        ## sending them packeted as the bytes_package
+        # configurations = []
+        # configurations.append(self.create_config_package(SAMPLE_RATE_CONFIG, sample_rate))
+        # configurations.append(self.create_config_package(CHANNEL_AMOUNT_CONFIG, channels_amount))
 
-        enum_sample_rate_package = int(40).to_bytes(2, byteorder="big", signed=False)
-        data_sample_rate_package = int(sample_rate).to_bytes(2, byteorder="big", signed=False)
-        config_sample_rate_package  = b"".join([enum_sample_rate_package, data_sample_rate_package])
+
+        config_sample_rate_package = self.create_config_package(SAMPLE_RATE_CONFIG, sample_rate)
+        config_channel_amount_pkg = self.create_config_package(CHANNEL_AMOUNT_CONFIG, channels_amount)
 
         bytes_packages_packeted = [bytes_packages[i:i+64] for i in range(0,len(bytes_packages),64)]
 
@@ -96,10 +111,13 @@ class SerialComWorker():
         serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
 
         serial_connection.write(serial.to_bytes(config_sample_rate_package))
+        time.sleep(0.1)
+        # Send the amount of channels as a configuration
+        serial_connection.write(serial.to_bytes(config_channel_amount_pkg))
         
-        for i in range(len(bytes_packages_packeted)):
+        for byte_pkg in bytes_packages_packeted:
             #for j in range(channels_amount):
-            serial_connection.write(b"".join(bytes_packages_packeted[i]))
+            serial_connection.write(b"".join(byte_pkg))
 
         serial_connection.close()
 

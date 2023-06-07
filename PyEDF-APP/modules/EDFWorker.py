@@ -9,11 +9,12 @@ from modules.ChannelToIntProtocol import ProtocolDict
 Class used to work with the EDF files
 """
 
+DEVICE_MAX_VALUE = 134 # 134uV seems to be the max value we can represent.
 
 # Structure type of class to hold the signal data
 class SignalData:
-    original_physical_signals = []  # Used only for previews, as read from the .edf file
-    original_signal_headers = []  # Signal headers, as read from the .edf file
+    physical_signals = []  # Used only for previews, as read from the .edf file
+    signal_headers = []  # Signal headers, as read from the .edf file
     digital_signals_and_headers = []  # header-signal pair to represent the parsed header and digital signal
     physical_signals_and_headers = []  # header-signal pair to represent the parsed header and physical signal
 
@@ -312,13 +313,11 @@ class EDFWorker():
         # 1. Make it go from (-edf_digital_min, edf_digital_max) to (0, our_digital_max)
         # 2. Normalize it to our (digital_max, physical_max) ratio instead of the one present in the edf
         processed_signal_to_send = []
+        digital_min = self.signal_data_.signal_headers[0]["digital_min"]
+        digital_max = self.signal_data_.signal_headers[0]["digital_max"]
         for header,signal in signals_to_send:
-            # Step 1
-            processed_signal = (signal + self.signal_data_.original_signal_headers["digital_min"]) / 2
-            
-            # TODO
-            # Step2
-
+            processed_signal = (signal - digital_min)
+            processed_signal = processed_signal * DEVICE_MAX_VALUE / (digital_max - digital_min)
 
             processed_signal_to_send.append((header, processed_signal))
 
