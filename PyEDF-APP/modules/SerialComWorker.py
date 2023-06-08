@@ -90,13 +90,14 @@ class SerialComWorker():
         print(f"len of bytes_packages = {len(bytes_packages)}")
         print(f"sample rate = {sample_rate}")
         print(f"config_sample_rate_package = {config_sample_rate_package}")
+        print(f"config_data_channels = TODO")
        # print(f"packeted bytes_packages is: {bytes_packages_packeted}")
 
 
         serial_connection = serial.Serial(self.chosen_device.name, baudrate=115200, bytesize=serial.EIGHTBITS)
 
         serial_connection.write(serial.to_bytes(config_sample_rate_package))
-        
+
         for i in range(len(bytes_packages_packeted)):
             #for j in range(channels_amount):
             serial_connection.write(b"".join(bytes_packages_packeted[i]))
