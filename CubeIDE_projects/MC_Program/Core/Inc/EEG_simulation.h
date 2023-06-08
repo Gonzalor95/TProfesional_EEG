@@ -42,6 +42,7 @@ Azul = DAC 2 =SYNC = PA4
 #define SAMPLE_RATE 10			// Default sample_rate in msecs
 #define DATA_QUEUE_CAPACITY 1024  // in DAC packages (16 bits or 2 bytes). Must be 32 at minimun
 #define DACS_COUNT 4
+#define DACS_CHANNEL_COUNT 8
 
 /**
  * @brief Structure of FIFO data queue
