@@ -106,6 +106,7 @@ uint8_t DAC_Channel_Masks[] = {
 	0x50,
 	0x60,
 	0x70};
+
 uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 {
 	return DAC_Channel_Masks[*dac_channel];
@@ -133,12 +134,10 @@ void trigger_LDAC()
 	// To trigger LDAC. Every pin 1 (LDAC) of the DACs must be set to low to update all channels at once
 	// LDAC_settings variable is declared as extern outside
 	// Setting LDAC Pin to 0 (zero/low)
-	//  TODO: hardcode until figure extern problem HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
+	// TODO: hardcode until figure extern problem HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
 	// Setting LDAC Pin to 1 (one/high)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
-
-	delay_flag = 1;
 }
 
 void config_sample_rate_delay(const uint16_t data)
@@ -164,6 +163,20 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)
 
 // Test signals (do not delete):
 
+void test_send_data_value_to_all_dacs(const DAC_Handler  list_of_dacs[], uint16_t data){
+	DAC_Channel dac_channel[DACS_CHANNEL_COUNT] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};
+
+	for(int j = 0 ; j < DACS_COUNT; j++){
+		for(int k = 0; k < DACS_CHANNEL_COUNT; k++){
+			send_data_to_dac_channel(&(list_of_dacs[j]), &(dac_channel[k]), data);
+		}
+	}
+	trigger_LDAC();
+}
+
+/**
+ * @brief BLOCKING FUNCTION, will enter a infinite loop
+ */
 void test_send_pulse(const DAC_Handler  list_of_dacs[]){
 
 	uint16_t data = 0;
@@ -192,6 +205,9 @@ void test_send_pulse(const DAC_Handler  list_of_dacs[]){
 
 }
 
+/**
+ * @brief BLOCKING FUNCTION, will enter a infinite loop
+ */
 void test_send_saw(const DAC_Handler list_of_dacs[]){
 
 	DAC_Channel dac_channel[] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};

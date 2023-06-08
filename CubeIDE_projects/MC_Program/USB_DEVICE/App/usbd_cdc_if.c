@@ -276,8 +276,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-
-
+  int n=0;
   uint8_t receiveBuffer[BUFFER_SIZE]; 		 // Buffer to receive data through USB via CDC (Communication Device Class)
   memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
   memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
@@ -300,7 +299,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
 	  while(is_queue_full(&data_queue)){
 		  // Do nothing until it sends data
+		  n++;
 	  }
+	 // if(!is_queue_full(&data_queue))
 	  enqueue_data(config,data,&data_queue);
 
   }

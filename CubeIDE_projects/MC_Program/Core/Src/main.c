@@ -58,7 +58,12 @@ osThreadId_t sendDataToDACsHandle;
 const osThreadAttr_t sendDataToDACs_attributes = {
   .name = "sendDataToDACs",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityRealtime7,
+};
+/* Definitions for dataQueueSemaphore */
+osSemaphoreId_t dataQueueSemaphoreHandle;
+const osSemaphoreAttr_t dataQueueSemaphore_attributes = {
+  .name = "dataQueueSemaphore"
 };
 /* USER CODE BEGIN PV */
 
@@ -82,8 +87,8 @@ static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI5_Init(void);
 static void MX_SPI3_Init(void);
-static void MX_SPI4_Init(void);
 static void MX_USART1_Init(void);
+static void MX_SPI4_Init(void);
 void StartSendDataToDACs(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -126,8 +131,8 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI5_Init();
   MX_SPI3_Init();
-  MX_SPI4_Init();
   MX_USART1_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
   // DACs configuration
   init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
@@ -166,6 +171,10 @@ int main(void)
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* creation of dataQueueSemaphore */
+  dataQueueSemaphoreHandle = osSemaphoreNew(1, 1, &dataQueueSemaphore_attributes);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -202,6 +211,7 @@ int main(void)
   {
 
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
 
 
@@ -493,10 +503,12 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartSendDataToDACs */
-void StartSendDataToDACs(void *argument){
-	/* init code for USB_DEVICE */
-	MX_USB_DEVICE_Init();
-	/* USER CODE BEGIN 5 */
+void StartSendDataToDACs(void *argument)
+{
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
+  /* USER CODE BEGIN 5 */
+	osDelay(10000);
 	DAC_Handler * list_of_dacs;
 
 	DAC_Tag DAC_tag = 0;
@@ -508,22 +520,25 @@ void StartSendDataToDACs(void *argument){
 
 	/* Infinite loop */
 	for(;;){
+		if(!is_queue_empty(&data_queue)){
+			// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
+			dequeue_data(&config, &data, &data_queue);
+			// A config value of [0, 31] means writing to a DAC
+			if (config < MAX_DAC_CHANNEL_WORD){
+				parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+				// Send the data to the corresponding channel of the corresponding DAC
+				send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+			}
+			else{
+			// A config value > 31 means a device configuration
+			send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+			}
 
-		// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
-		dequeue_data(&config, &data, &data_queue);
-		// A config value of [0, 31] means writing to a DAC
-		if (config < MAX_DAC_CHANNEL_WORD){
-			parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-			// Send the data to the corresponding channel of the corresponding DAC
-			send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+		   osDelay(10); //TODO: cuando se pone el delay, se muere y no manda nada
 		}
-		else{
-		// A config value > 31 means a device configuration
-		send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
-		}
-    //osDelay(1);
+
 	}
-	/* USER CODE END 5 */
+  /* USER CODE END 5 */
 }
 
 /**
