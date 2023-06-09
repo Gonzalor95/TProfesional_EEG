@@ -1,0 +1,7 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MAX680CSA+T
+D MAX680CSA+T
+F https://datasheets.maximintegrated.com/en/ds/MAX680-MAX681.pdf
+$ENDCMP
+# end doc library
