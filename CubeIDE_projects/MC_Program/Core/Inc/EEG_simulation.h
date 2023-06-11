@@ -43,6 +43,7 @@ Azul = DAC 2 =SYNC = PA4
 #define DATA_QUEUE_CAPACITY 1024  // in DAC packages (16 bits or 2 bytes). Must be 32 at minimun
 #define DACS_COUNT 4
 #define DACS_CHANNEL_COUNT 8
+#define SIMULATION_CHANNEL_COUNT 1 // This is the amount of data to dequeue by default
 
 /**
  * @brief Structure of FIFO data queue
@@ -116,6 +117,7 @@ typedef enum
 	CONF_LDAC_LOW = 34,
 	// RESET Config
 	// Power-down Config
+	CONF_SIMULATION_CHANNEL_COUNT = 39,
 	CONF_SAMPLE_RATE = 40
 } config_protocol_word;
 
@@ -267,6 +269,11 @@ void trigger_LDAC();
  * @brief Sets sample_rate global variable value
  */
 void config_sample_rate_delay(const uint16_t data);
+
+/**
+ * @brief Sets How many channels will be used in next simulation
+ */
+void config_simulation_channel_count(const uint16_t data);
 
 
 /************* Test functions *************/

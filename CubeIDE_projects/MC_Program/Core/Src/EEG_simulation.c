@@ -8,6 +8,7 @@
 #include <EEG_simulation.h>
 
 uint32_t sample_rate = SAMPLE_RATE;
+uint32_t simulation_channel_count = SIMULATION_CHANNEL_COUNT;
 uint8_t delay_flag = 0;
 
 void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler)
@@ -125,7 +126,14 @@ HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint1
 	case CONF_SAMPLE_RATE:
 		config_sample_rate_delay(*data);
 		break;
+	case CONF_SIMULATION_CHANNEL_COUNT:
+		config_simulation_channel_count(*data);
+
+	default:
+		status = HAL_ERROR;
+		break;
 	}
+
 	return status;
 }
 
@@ -140,11 +148,13 @@ void trigger_LDAC()
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
-void config_sample_rate_delay(const uint16_t data)
-{
+void config_sample_rate_delay(const uint16_t data){
 	sample_rate = data;
 	sample_rate = 1000/sample_rate;
+}
 
+void config_simulation_channel_count(const uint16_t data){
+	simulation_channel_count = data;
 }
 
 HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)
