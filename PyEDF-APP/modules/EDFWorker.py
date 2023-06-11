@@ -9,7 +9,7 @@ from modules.ChannelToIntProtocol import ProtocolDict
 Class used to work with the EDF files
 """
 
-DEVICE_MAX_VALUE = 134 # 134uV seems to be the max value we can represent.
+DEVICE_MAX_VALUE = 65535 # 134uV seems to be the max value we can represent.
 
 # Structure type of class to hold the signal data
 class SignalData:
