@@ -223,8 +223,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # It's up to each worker to return a "headers_and_signals" array ready for transmission, which means:
         # - Channel names present in the channel to int dictionary
         # - Signals in digital form, going from 0 to 4096 (12 bits) where 4096 represents 150mV
-        bytes_packages = to_bytes_packages(self.is_testing_signal_, headers_and_signals_to_send)
-        self.serial_comm_worker.beginTransmision(bytes_packages, len(headers_and_signals_to_send),
+        bytes_packages, channels_amount = to_bytes_packages(self.is_testing_signal_, headers_and_signals_to_send)
+        self.serial_comm_worker.beginTransmision(bytes_packages, channels_amount,
                                                  sample_rate)
         print("Run EDF simulator requested")
 

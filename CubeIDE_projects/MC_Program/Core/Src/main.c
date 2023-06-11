@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -45,13 +46,20 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
 
 USART_HandleTypeDef husart1;
 
+/* Definitions for sendDataToDACs */
+osThreadId_t sendDataToDACsHandle;
+const osThreadAttr_t sendDataToDACs_attributes = {
+  .name = "sendDataToDACs",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* USER CODE BEGIN PV */
 
 DAC_Handler dac_handler_A;
@@ -61,9 +69,10 @@ DAC_Handler dac_handler_D;
 uint8_t dacs_count = 4;
 DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
+Data_Queue data_queue;
 
 extern uint32_t sample_rate;
-extern uint8_t delay_flag;
+
 
 /* USER CODE END PV */
 
@@ -75,6 +84,8 @@ static void MX_SPI5_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_USART1_Init(void);
+void StartSendDataToDACs(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -113,17 +124,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
-  MX_USB_DEVICE_Init();
   MX_SPI5_Init();
   MX_SPI3_Init();
   MX_SPI4_Init();
   MX_USART1_Init();
   /* USER CODE BEGIN 2 */
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
   // DACs configuration
   init_dac_handler(DAC_A, &hspi1, GPIOA, GPIO_PIN_4, &dac_handler_A);
   init_dac_handler(DAC_B, &hspi5, GPIOB, GPIO_PIN_1, &dac_handler_B);
@@ -142,18 +147,66 @@ int main(void)
   // LDAC configuration
   init_LDAC(GPIOB, GPIO_PIN_2, &LDAC);
 
+
+  // Data queue init
+  init_data_queue(&data_queue);
+
+
+
+  uint8_t receiveBuffer[BUFFER_SIZE];
+
+  memset(receiveBuffer, '\0', BUFFER_SIZE);
+
+  /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* creation of sendDataToDACs */
+  sendDataToDACsHandle = osThreadNew(StartSendDataToDACs, (void*) list_of_dacs, &sendDataToDACs_attributes);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+
   // Main loop
   while (1)
   {
 
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
-	  if(delay_flag){
-		  HAL_Delay(sample_rate);
-		  delay_flag = 0;
-	  }
+
+
   }
+
   free(list_of_dacs);
   /* USER CODE END 3 */
 }
@@ -432,6 +485,46 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartSendDataToDACs */
+/**
+  * @brief  Function implementing the sendDataToDACs thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartSendDataToDACs */
+void StartSendDataToDACs(void *argument){
+	/* init code for USB_DEVICE */
+	MX_USB_DEVICE_Init();
+	/* USER CODE BEGIN 5 */
+	DAC_Handler * list_of_dacs;
+
+	DAC_Tag DAC_tag = 0;
+	DAC_Channel DAC_channel = 0;
+	uint16_t config = 0;
+	uint16_t data = 0;
+
+	list_of_dacs = (DAC_Handler *) argument;
+
+	/* Infinite loop */
+	for(;;){
+
+		// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
+		dequeue_data(&config, &data, &data_queue);
+		// A config value of [0, 31] means writing to a DAC
+		if (config < MAX_DAC_CHANNEL_WORD){
+			parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+			// Send the data to the corresponding channel of the corresponding DAC
+			send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+		}
+		else{
+		// A config value > 31 means a device configuration
+		send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+		}
+    //osDelay(1);
+	}
+	/* USER CODE END 5 */
+}
 
 /**
   * @brief  Period elapsed callback in non blocking mode

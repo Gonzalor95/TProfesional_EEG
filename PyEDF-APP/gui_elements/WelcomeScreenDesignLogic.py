@@ -41,7 +41,7 @@ class WelcomeDialog(QDialog):
         self.ui.instructions_label.setText("Please, select an EDF file (you can choose a different one later on):")
         self.ui.next_button.setText("Next")
         self.ui.back_button.setEnabled(False)
-        edf_files_path = os.getcwd() + "\edf_samples"
+        edf_files_path = os.path.join(os.getcwd(), "edf_samples")
         for file in os.listdir(edf_files_path):
             if file.endswith(".edf"):
                 self.ui.welcome_list.addItem(file)
@@ -96,7 +96,7 @@ class WelcomeDialog(QDialog):
         Callback method for the clicking of an item in the list widget
         """
         if self.state_ == self.states_[0]:
-            full_path = os.getcwd() + "\edf_samples" + "\\" + selection.text()
+            full_path = os.path.join(os.getcwd(),"edf_samples", selection.text())
             self.initial_selection_["initial_selected_file"] = full_path
         if self.state_ == self.states_[1]:
             self.initial_selection_[

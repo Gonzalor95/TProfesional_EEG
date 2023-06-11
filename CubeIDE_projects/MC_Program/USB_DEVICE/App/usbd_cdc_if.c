@@ -57,6 +57,8 @@ extern DAC_Handler dac_handler_D;
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
 extern LDAC_Handler LDAC;
+extern Data_Queue data_queue;
+uint8_t receive_buff_flag = 1;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -269,21 +271,24 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	__asm("CPSIE i");
+	receive_buff_flag = 0;
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
 
-  uint8_t receiveBuffer[BUFFER_SIZE]; // Buffer to receive data through USB via CDC (Communication Device Class)
+
+  uint8_t receiveBuffer[BUFFER_SIZE]; 		 // Buffer to receive data through USB via CDC (Communication Device Class)
   memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
   memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
 
   uint16_t config;
+  uint16_t data;
   DAC_Channel DAC_channel = 0;
   DAC_Tag DAC_tag = DAC_B;
   uint8_t protocolWord[PROTOCOL_WORD_SIZE];
 
-  for(uint32_t i = 0; i<*Len; i +=4){
+  for(uint32_t i = 0; i<*Len; i +=PROTOCOL_WORD_SIZE){
 
 	  protocolWord[0] = receiveBuffer[i];
 	  protocolWord[1] = receiveBuffer[i+1];
@@ -291,19 +296,13 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 	  protocolWord[3] = receiveBuffer[i+3];
 
 
-	  config = parse_config(protocolWord);
-	  // A config value of [0, 31] means writing to a DAC
-	  if (config < MAX_DAC_CHANNEL_WORD)
-	  {
-		parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-		// Send the data to the corresponding channel of the corresponding DAC
-		send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, receiveBuffer);
+	  parse_receiving_buffer(protocolWord, &config, &data);
+
+	  while(is_queue_full(&data_queue)){
+		  // Do nothing until it sends data
 	  }
-	  else
-	  {
-		// A config value > 31 means a device configuration
-		send_configuration_to_dacs(&config,receiveBuffer, &list_of_dacs, &dacs_count);
-	  }
+	  enqueue_data(config,data,&data_queue);
+
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);

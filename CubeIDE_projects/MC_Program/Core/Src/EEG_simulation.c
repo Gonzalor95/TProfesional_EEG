@@ -53,9 +53,10 @@ void init_LDAC(const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, LDAC_Handler 
 	HAL_GPIO_WritePin(LDAC->GPIO_LDAC_control_port, LDAC->GPIO_LDAC_control_pin, GPIO_PIN_SET);
 }
 
-uint16_t parse_config(const uint8_t *bufferUSB)
+void parse_receiving_buffer(const uint8_t *bufferUSB, uint16_t *config, uint16_t *data)
 {
-	return ((uint16_t)bufferUSB[0] << 8) | ((uint16_t)bufferUSB[1]);
+	*config = ((uint16_t)bufferUSB[0] << 8) | ((uint16_t)bufferUSB[1]);
+	*data = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
 }
 
 void parse_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag, DAC_Channel *DAC_channel)
@@ -66,7 +67,7 @@ void parse_tag_and_channel_from_config(const uint16_t *config, DAC_Tag *DAC_tag,
 	*DAC_channel = (*config) % 8;
 }
 
-HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, const uint8_t *bufferUSB)
+HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const DAC_Channel *dac_channel, uint16_t data)
 {
 	// dataToDAC = 0b 0AAA-DDDD-DDDD-DDDD
 	/* Where:
@@ -80,9 +81,10 @@ HAL_StatusTypeDef send_data_to_dac_channel(const DAC_Handler *dac_handler, const
 	uint8_t dataToDAC[2];
 	uint8_t channel_addr_mask = get_dac_channel_addr_mask(dac_channel);
 
+	data = data >> 4;
 	// Copy data
-	dataToDAC[0] = ( (bufferUSB[3] >> 4) & 0x0F ) | ( (bufferUSB[2] << 4 ) & 0xF0 );
-	dataToDAC[1] = ( (bufferUSB[2] >> 4) & 0x0F ) | channel_addr_mask; // Apply channel_addr_mask: 0b 0AAA-0000
+	dataToDAC[0] = (uint8_t) data;
+	dataToDAC[1] = ((uint8_t)(data >> 8)) | channel_addr_mask; // Apply channel_addr_mask: 0b 0AAA-0000
 
 	// GPIO_Write sirve para avisar al DAC que le estamos escribiendo
 	HAL_GPIO_WritePin(dac_handler->dac_SS_GPIO_port, dac_handler->dac_ss_GPIO_pin, GPIO_PIN_RESET);
@@ -109,7 +111,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 	return DAC_Channel_Masks[*dac_channel];
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8_t *bufferUSB, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
 {
 	HAL_StatusTypeDef status = HAL_OK;
 
@@ -120,7 +122,7 @@ HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint8
 	case CONF_LDAC_LOW:
 		//TODO: Complete with other configs
 	case CONF_SAMPLE_RATE:
-		config_sample_rate_delay(bufferUSB);
+		config_sample_rate_delay(*data);
 		break;
 	}
 	return status;
@@ -139,9 +141,9 @@ void trigger_LDAC()
 	delay_flag = 1;
 }
 
-void config_sample_rate_delay(const uint8_t * bufferUSB)
+void config_sample_rate_delay(const uint16_t data)
 {
-	sample_rate = ((uint16_t)bufferUSB[2] << 8) | ((uint16_t)bufferUSB[3]);
+	sample_rate = data;
 	sample_rate = 1000/sample_rate;
 
 }
@@ -160,6 +162,59 @@ HAL_StatusTypeDef _send_word_to_dac(uint16_t word, DAC_Handler *dac_handler)
 	return status;
 }
 
+// Test signals (do not delete):
+
+void test_send_pulse(const DAC_Handler  list_of_dacs[]){
+
+	uint16_t data = 0;
+	DAC_Channel dac_channel[] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};
+
+	int channel_count = 8;
+	int dac_count = 4;
+	int i = 0;
+
+	while(1){
+		if(i % 2)
+			data = 0x00;
+		else
+			data = 0xFFFF;
+
+		for(int j = 0 ; j < dac_count; j++){
+			for(int k = 0; k < channel_count; k++){
+				send_data_to_dac_channel(&(list_of_dacs[j]), &(dac_channel[k]), data);
+			}
+		}
+		trigger_LDAC();
+		HAL_Delay(10);
+		i++;
+	}
+
+
+}
+
+void test_send_saw(const DAC_Handler list_of_dacs[]){
+
+	DAC_Channel dac_channel[] = {CHANNEL_A, CHANNEL_B, CHANNEL_C, CHANNEL_D, CHANNEL_E, CHANNEL_F, CHANNEL_G, CHANNEL_H};
+
+	int channel_count = 8;
+	int dac_count = 4;
+	uint16_t i = 0;
+
+	while(1){
+
+		for(int j = 0 ; j < dac_count; j++){
+			for(int k = 0; k < channel_count; k++){
+				send_data_to_dac_channel(&(list_of_dacs[j]), &(dac_channel[k]), i);
+			}
+		}
+		trigger_LDAC();
+		i += 1000 ;
+	}
+
+
+}
+
+
 // Errors:
 void EEG_simulation_error_Handler(void)
 {
@@ -167,4 +222,34 @@ void EEG_simulation_error_Handler(void)
 	while (1)
 	{
 	}
+}
+
+// Queue functions
+void init_data_queue(Data_Queue * data_queue){
+	data_queue->front = data_queue->size = 0;
+	data_queue->rear = DATA_QUEUE_CAPACITY - 1;
+	data_queue->capacity = DATA_QUEUE_CAPACITY;
+}
+
+void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue){
+	data_queue->rear = (data_queue->rear + 1) % data_queue->capacity;
+	data_queue->array[data_queue->rear][0] = config;
+	data_queue->array[data_queue->rear][1] = data;
+	data_queue->size = data_queue->size + 1;
+}
+
+
+void dequeue_data(uint16_t * config, uint16_t * data, Data_Queue * data_queue){
+	*config = data_queue->array[data_queue->front][0];
+	*data = data_queue->array[data_queue->front][1];
+	data_queue->front = (data_queue->front + 1) % data_queue->capacity;
+    data_queue->size = data_queue->size - 1;
+}
+
+int is_queue_full(Data_Queue * data_queue){
+	return (data_queue->size == data_queue->capacity);
+}
+
+int is_queue_empty(Data_Queue * data_queue){
+	return (data_queue->size == 0);
 }
