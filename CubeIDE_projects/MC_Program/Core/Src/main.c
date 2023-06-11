@@ -508,7 +508,7 @@ void StartSendDataToDACs(void *argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 5 */
-	osDelay(10000);
+
 	DAC_Handler * list_of_dacs;
 
 	DAC_Tag DAC_tag = 0;
@@ -534,7 +534,7 @@ void StartSendDataToDACs(void *argument)
 			send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
 			}
 
-		   osDelay(10); //TODO: cuando se pone el delay, se muere y no manda nada
+		   //osDelay(10); //TODO: cuando se pone el delay, se muere y no manda nada
 		}
 
 	}
