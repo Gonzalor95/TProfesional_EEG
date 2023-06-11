@@ -77,6 +77,7 @@ LDAC_Handler LDAC;
 Data_Queue data_queue;
 
 extern uint32_t sample_rate;
+extern uint32_t simulation_channel_count;
 
 
 /* USER CODE END PV */
@@ -511,29 +512,31 @@ void StartSendDataToDACs(void *argument)
 
 	DAC_Handler * list_of_dacs;
 
+
 	DAC_Tag DAC_tag = 0;
 	DAC_Channel DAC_channel = 0;
 	uint16_t config = 0;
 	uint16_t data = 0;
 
+
 	list_of_dacs = (DAC_Handler *) argument;
 
 	/* Infinite loop */
 	for(;;){
-		if(!is_queue_empty(&data_queue)){
-			// TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
-			dequeue_data(&config, &data, &data_queue);
-			// A config value of [0, 31] means writing to a DAC
-			if (config < MAX_DAC_CHANNEL_WORD){
-				parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-				// Send the data to the corresponding channel of the corresponding DAC
-				send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-			}
-			//else{ NOT NEEDED; SHOULD BE SENT WHEN RECIEVE THE CONFIG
-			// A config value > 31 means a device configuration
-			//send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
-			//}
+		for(int i = 0; i<simulation_channel_count ; i++){
 
+			if(!is_queue_empty(&data_queue)){ // TODO: Aca deberiamos preguntar si la queue no esta vacia y ahi mandar. No me funciono porque si lo pongo solo hace media senoidal y queda trabado
+
+				dequeue_data(&config, &data, &data_queue);
+				// A config value of [0, 31] means writing to a DAC
+				if (config < MAX_DAC_CHANNEL_WORD){
+					parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+					// Send the data to the corresponding channel of the corresponding DAC
+					send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+				}
+			}
+
+			trigger_LDAC();
 		   //osDelay(10); //TODO: cuando se pone el delay, se muere y no manda nada
 		}
 
