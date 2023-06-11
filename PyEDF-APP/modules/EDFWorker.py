@@ -321,4 +321,4 @@ class EDFWorker():
 
             processed_signal_to_send.append((header, processed_signal))
 
-        return signals_to_send
+        return processed_signal_to_send

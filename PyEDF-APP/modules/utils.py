@@ -114,28 +114,32 @@ def to_bytes_packages(is_testing_signal, headers_and_signals_to_send):
     processed_headers_and_signals = []
 
     for header,signal in headers_and_signals_to_send:
-        try:
-            bytes_header = int(ProtocolDict.channel_enum_dict_[header]).to_bytes(2, byteorder="big", signed=False)
-            bytes_signal = []
-            for datum in signal:
-                bytes_datum = int(datum).to_bytes(2, byteorder="big", signed=False)
-                bytes_signal.append(bytes_datum)
-            processed_headers_and_signals.append((bytes_header, bytes_signal))
-        except Exception as e:
-            print("There was a problem pre-processing the signal, cancelling transmission")
-            return []
+        if header not in ['A1', 'A2']:
+            try:
+                bytes_header = int(ProtocolDict.channel_enum_dict_[header]).to_bytes(2, byteorder="big", signed=False)
+                bytes_signal = []
+                for datum in signal:
+                    bytes_datum = int(datum).to_bytes(2, byteorder="big", signed=False)
+                    bytes_signal.append(bytes_datum)
+                processed_headers_and_signals.append((bytes_header, bytes_signal))
+            except Exception as e:
+                print(f"There was a problem pre-processing the signal, cancelling transmission. {e}.")
+                return []
 
     # Group header and signal datum in a single 4 bytes package
     # This will create a list of 4 bytes packages that can be sent directly to the generator
     # Example ouput to channels 1 and 3: [ b"\0x01\0xff", b"\0x03\0xff", b"\0x01\0x14", b"\0x03\0x16", ... ]
-    LDAC_trigger_bytes = [data.to_bytes(1, byteorder="big", signed=False) for data in LDAC_TRIGGER_PKG]
-    amount_of_channels = len(headers_and_signals_to_send)
+    # LDAC_trigger_bytes = [data.to_bytes(1, byteorder="big", signed=False) for data in LDAC_TRIGGER_PKG]
+    ## TODO: Properly ignore signals when header is A1 or A2.
+    amount_of_channels = len([signal for header, signal in headers_and_signals_to_send if header not in ["A1","A2"]])
+    # amount_of_channels = len(headers_and_signals_to_send)
     signal_len = len(headers_and_signals_to_send[0][1])
 
+    print(f"Amount of channels: {amount_of_channels}\nSignal_len: {signal_len}")
     bytes_packages = []
     for i in range(signal_len):
         for j in range(amount_of_channels):
             bytes_packages.append(b"".join([processed_headers_and_signals[j][0], processed_headers_and_signals[j][1][i]]))
         # Append trigger LDAC after adding data for all channels:
-        bytes_packages.append(b"".join(LDAC_trigger_bytes))
-    return bytes_packages
+        # bytes_packages.append(b"".join(LDAC_trigger_bytes))
+    return bytes_packages, amount_of_channels
