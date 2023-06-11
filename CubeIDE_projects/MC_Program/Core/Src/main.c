@@ -529,10 +529,10 @@ void StartSendDataToDACs(void *argument)
 				// Send the data to the corresponding channel of the corresponding DAC
 				send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
 			}
-			else{
+			//else{ NOT NEEDED; SHOULD BE SENT WHEN RECIEVE THE CONFIG
 			// A config value > 31 means a device configuration
-			send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
-			}
+			//send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+			//}
 
 		   //osDelay(10); //TODO: cuando se pone el delay, se muere y no manda nada
 		}
