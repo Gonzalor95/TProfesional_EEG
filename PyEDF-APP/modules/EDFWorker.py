@@ -315,6 +315,7 @@ class EDFWorker():
         processed_signal_to_send = []
         digital_min = self.signal_data_.signal_headers[0]["digital_min"]
         digital_max = self.signal_data_.signal_headers[0]["digital_max"]
+        # TODO: Check EDF signal physical max. Ej: si dig_max = 175uV y nuestro device_max = 150uV (que esto seria fijo en realidad), entonces 175uV pasa a ser 150uV (!!!) hay que corregir o ver que hacemos.
         for header,signal in signals_to_send:
             processed_signal = (signal - digital_min)
             processed_signal = processed_signal * DEVICE_MAX_VALUE / (digital_max - digital_min)
