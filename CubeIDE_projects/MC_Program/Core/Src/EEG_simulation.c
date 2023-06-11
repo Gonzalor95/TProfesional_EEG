@@ -254,12 +254,15 @@ void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue){
 	data_queue->size = data_queue->size + 1;
 }
 
-
 void dequeue_data(uint16_t * config, uint16_t * data, Data_Queue * data_queue){
-	*config = data_queue->array[data_queue->front][0];
-	*data = data_queue->array[data_queue->front][1];
-	data_queue->front = (data_queue->front + 1) % data_queue->capacity;
-    data_queue->size = data_queue->size - 1;
+	if(!is_queue_empty(data_queue)){
+		*config = data_queue->array[data_queue->front][0];
+		*data = data_queue->array[data_queue->front][1];
+		data_queue->front = (data_queue->front + 1) % data_queue->capacity;
+		data_queue->size = data_queue->size - 1;
+	}else{
+		*data = *config = 0;
+	}
 }
 
 int is_queue_full(Data_Queue * data_queue){

@@ -297,12 +297,19 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
 	  parse_receiving_buffer(protocolWord, &config, &data);
 
-	  while(is_queue_full(&data_queue)){
-		  // Do nothing until it sends data
-		  n++;
+	  // If it is a configuration word, just send it. Queue is only for data
+	  if (config > MAX_DAC_CHANNEL_WORD){
+		  // A config value > 32 means a device configuration
+		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+	  }else{
+		  while(is_queue_full(&data_queue)){
+			  // Do nothing until it sends data
+			  n++;
+		  }
+		  enqueue_data(config,data,&data_queue);
+
 	  }
-	 // if(!is_queue_full(&data_queue))
-	  enqueue_data(config,data,&data_queue);
+
 
   }
 
