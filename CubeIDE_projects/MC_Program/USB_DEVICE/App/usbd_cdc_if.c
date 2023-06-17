@@ -58,7 +58,7 @@ extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
 extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
-uint8_t receive_buff_flag = 1;
+uint8_t receive_buff_flag = 0;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -271,7 +271,9 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	receive_buff_flag = 0;
+  //receive_buff_flag = 0; // TODO probar cerrar el procesamiento antes de avanzar a ver que pasa
+
+
 
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
@@ -304,9 +306,11 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 	  }else{
 
 
-		  while(is_queue_full(&data_queue))
+		//  while(is_queue_full(&data_queue)){
 			  // Do nothing until it sends data
-			  full_queue++;
+		//	  full_queue++;
+		//  	  return USBD_FAIL;
+		//  }
 
 		  if(data != 0 && config != 0)
 			  enqueue_data(config,data,&data_queue);
