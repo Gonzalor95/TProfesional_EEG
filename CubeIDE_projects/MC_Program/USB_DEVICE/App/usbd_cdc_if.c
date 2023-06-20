@@ -306,12 +306,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 	  }else{
 
 
-		//  while(is_queue_full(&data_queue)){
-			  // Do nothing until it sends data
-		//	  full_queue++;
-		//  	  return USBD_FAIL;
-		//  }
-
+		  while(is_queue_full(&data_queue));
 		  if(data != 0 && config != 0)
 			  enqueue_data(config,data,&data_queue);
 
