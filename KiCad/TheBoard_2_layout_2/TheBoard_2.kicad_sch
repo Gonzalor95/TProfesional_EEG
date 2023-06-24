@@ -8009,7 +8009,7 @@
     (uuid 7a4e3353-e1e9-4a1d-9afc-20ec32e9cc1a)
     (property "Reference" "J3" (id 0) (at 546.1 163.195 0))
     (property "Value" "Conn_01x16_Female" (id 1) (at 545.465 165.735 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x16_P2.54mm_Vertical" (id 2) (at 549.275 188.595 0)
+    (property "Footprint" "" (id 2) (at 549.275 188.595 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 549.275 188.595 0)
@@ -8378,7 +8378,7 @@
     (uuid 8e6013b4-e104-46a8-b12e-cbcbf0a129da)
     (property "Reference" "J5" (id 0) (at 22.86 158.75 0))
     (property "Value" "Conn_01x16_Female" (id 1) (at 23.495 161.29 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x16_P2.54mm_Vertical" (id 2) (at 19.685 184.15 0)
+    (property "Footprint" "" (id 2) (at 19.685 184.15 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 19.685 184.15 0)
@@ -10915,13 +10915,13 @@
       (reference "J2") (unit 1) (value "Conn_01x03_Female") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
     )
     (path "/7a4e3353-e1e9-4a1d-9afc-20ec32e9cc1a"
-      (reference "J3") (unit 1) (value "Conn_01x16_Female") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x16_P2.54mm_Vertical")
+      (reference "J3") (unit 1) (value "Conn_01x16_Female") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x16_P2.54mm_Vertical")
     )
     (path "/1263773d-8ba4-4c43-acb3-5193e0fa6b05"
       (reference "J4") (unit 1) (value "DB37_Male_MountingHoles") (footprint "Connector_Dsub:DSUB-37_Male_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm")
     )
     (path "/8e6013b4-e104-46a8-b12e-cbcbf0a129da"
-      (reference "J5") (unit 1) (value "Conn_01x16_Female") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x16_P2.54mm_Vertical")
+      (reference "J5") (unit 1) (value "Conn_01x16_Female") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x16_P2.54mm_Vertical")
     )
     (path "/df29c39d-03bb-4a8d-885a-396fd4de1466"
       (reference "J6") (unit 1) (value "Conn_01x02_Male") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
