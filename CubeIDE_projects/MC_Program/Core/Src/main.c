@@ -62,11 +62,6 @@ const osThreadAttr_t sendDataToDACs_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime7,
 };
-/* Definitions for dataQueueSemaphore */
-osSemaphoreId_t dataQueueSemaphoreHandle;
-const osSemaphoreAttr_t dataQueueSemaphore_attributes = {
-  .name = "dataQueueSemaphore"
-};
 /* USER CODE BEGIN PV */
 
 DAC_Handler dac_handler_A;
@@ -170,14 +165,6 @@ int main(void)
 
   memset(receiveBuffer, '\0', BUFFER_SIZE);
 
-	timer_test(1000);
-	test_send_data_value_to_all_dacs(list_of_dacs, (uint16_t) 0xFFFFFFFF);
-
-	timer_test(1000);
-	test_send_data_value_to_all_dacs(list_of_dacs, (uint16_t) 0);
-
-	timer_test(1000);
-	test_send_data_value_to_all_dacs(list_of_dacs, (uint16_t) 0xFFFFFFFF);
 
   /* USER CODE END 2 */
 
@@ -187,10 +174,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* creation of dataQueueSemaphore */
-  dataQueueSemaphoreHandle = osSemaphoreNew(1, 1, &dataQueueSemaphore_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -451,13 +434,19 @@ static void MX_TIM2_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig = {0};
 
   /* USER CODE BEGIN TIM2_Init 1 */
+  //HAL_TIM_Base_Start(&htim2);
+  HAL_NVIC_SetPriority(TIM2_IRQn, 16 ,1);
+  HAL_NVIC_EnableIRQ(TIM2_IRQn);
+  __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+
+  __HAL_RCC_TIM2_CLK_ENABLE();
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 96;
+  htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.Period = 10000;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
@@ -475,7 +464,6 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM2_Init 2 */
-  //HAL_TIM_Base_Start(&htim2);
   HAL_TIM_Base_Start_IT(&htim2); // --> start as non-blocking mode
   /* USER CODE END TIM2_Init 2 */
 
@@ -630,7 +618,7 @@ void StartSendDataToDACs(void *argument)
 
 /**
   * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM9 interrupt took place, inside
+  * @note   This function is called  when TIM5 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
   * a global variable "uwTick" used as application time base.
   * @param  htim : TIM handle
@@ -638,12 +626,16 @@ void StartSendDataToDACs(void *argument)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
-	uint16_t data = 0;
-	uint16_t config = 0;
+  /* USER CODE BEGIN Callback 0 */
+	uint16_t config= 0, data = 0;
 	DAC_Tag DAC_tag = 0;
 	DAC_Channel DAC_channel = 0;
-  /* USER CODE BEGIN Callback 0 */
+
+	if(htim->Instance == TIM2){
+		printf("hola");
+	}
+	TIM_HandleTypeDef htim2_test = htim2;
+
 	for(int i = 0; i < simulation_channel_count ; i++){
 
 		if(!is_queue_empty(&data_queue)){
@@ -664,7 +656,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 	}
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM9) {
+  if (htim->Instance == TIM5) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */

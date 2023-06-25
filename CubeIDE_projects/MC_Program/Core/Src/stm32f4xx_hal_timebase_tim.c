@@ -25,12 +25,12 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef        htim9;
+TIM_HandleTypeDef        htim5;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
 /**
-  * @brief  This function configures the TIM9 as a time base source.
+  * @brief  This function configures the TIM5 as a time base source.
   *         The time source is configured  to have 1ms time base with a dedicated
   *         Tick interrupt priority.
   * @note   This function is called  automatically at the beginning of program after
@@ -44,41 +44,41 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   uint32_t              uwTimclock = 0;
   uint32_t              uwPrescalerValue = 0;
   uint32_t              pFLatency;
-  /*Configure the TIM9 IRQ priority */
-  HAL_NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, TickPriority ,0);
+  /*Configure the TIM5 IRQ priority */
+  HAL_NVIC_SetPriority(TIM5_IRQn, TickPriority ,0);
 
-  /* Enable the TIM9 global Interrupt */
-  HAL_NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
+  /* Enable the TIM5 global Interrupt */
+  HAL_NVIC_EnableIRQ(TIM5_IRQn);
 
-  /* Enable TIM9 clock */
-  __HAL_RCC_TIM9_CLK_ENABLE();
+  /* Enable TIM5 clock */
+  __HAL_RCC_TIM5_CLK_ENABLE();
 
   /* Get clock configuration */
   HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
 
-  /* Compute TIM9 clock */
-  uwTimclock = HAL_RCC_GetPCLK2Freq();
-  /* Compute the prescaler value to have TIM9 counter clock equal to 1MHz */
+  /* Compute TIM5 clock */
+  uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
+  /* Compute the prescaler value to have TIM5 counter clock equal to 1MHz */
   uwPrescalerValue = (uint32_t) ((uwTimclock / 1000000U) - 1U);
 
-  /* Initialize TIM9 */
-  htim9.Instance = TIM9;
+  /* Initialize TIM5 */
+  htim5.Instance = TIM5;
 
   /* Initialize TIMx peripheral as follow:
-  + Period = [(TIM9CLK/1000) - 1]. to have a (1/1000) s time base.
+  + Period = [(TIM5CLK/1000) - 1]. to have a (1/1000) s time base.
   + Prescaler = (uwTimclock/1000000 - 1) to have a 1MHz counter clock.
   + ClockDivision = 0
   + Counter direction = Up
   */
-  htim9.Init.Period = (1000000U / 1000U) - 1U;
-  htim9.Init.Prescaler = uwPrescalerValue;
-  htim9.Init.ClockDivision = 0;
-  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = (1000000U / 1000U) - 1U;
+  htim5.Init.Prescaler = uwPrescalerValue;
+  htim5.Init.ClockDivision = 0;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
 
-  if(HAL_TIM_Base_Init(&htim9) == HAL_OK)
+  if(HAL_TIM_Base_Init(&htim5) == HAL_OK)
   {
     /* Start the TIM time Base generation in interrupt mode */
-    return HAL_TIM_Base_Start_IT(&htim9);
+    return HAL_TIM_Base_Start_IT(&htim5);
   }
 
   /* Return function status */
@@ -87,25 +87,25 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
 /**
   * @brief  Suspend Tick increment.
-  * @note   Disable the tick increment by disabling TIM9 update interrupt.
+  * @note   Disable the tick increment by disabling TIM5 update interrupt.
   * @param  None
   * @retval None
   */
 void HAL_SuspendTick(void)
 {
-  /* Disable TIM9 update Interrupt */
-  __HAL_TIM_DISABLE_IT(&htim9, TIM_IT_UPDATE);
+  /* Disable TIM5 update Interrupt */
+  __HAL_TIM_DISABLE_IT(&htim5, TIM_IT_UPDATE);
 }
 
 /**
   * @brief  Resume Tick increment.
-  * @note   Enable the tick increment by Enabling TIM9 update interrupt.
+  * @note   Enable the tick increment by Enabling TIM5 update interrupt.
   * @param  None
   * @retval None
   */
 void HAL_ResumeTick(void)
 {
-  /* Enable TIM9 Update interrupt */
-  __HAL_TIM_ENABLE_IT(&htim9, TIM_IT_UPDATE);
+  /* Enable TIM5 Update interrupt */
+  __HAL_TIM_ENABLE_IT(&htim5, TIM_IT_UPDATE);
 }
 
