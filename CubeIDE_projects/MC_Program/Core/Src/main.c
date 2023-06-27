@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -55,27 +54,21 @@ TIM_HandleTypeDef htim2;
 
 USART_HandleTypeDef husart1;
 
-/* Definitions for sendDataToDACs */
-osThreadId_t sendDataToDACsHandle;
-const osThreadAttr_t sendDataToDACs_attributes = {
-  .name = "sendDataToDACs",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityRealtime7,
-};
 /* USER CODE BEGIN PV */
 
 DAC_Handler dac_handler_A;
 DAC_Handler dac_handler_B;
 DAC_Handler dac_handler_C;
 DAC_Handler dac_handler_D;
-uint8_t dacs_count = 4;
+uint8_t dacs_count = DACS_COUNT;
 DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
 
+uint32_t TIM2_step_count = 0;
+
 extern uint32_t sample_rate;
 extern uint32_t simulation_channel_count;
-extern uint8_t receive_buff_flag;
 
 
 /* USER CODE END PV */
@@ -89,8 +82,6 @@ static void MX_SPI3_Init(void);
 static void MX_USART1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
-void StartSendDataToDACs(void *argument);
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -129,6 +120,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MX_USB_DEVICE_Init();
   MX_SPI5_Init();
   MX_SPI3_Init();
   MX_USART1_Init();
@@ -161,51 +153,12 @@ int main(void)
 
 
 
-  uint8_t receiveBuffer[BUFFER_SIZE];
-
-  memset(receiveBuffer, '\0', BUFFER_SIZE);
-
 
   /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
-
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* creation of sendDataToDACs */
-  sendDataToDACsHandle = osThreadNew(StartSendDataToDACs, (void*) list_of_dacs, &sendDataToDACs_attributes);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+  uint16_t n = 0;
   // Main loop
   while (1)
   {
@@ -213,7 +166,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
 
   }
 
@@ -435,18 +387,17 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE BEGIN TIM2_Init 1 */
   //HAL_TIM_Base_Start(&htim2);
-  HAL_NVIC_SetPriority(TIM2_IRQn, 16 ,1);
-  HAL_NVIC_EnableIRQ(TIM2_IRQn);
-  __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
-
-  __HAL_RCC_TIM2_CLK_ENABLE();
+  // HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+  // HAL_NVIC_EnableIRQ(TIM2_IRQn);
+  // __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+  // __HAL_RCC_TIM2_CLK_ENABLE();
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 3-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 10000;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
+  htim2.Init.Period = 1600-1;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
@@ -553,42 +504,30 @@ void timer_test(uint16_t us){
 
 }
 
-/* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartSendDataToDACs */
 /**
-  * @brief  Function implementing the sendDataToDACs thread.
-  * @param  argument: Not used
+  * @brief  Period elapsed callback in non-blocking mode for TIM2
+  * @param  htim TIM handle
   * @retval None
   */
-/* USER CODE END Header_StartSendDataToDACs */
-void StartSendDataToDACs(void *argument)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
-  /* USER CODE BEGIN 5 */
 
-	DAC_Handler * list_of_dacs;
+	uint16_t config= 0, data = 0;
+	DAC_Tag DAC_tag = DAC_B;
+	DAC_Channel DAC_channel = CHANNEL_H;
 
-
-	DAC_Tag DAC_tag = 0;
-	DAC_Channel DAC_channel = 0;
-	uint16_t config = 0;
-	uint16_t data = 0;
-
-
-	list_of_dacs = (DAC_Handler *) argument;
+	//if(TIM2_step_count % 2)
+	//	data = 0;
+	//else
+	//	data = 0xfFFf;
+	//test_send_data_value_to_all_dacs(list_of_dacs,data);
+	//send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+	//trigger_LDAC();
 
 
-	/* Infinite loop */
-	for(;;){
-
-		//timer_test(100);
-		//test_send_data_value_to_all_dacs(list_of_dacs, (uint16_t) 0xFFFFFFFF);
-
-		//timer_test(500);
-
-		/* RTOS disable
+	if(TIM2_step_count > sample_rate/250){
+		TIM2_step_count = 0;
+		trigger_LDAC();
 		for(int i = 0; i < simulation_channel_count ; i++){
 
 			if(!is_queue_empty(&data_queue)){
@@ -603,66 +542,15 @@ void StartSendDataToDACs(void *argument)
 			}else{
 				break; //TODO revisar
 			}
-
-			if(i == simulation_channel_count-1){
-				trigger_LDAC();
-				//osDelay(1); //TODO: cuando se pone el delay, se muere y no manda nada
-				receive_buff_flag = 0;
-			}
 		}
-		*/
-
 	}
-  /* USER CODE END 5 */
+
+	TIM2_step_count++;
+
+
 }
 
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM5 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-	uint16_t config= 0, data = 0;
-	DAC_Tag DAC_tag = 0;
-	DAC_Channel DAC_channel = 0;
-
-	if(htim->Instance == TIM2){
-		printf("hola");
-	}
-	TIM_HandleTypeDef htim2_test = htim2;
-
-	for(int i = 0; i < simulation_channel_count ; i++){
-
-		if(!is_queue_empty(&data_queue)){
-
-			dequeue_data(&config, &data, &data_queue);
-			// A config value of [0, 31] means writing to a DAC
-			if (config < MAX_DAC_CHANNEL_WORD){
-				parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-				// Send the data to the corresponding channel of the corresponding DAC
-				send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-			}
-		}else{
-			break; //TODO revisar
-		}
-
-		if(i == simulation_channel_count-1){
-			trigger_LDAC();
-		}
-	}
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM5) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
+/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.

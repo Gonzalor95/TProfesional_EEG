@@ -50,15 +50,14 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-extern DAC_Handler dac_handler_A;
-extern DAC_Handler dac_handler_B;
-extern DAC_Handler dac_handler_C;
-extern DAC_Handler dac_handler_D;
+//extern DAC_Handler dac_handler_A;
+//extern DAC_Handler dac_handler_B;
+//extern DAC_Handler dac_handler_C;
+//extern DAC_Handler dac_handler_D;
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
-extern LDAC_Handler LDAC;
+//extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
-uint8_t receive_buff_flag = 0;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -271,14 +270,10 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  //receive_buff_flag = 0; // TODO probar cerrar el procesamiento antes de avanzar a ver que pasa
-
-
 
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-  int full_queue=0;
   uint8_t receiveBuffer[BUFFER_SIZE]; 		 // Buffer to receive data through USB via CDC (Communication Device Class)
   memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
   memset(Buf, '\0', (uint8_t)*Len);          // Clear Buf
@@ -286,7 +281,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   uint16_t config;
   uint16_t data;
   DAC_Channel DAC_channel = 0;
-  DAC_Tag DAC_tag = DAC_B;
+  DAC_Tag DAC_tag = 0;
   uint8_t protocolWord[PROTOCOL_WORD_SIZE];
 
   for(uint32_t i = 0; i<*Len; i +=PROTOCOL_WORD_SIZE){
@@ -304,15 +299,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 		  // A config value > 32 means a device configuration
 		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
 	  }else{
-
-
 		  while(is_queue_full(&data_queue));
-		  if(data != 0 && config != 0)
-			  enqueue_data(config,data,&data_queue);
-
+		  //if(data != 0 && config != 0)
+		  	  enqueue_data(config,data,&data_queue);
 	  }
-
-
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);
