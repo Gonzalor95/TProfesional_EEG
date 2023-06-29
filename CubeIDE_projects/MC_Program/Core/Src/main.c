@@ -51,6 +51,7 @@ SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 USART_HandleTypeDef husart1;
 
@@ -65,7 +66,9 @@ DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
 
-uint32_t TIM2_step_count = 0;
+uint32_t TIM2_step_count = 0; // Load data to DACs  TIM
+uint32_t TIM3_step_count = 0; // LDAC TIM
+uint8_t DAC_load_flag = 0;
 
 extern uint32_t sample_rate;
 extern uint32_t simulation_channel_count;
@@ -82,6 +85,7 @@ static void MX_SPI3_Init(void);
 static void MX_USART1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -126,6 +130,7 @@ int main(void)
   MX_USART1_Init();
   MX_SPI4_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -158,10 +163,26 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t n = 0;
+  uint16_t i = 0;
+  uint16_t data;
+  DAC_Tag DAC_tag = DAC_B;
+	DAC_Channel DAC_channel = CHANNEL_H;
   // Main loop
   while (1)
   {
+
+		if(i % 2)
+			data = 0;
+		else
+			data = 0xFFFF;
+
+		if(DAC_load_flag){
+			//test_send_data_value_to_all_dacs(list_of_dacs,data);
+			send_data_to_dac_channel(&(list_of_dacs[1]), &DAC_channel, data);
+			i++;
+			DAC_load_flag = 0;
+		}
+
 
     /* USER CODE END WHILE */
 
@@ -396,7 +417,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 3-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 1600-1;
+  htim2.Init.Period = 6400-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -417,6 +438,51 @@ static void MX_TIM2_Init(void)
   /* USER CODE BEGIN TIM2_Init 2 */
   HAL_TIM_Base_Start_IT(&htim2); // --> start as non-blocking mode
   /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 3-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 6400-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim3);
+  /* USER CODE END TIM3_Init 2 */
 
 }
 
@@ -512,41 +578,47 @@ void timer_test(uint16_t us){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 
-	uint16_t config= 0, data = 0;
-	DAC_Tag DAC_tag = DAC_B;
-	DAC_Channel DAC_channel = CHANNEL_H;
+	if(htim == &htim2){
+		uint16_t config= 0, data = 0;
+		DAC_Tag DAC_tag = DAC_B;
+		DAC_Channel DAC_channel = CHANNEL_H;
 
-	//if(TIM2_step_count % 2)
-	//	data = 0;
-	//else
-	//	data = 0xfFFf;
-	//test_send_data_value_to_all_dacs(list_of_dacs,data);
-	//send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-	//trigger_LDAC();
+		/*
+		if(DAC_load_flag){
+			TIM2_step_count = 0;
 
+			for(int i = 0; i < simulation_channel_count ; i++){
 
-	if(TIM2_step_count > sample_rate/250){
-		TIM2_step_count = 0;
-		trigger_LDAC();
-		for(int i = 0; i < simulation_channel_count ; i++){
+				if(!is_queue_empty(&data_queue)){
 
-			if(!is_queue_empty(&data_queue)){
-
-				dequeue_data(&config, &data, &data_queue);
-				// A config value of [0, 31] means writing to a DAC
-				if (config < MAX_DAC_CHANNEL_WORD){
-					parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
-					// Send the data to the corresponding channel of the corresponding DAC
-					send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+					dequeue_data(&config, &data, &data_queue);
+					// A config value of [0, 31] means writing to a DAC
+					if (config < MAX_DAC_CHANNEL_WORD){
+						parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
+						// Send the data to the corresponding channel of the corresponding DAC
+						send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
+					}
+				}else{
+					break; //TODO revisar
 				}
-			}else{
-				break; //TODO revisar
 			}
 		}
+		*/
+
+		TIM2_step_count++; // TODO: se necesita?
+
+
+	}else if(htim == &htim3){
+
+		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag flag
+		if(1){//TIM3_step_count == sample_rate){
+			trigger_LDAC();
+			DAC_load_flag = 1;
+			TIM3_step_count = 0;
+		}
+		TIM3_step_count++;
+
 	}
-
-	TIM2_step_count++;
-
 
 }
 
