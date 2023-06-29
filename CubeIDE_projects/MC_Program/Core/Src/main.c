@@ -163,26 +163,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t i = 0;
-  uint16_t data;
-  DAC_Tag DAC_tag = DAC_B;
-	DAC_Channel DAC_channel = CHANNEL_H;
+
   // Main loop
   while (1)
   {
-
-		if(i % 2)
-			data = 0;
-		else
-			data = 0xFFFF;
-
-		if(DAC_load_flag){
-			//test_send_data_value_to_all_dacs(list_of_dacs,data);
-			send_data_to_dac_channel(&(list_of_dacs[1]), &DAC_channel, data);
-			i++;
-			DAC_load_flag = 0;
-		}
-
 
     /* USER CODE END WHILE */
 
@@ -460,9 +444,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 3-1;
+  htim3.Init.Prescaler = 2-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 6400-1;
+  htim3.Init.Period = 3200-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -583,7 +567,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		DAC_Tag DAC_tag = DAC_B;
 		DAC_Channel DAC_channel = CHANNEL_H;
 
-		/*
+
 		if(DAC_load_flag){
 			TIM2_step_count = 0;
 
@@ -603,15 +587,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 			}
 		}
-		*/
+
 
 		TIM2_step_count++; // TODO: se necesita?
 
 
 	}else if(htim == &htim3){
 
-		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag flag
-		if(1){//TIM3_step_count == sample_rate){
+		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag.
+		if(TIM3_step_count == sample_rate){
 			trigger_LDAC();
 			DAC_load_flag = 1;
 			TIM3_step_count = 0;
