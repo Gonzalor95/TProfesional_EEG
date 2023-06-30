@@ -66,7 +66,7 @@ DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
 
-uint32_t TIM2_step_count = 0; // Load data to DACs  TIM
+//uint32_t TIM2_step_count = 0; // Load data to DACs  TIM
 uint32_t TIM3_step_count = 0; // LDAC TIM
 uint8_t DAC_load_flag = 0;
 
@@ -164,10 +164,27 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  uint8_t i = 0;
+  uint16_t data;
+  DAC_Channel dac_channel = CHANNEL_H;
+  DAC_Tag dac_tag = DAC_B;
   // Main loop
   while (1)
   {
 
+	  // Measure TIMs
+	  /*
+	  if(DAC_load_flag){
+		  if(i%2){
+			  data = 0x0;
+		  }else{
+			  data = 0xffff;
+		  }
+		  send_data_to_dac_channel(&(list_of_dacs[dac_tag]), &(dac_channel), data);
+		  i++;
+		  DAC_load_flag = 0;
+	  }
+	  */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -399,9 +416,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 3-1;
+  htim2.Init.Prescaler = 2-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 6400-1;
+  htim2.Init.Period = 4800-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -444,7 +461,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 2-1;
+  htim3.Init.Prescaler = 3-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 3200-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -569,8 +586,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 
 		if(DAC_load_flag){
-			TIM2_step_count = 0;
-
+			DAC_load_flag = 0;
 			for(int i = 0; i < simulation_channel_count ; i++){
 
 				if(!is_queue_empty(&data_queue)){
@@ -589,10 +605,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 
 
-		TIM2_step_count++; // TODO: se necesita?
-
-
-	}else if(htim == &htim3){
+	}else if(0){//htim == &htim3){
 
 		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag.
 		if(TIM3_step_count == sample_rate){

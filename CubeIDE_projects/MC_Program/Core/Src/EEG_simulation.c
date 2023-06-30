@@ -288,3 +288,8 @@ int is_queue_full(Data_Queue * data_queue){
 int is_queue_empty(Data_Queue * data_queue){
 	return (data_queue->size == 0);
 }
+
+//void flush_latest(int discarded_channels){
+	//data_queue->front = (data_queue->front + discarded_channels) % data_queue->capacity;
+	//data_queue->size = data_queue->size - discarded_channels;
+//}
