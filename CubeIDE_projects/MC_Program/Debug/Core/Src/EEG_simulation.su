@@ -20,3 +20,4 @@
 ../Core/Src/EEG_simulation.c:273:6:dequeue_data	24	static
 ../Core/Src/EEG_simulation.c:284:5:is_queue_full	16	static
 ../Core/Src/EEG_simulation.c:288:5:is_queue_empty	16	static
+../Core/Src/EEG_simulation.c:292:6:flush_discard_channels	16	static

@@ -45,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
@@ -69,6 +69,7 @@ Data_Queue data_queue;
 //uint32_t TIM2_step_count = 0; // Load data to DACs  TIM
 uint32_t TIM3_step_count = 0; // LDAC TIM
 uint8_t DAC_load_flag = 0;
+uint8_t start_simulation_flag = 0;
 
 extern uint32_t sample_rate;
 extern uint32_t simulation_channel_count;
@@ -588,7 +589,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(DAC_load_flag){
 			DAC_load_flag = 0;
 			for(int i = 0; i < simulation_channel_count ; i++){
-
+				if(DAC_load_flag){
+					flush_discard_channels(&data_queue, simulation_channel_count-i);
+					break;
+				}
 				if(!is_queue_empty(&data_queue)){
 
 					dequeue_data(&config, &data, &data_queue);
@@ -598,6 +602,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						// Send the data to the corresponding channel of the corresponding DAC
 						send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
 					}
+
 				}else{
 					break; //TODO revisar
 				}
@@ -605,10 +610,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 
 
-	}else if(0){//htim == &htim3){
+	}else if(htim == &htim3){
 
 		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag.
-		if(TIM3_step_count == sample_rate){
+		if(TIM3_step_count == sample_rate && start_simulation_flag ){
 			trigger_LDAC();
 			DAC_load_flag = 1;
 			TIM3_step_count = 0;

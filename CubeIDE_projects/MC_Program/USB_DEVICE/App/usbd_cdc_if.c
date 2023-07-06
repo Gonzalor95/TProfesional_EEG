@@ -56,6 +56,7 @@
 //extern DAC_Handler dac_handler_D;
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
+extern uint8_t start_simulation_flag;
 //extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
 
@@ -299,9 +300,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 		  // A config value > 32 means a device configuration
 		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
 	  }else{
-		  while(is_queue_full(&data_queue));
-		  //if(data != 0 && config != 0)
-		  	  enqueue_data(config,data,&data_queue);
+		  while(is_queue_full(&data_queue)){
+			  start_simulation_flag = 1; //first iteration, fill the queue
+		  }
+		  enqueue_data(config,data,&data_queue);
 	  }
   }
 

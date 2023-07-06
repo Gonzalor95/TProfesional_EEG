@@ -10,6 +10,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "stdint.h"
+#include <math.h>
 #include <stdbool.h>
 
 /*
@@ -40,7 +41,7 @@ Azul = DAC 2 =SYNC = PA4
 #define BUFFER_SIZE 64			// in bytess
 #define PROTOCOL_WORD_SIZE 4 	// in bytes
 #define SAMPLE_RATE 10			// Default sample_rate in msecs
-#define DATA_QUEUE_CAPACITY 1024  // in DAC packages (16 bits or 2 bytes). Must be 32 at minimun
+#define DATA_QUEUE_CAPACITY 8192  // in DAC packages (16 bits or 2 bytes). Must be 32 at minimun
 #define DACS_COUNT 4
 #define DACS_CHANNEL_COUNT 8
 #define SIMULATION_CHANNEL_COUNT 1 // This is the amount of data to dequeue by default
@@ -321,5 +322,10 @@ int is_queue_full(Data_Queue * data_queue);
  * @brief Is the queue empty?. 1 = True. 0 = False
  */
 int is_queue_empty(Data_Queue * data_queue);
+
+/**
+ * @brief Dequeue discarded channels
+ */
+void flush_discard_channels(Data_Queue * data_queue, int discarded_channels);
 
 #endif /* INC_EEG_SIMULATION_H_ */

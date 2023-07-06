@@ -156,7 +156,7 @@ void trigger_LDAC()
  */
 void config_sample_rate_delay(const uint16_t data){
 	sample_rate = data;
-	sample_rate = 10000/sample_rate;
+	sample_rate = round(10000/sample_rate) * 2;
 }
 
 void config_simulation_channel_count(const uint16_t data){
@@ -289,7 +289,9 @@ int is_queue_empty(Data_Queue * data_queue){
 	return (data_queue->size == 0);
 }
 
-//void flush_latest(int discarded_channels){
-	//data_queue->front = (data_queue->front + discarded_channels) % data_queue->capacity;
-	//data_queue->size = data_queue->size - discarded_channels;
-//}
+void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
+	data_queue->front = (data_queue->front + discarded_channels) % data_queue->capacity;
+	data_queue->size = data_queue->size - discarded_channels;
+	if(data_queue->size < 0)
+		init_data_queue(data_queue);
+}
