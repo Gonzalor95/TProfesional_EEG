@@ -254,18 +254,23 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         raw_min_time_str = self.min_time_input.text()
         raw_max_time_str = self.max_time_input.text()
-        if validate_sim_time(raw_min_time_str, raw_max_time_str, self.edf_worker.getDuration()) == False:
+        duration = 0
+        if self.is_testing_signal_:
+            duration = self.device_config_["max_sim_time"]
+        else:
+            duration = self.edf_worker.getDuration()
+        if validate_sim_time(raw_min_time_str, raw_max_time_str, duration) == False:
             PopUpWindow("Simulation time selection", "Bad user input for the simulation time, try again",
                         QMessageBox.Abort, QMessageBox.Critical)
             return
-        # Set in both testing signal worker and edf worker
-        self.testing_signals_worker.setSelectedSimTime(
-            (int(raw_min_time_str), int(raw_max_time_str)))
-        if self.edf_worker.isFileLoaded():
-            self.edf_worker.setSelectedSimTime(
-                (int(raw_min_time_str), int(raw_max_time_str)))
-        self.selected_sim_time_value.setText(
-            raw_min_time_str + " - " + raw_max_time_str)
+        # Set in workers
+        if self.is_testing_signal_:
+            self.testing_signals_worker.setSelectedSimTime((int(raw_min_time_str), int(raw_max_time_str)))
+        else:
+            if self.edf_worker.isFileLoaded():
+                self.edf_worker.setSelectedSimTime(
+                    (int(raw_min_time_str), int(raw_max_time_str)))
+        self.selected_sim_time_value.setText(raw_min_time_str + " - " + raw_max_time_str)
 
     def centerMainWindow(self):
         """

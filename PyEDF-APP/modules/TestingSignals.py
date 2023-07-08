@@ -114,6 +114,10 @@ class TestingSignalsWorker():
         """
         Setter for the selected simulation time
         """
+        # Re-generate signal if selected time is longer than original
+        if selected_sim_time[1] > self.signal_data_.duration:
+            self.generateTestingSignal(self.signal_data_.signal_name, self.signal_data_.frecuency, self.signal_data_.amplitude,
+                                       self.signal_data_.sample_rate, selected_sim_time[1])
         self.selected_sim_time_ = selected_sim_time
 
     def generateTestingSignal(self, signal_name, frecuency, amplitude, sample_rate, duration):
@@ -155,8 +159,10 @@ class TestingSignalsWorker():
         Gets an array of header/signals pair that will be sent to the generator
         """
         signals_to_send = []
+        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
         for channel in self.selected_channels_:
-            signals_to_send.append((channel, self.signal_data_.digital_signal))
+            signals_to_send.append((channel, self.signal_data_.digital_signal[start_point:end_point]))
         return signals_to_send
 
     ###### Private ######
@@ -196,10 +202,10 @@ class TestingSignalsWorker():
         Method to plot the physical signal to a graph. Shows only one channel as it will be the same for all
         """
         fig, axis = plt.subplots(1)
-        start_time = self.selected_sim_time_[0] * int(self.getSampleRate())
-        end_time = self.selected_sim_time_[1] * int(self.getSampleRate())
-        time = np.arange(0, self.signal_data_.duration, 1 / self.signal_data_.sample_rate)
-        axis.plot(time, signal[start_time:end_time], color=(
+        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
+        time = np.arange(self.selected_sim_time_[0], self.selected_sim_time_[1], 1 / self.signal_data_.sample_rate)
+        axis.plot(time, signal[start_point:end_point], color=(
             [168/255, 193/255, 5/255]), linewidth=0.4)
         axis.set_ylabel("Amplitude [uV]", rotation=0, labelpad=30)
         axis.set_xlabel("Time [sec]", rotation=0, labelpad=30)

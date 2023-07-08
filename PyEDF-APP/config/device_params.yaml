@@ -1,4 +1,4 @@
-# Generator parameters
+### Generator parameters
 
 # Max number of channels allowed
 max_channels: 32
@@ -9,9 +9,13 @@ max_digital: 65535
 # Max physical value (in uV)
 max_physical: 200
 
-# Generator interface: Configuration values
+### Generator interface: Configuration values
 
 # Config value to send to modify the amount of channels in the generator
 config_channels_amount: 39
 # Config value to send to modify the sample rate of the signal
 config_sample_rate: 40
+
+### Testing signals params
+# Maximun lenght [sec] for the testing signals
+max_sim_time: 600
