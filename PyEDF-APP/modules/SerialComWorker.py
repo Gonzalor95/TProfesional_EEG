@@ -57,22 +57,28 @@ class SerialComWorker():
         config_channel_amount_pkg = self.createConfigPackage_(self.config_params_["config_channels_amount"], channels_amount)
         data_pkgs = [bytes_packages[i:i+64] for i in range(0,len(bytes_packages),64)]
 
-        # Start serial connection
-        serial_connection = serial.Serial(self.chosen_device_.name, baudrate=115200, bytesize=serial.EIGHTBITS)
+        try:
+            # Start serial connection
+            serial_connection = serial.Serial(self.chosen_device_.name, baudrate=115200, bytesize=serial.EIGHTBITS, write_timeout=5)
 
-        # Write sample rate config
-        serial_connection.write(serial.to_bytes(config_sample_rate_pkg))
-        time.sleep(0.1)
+            # Write sample rate config
+            serial_connection.write(serial.to_bytes(config_sample_rate_pkg))
+            time.sleep(0.1)
 
-        # Write amount of channels config
-        serial_connection.write(serial.to_bytes(config_channel_amount_pkg))
+            # Write amount of channels config
+            serial_connection.write(serial.to_bytes(config_channel_amount_pkg))
 
-        for byte_pkg in data_pkgs:
-            #for j in range(channels_amount):
-            serial_connection.write(b"".join(byte_pkg))
+            for byte_pkg in data_pkgs:
+                #for j in range(channels_amount):
+                serial_connection.write(b"".join(byte_pkg))
 
-        # End serial connection
-        serial_connection.close()
+            # End serial connection
+            serial_connection.close()
+            return True
+        except serial.SerialTimeoutException:
+            print("Serial write operation timed out, try resetting the device")
+            return False
+
 
     ###### Private ######
 
