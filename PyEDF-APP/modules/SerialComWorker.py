@@ -105,6 +105,7 @@ class SerialComWorker():
         print(f"len of bytes_packages = {len(bytes_packages)}")
         print(f"sample rate = {sample_rate}")
         print(f"config_sample_rate_package = {config_sample_rate_package}")
+        print(f"config_data_channels = TODO")
        # print(f"packeted bytes_packages is: {bytes_packages_packeted}")
 
 

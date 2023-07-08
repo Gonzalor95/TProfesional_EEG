@@ -9,7 +9,8 @@ from modules.ChannelToIntProtocol import ProtocolDict
 Class used to work with the EDF files
 """
 
-DEVICE_MAX_VALUE = 65535 # 134uV seems to be the max value we can represent.
+DEVICE_MAX_DIGITAL_VALUE = 65535 # 134uV seems to be the max value we can represent.
+DEVICE_MAX_PHYSICAL_VALUE = 200 # 200uV
 
 # Structure type of class to hold the signal data
 class SignalData:
@@ -53,6 +54,8 @@ class EDFWorker():
         signal_data_copy = self.signal_data_
         try:
             physical_signals, signal_headers, header = pyedflib.highlevel.read_edf(file_full_path, verbose=True)
+            for header in signal_headers:
+                print(f"{header}")
             self.fillSignalData(physical_signals, signal_headers, header)
             # Set the simulation time
             self.selected_sim_time_ = (int(0), int(self.getDuration()))
@@ -305,7 +308,7 @@ class EDFWorker():
         """
         signals_to_send = []
         for channel in self.selected_channels_:
-            for pair in self.signal_data_.digital_signals_and_headers:
+            for pair in self.signal_data_.physical_signals_and_headers:
                 if channel == pair[0]:
                     signals_to_send.append(pair)
 
@@ -313,11 +316,23 @@ class EDFWorker():
         # 1. Make it go from (-edf_digital_min, edf_digital_max) to (0, our_digital_max)
         # 2. Normalize it to our (digital_max, physical_max) ratio instead of the one present in the edf
         processed_signal_to_send = []
-        digital_min = self.signal_data_.signal_headers[0]["digital_min"]
-        digital_max = self.signal_data_.signal_headers[0]["digital_max"]
+        physical_min = self.signal_data_.signal_headers[0]["physical_min"]
+        physical_max = self.signal_data_.signal_headers[0]["physical_max"]
+
+        print(f"physical_min = {physical_min}")
+        print(f"physical_max = {physical_max}")
+        # TODO: Check EDF signal physical max. Ej: si dig_max = 175uV y nuestro device_max = 150uV (que esto seria fijo en realidad), entonces 175uV pasa a ser 150uV (!!!) hay que corregir o ver que hacemos.
         for header,signal in signals_to_send:
-            processed_signal = (signal - digital_min)
-            processed_signal = processed_signal * DEVICE_MAX_VALUE / (digital_max - digital_min)
+            # physical_min = min(signal)
+            # print(f"physical_min = {physical_min}")
+            # processed_signal = (signal - physical_min)
+            # if(any([p<0 for p in processed_signal])):
+            #     print(f"oiga : {[p for p in processed_signal if p<0]}")
+            # processed_signal = processed_signal * DEVICE_MAX_PHYSICAL_VALUE / (physical_max - physical_min)
+
+            m = (DEVICE_MAX_PHYSICAL_VALUE*2)/DEVICE_MAX_DIGITAL_VALUE
+            b = DEVICE_MAX_PHYSICAL_VALUE/m - DEVICE_MAX_DIGITAL_VALUE
+            processed_signal = signal / m - b
 
             processed_signal_to_send.append((header, processed_signal))
 

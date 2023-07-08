@@ -50,15 +50,15 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-extern DAC_Handler dac_handler_A;
-extern DAC_Handler dac_handler_B;
-extern DAC_Handler dac_handler_C;
-extern DAC_Handler dac_handler_D;
+//extern DAC_Handler dac_handler_A;
+//extern DAC_Handler dac_handler_B;
+//extern DAC_Handler dac_handler_C;
+//extern DAC_Handler dac_handler_D;
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
-extern LDAC_Handler LDAC;
+extern uint8_t start_simulation_flag;
+//extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
-uint8_t receive_buff_flag = 1;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -271,12 +271,9 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	receive_buff_flag = 0;
 
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-
-
 
   uint8_t receiveBuffer[BUFFER_SIZE]; 		 // Buffer to receive data through USB via CDC (Communication Device Class)
   memcpy(receiveBuffer, Buf, (uint8_t)*Len); // Copy the data to our extern buffer
@@ -285,7 +282,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   uint16_t config;
   uint16_t data;
   DAC_Channel DAC_channel = 0;
-  DAC_Tag DAC_tag = DAC_B;
+  DAC_Tag DAC_tag = 0;
   uint8_t protocolWord[PROTOCOL_WORD_SIZE];
 
   for(uint32_t i = 0; i<*Len; i +=PROTOCOL_WORD_SIZE){
@@ -298,11 +295,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
 	  parse_receiving_buffer(protocolWord, &config, &data);
 
-	  while(is_queue_full(&data_queue)){
-		  // Do nothing until it sends data
+	  // If it is a configuration word, just send it. Queue is only for data
+	  if (config > MAX_DAC_CHANNEL_WORD){
+		  // A config value > 32 means a device configuration
+		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+	  }else{
+		  while(is_queue_full(&data_queue)){
+			  start_simulation_flag = 1; //first iteration, fill the queue
+		  }
+		  enqueue_data(config,data,&data_queue);
 	  }
-	  enqueue_data(config,data,&data_queue);
-
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);
