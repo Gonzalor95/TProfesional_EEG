@@ -5,14 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from modules.ChannelToIntProtocol import ProtocolDict
 
-"""
-Class to handle the testing signals
-"""
 
-
-# Structure type of class to hold the signal data
-# Array lenghts should all be the same
 class SignalData:
+    """
+    Structure type of class to hold the signal data
+
+    Array lenghts should all be the same
+    """
     signal_name = ""  # ["Square", "Sinusoidal", "Triangular"]
     physical_signal = []
     digital_signal = []
@@ -23,17 +22,15 @@ class SignalData:
 
 
 class TestingSignalsWorker():
+    """
+    Class to handle the testing signals
+    """
     # List with all the channels selected for the simulator
     selected_channels_ = []
     # Selected simulation time
     selected_sim_time_ = ()
     # Possible testing signals
     testing_signals_ = ["Square", "Sinusoidal", "Triangular"]
-    # Default values for the signal
-    DEFAULT_FRECUENCY = 50  # Hz
-    DEFAULT_AMPLITUD = 20  # uV
-    DEFAULT_TIME_SPAN = 60  # sec
-    DEFAULT_SAMPLE_RATE = 2048  # points per second
 
     def __init__(self, config):
         self.config_params_ = config
@@ -44,8 +41,7 @@ class TestingSignalsWorker():
 
     def getSignalInfo(self):
         """
-        Returns a dictionary with the signal information:
-        Currently returns: Number of channels, dimension, sample_rate.
+        Returns a dictionary with the testing signal information
         """
         signal_info_dict = {}
         signal_info_dict["Dimension"] = self.getSignalDimension()
@@ -58,9 +54,9 @@ class TestingSignalsWorker():
 
     def getNumberOfChannels(self):
         """
-        Getter for the number of channels in the file
+        Getter for the number of channels
         """
-        return self.self.config_params_["max_channels"]
+        return len(self.selected_channels_)
 
     def getDuration(self):
         """
@@ -103,13 +99,16 @@ class TestingSignalsWorker():
     def setSelectedChannels(self, selected_channels):
         """
         Method to set the selected channels array
+
         param[in]: "selected_channels" Array with the selected channels
         """
         self.selected_channels_ = selected_channels
 
     def getChannels(self):
+        """
+        TODO
+        """
         return ProtocolDict.channel_enum_dict_.keys()
-
 
     def setSelectedSimTime(self, selected_sim_time):
         """
@@ -123,12 +122,12 @@ class TestingSignalsWorker():
         """
         self.resetTestSignalWorker()
         if signal_name == self.testing_signals_[0]:
-            self.signal_data_.physical_signal = self.generateSquareSignal(frecuency, amplitude, sample_rate, duration)
+            self.signal_data_.physical_signal = self.generateSquareSignal_(frecuency, amplitude, sample_rate, duration)
         if signal_name == self.testing_signals_[1]:
-            self.signal_data_.physical_signal = self.generateSinSignal(frecuency, amplitude, sample_rate, duration)
+            self.signal_data_.physical_signal = self.generateSinSignal_(frecuency, amplitude, sample_rate, duration)
         if signal_name == self.testing_signals_[2]:
-            self.signal_data_.physical_signal = self.generateTriangSignal(frecuency, amplitude, sample_rate, duration)
-        self.createDigitalSignal()
+            self.signal_data_.physical_signal = self.generateTriangSignal_(frecuency, amplitude, sample_rate, duration)
+        self.createDigitalSignal_()
         self.signal_data_.signal_name = signal_name
         self.signal_data_.frecuency = frecuency
         self.signal_data_.amplitude = amplitude
@@ -139,49 +138,62 @@ class TestingSignalsWorker():
             selected_channels.append(channel)
         self.selected_channels_ = selected_channels # Select all channels
 
-    def createDigitalSignal(self):
-        # 150 uV is the max physical we will represent
-        # 65535 is the max digital represented by 16 bits
-        # Will make it go from 0 to 65535 as we will not send negative values to the generator
-        m = (150-(-150)) / (65535-(0))
-        b = 150 / m - 65535
-        digital = self.signal_data_.physical_signal / m - b
-        self.signal_data_.digital_signal = digital
+    def previewSignal(self):
+        """
+        Method to plot a preview of the specified signal
 
-    def generateSquareSignal(self, frecuency, amplitude, sample_rate, duration):
+        Callback method for the GUI interface
+        """
+        if self.signal_data_.signal_name:
+            self.plotSignal_(self.signal_data_.physical_signal)
+        else:
+            print("Testing signal not loaded, cannot preview signals")
+            return False
+
+    def getSimulationSignals(self):
+        """
+        Gets an array of header/signals pair that will be sent to the generator
+        """
+        signals_to_send = []
+        for channel in self.selected_channels_:
+            signals_to_send.append((channel, self.signal_data_.digital_signal))
+        return signals_to_send
+
+    ###### Private ######
+
+    def generateSquareSignal_(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a square signal
         """
         time = np.arange(0, duration, 1 / sample_rate)
         return amplitude * signal.square(2*np.pi * frecuency * time)
 
-    def generateSinSignal(self, frecuency, amplitude, sample_rate, duration):
+    def generateSinSignal_(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a sinusoidal signal
         """
         time = np.arange(0, duration, 1 / sample_rate)
         return amplitude * np.sin(2*np.pi * frecuency * time)
 
-    def generateTriangSignal(self, frecuency, amplitude, sample_rate, duration):
+    def generateTriangSignal_(self, frecuency, amplitude, sample_rate, duration):
         """
         Method to generate a triangular signal
         """
         time = np.arange(0, duration, 1 / sample_rate)
         return amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
 
-    def previewSignal(self):
+    def createDigitalSignal_(self):
         """
-        Method to plot a preview of the specified signal
+        Creates the digital signal from the physical one. Uses device parameters to make this convertion
         """
-        if self.signal_data_.signal_name:
-            self.plotSignal(self.signal_data_.physical_signal)
-        else:
-            print("Testing signal not loaded, cannot preview signals")
-            return False
+        m = (self.config_params_["max_physical"] - ( -self.config_params_["max_physical"] )) / (self.config_params_["max_digital"]-(0))
+        b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
+        digital = self.signal_data_.physical_signal / m - b
+        self.signal_data_.digital_signal = digital
 
-    def plotSignal(self, signal):
+    def plotSignal_(self, signal):
         """
-        Method to plot the physical signal to a graph. Plots only the selected channels
+        Method to plot the physical signal to a graph. Shows only one channel as it will be the same for all
         """
         fig, axis = plt.subplots(1)
         start_time = self.selected_sim_time_[0] * int(self.getSampleRate())
@@ -194,12 +206,3 @@ class TestingSignalsWorker():
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()
-
-    def getSimulationSignals(self):
-        """
-        Gets an array of header/signals pair that will be sent to the generator
-        """
-        signals_to_send = []
-        for channel in self.selected_channels_:
-            signals_to_send.append((channel, self.signal_data_.digital_signal))
-        return signals_to_send
