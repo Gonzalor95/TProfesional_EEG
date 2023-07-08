@@ -3,9 +3,9 @@
 # Max number of channels allowed
 max_channels: 32
 # Resolution in bits
-bit_resolution: 16
+bit_resolution: 12
 # Max digital value
-max_digital: 65535
+max_digital: 4096
 # Min/max physical value (in uV)
 max_physical: 200
 min_physical: -200
