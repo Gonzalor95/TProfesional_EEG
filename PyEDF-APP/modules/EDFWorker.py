@@ -184,28 +184,17 @@ class EDFWorker():
                     signals_to_send.append(pair)
 
         # Pre-processing of the edf signal
-        # 1. Make it go from (-edf_digital_min, edf_digital_max) to (0, our_digital_max)
-        # 2. Normalize it to our (digital_max, physical_max) ratio instead of the one present in the edf
+        # 1. Make it go from (-edf_physical_min, edf_physical_max) to (0, our_digital_max)
         processed_signal_to_send = []
-        physical_min = self.signal_data_.signal_headers[0]["physical_min"]
-        physical_max = self.signal_data_.signal_headers[0]["physical_max"]
 
-        print(f"physical_min = {physical_min}")
-        print(f"physical_max = {physical_max}")
-        # TODO: Check EDF signal physical max. Ej: si dig_max = 175uV y nuestro device_max = 150uV (que esto seria fijo en realidad), entonces 175uV pasa a ser 150uV (!!!) hay que corregir o ver que hacemos.
+        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
         for header,signal in signals_to_send:
-            # physical_min = min(signal)
-            # print(f"physical_min = {physical_min}")
-            # processed_signal = (signal - physical_min)
-            # if(any([p<0 for p in processed_signal])):
-            #     print(f"oiga : {[p for p in processed_signal if p<0]}")
-            # processed_signal = processed_signal * DEVICE_MAX_PHYSICAL_VALUE / (physical_max - physical_min)
-
-            m = (self.config_params_["max_physical"] * 2) / self.config_params_["max_digital"]
+            m = (self.config_params_["max_physical"] - self.config_params_["min_physical"]) / self.config_params_["max_digital"]
             b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
             processed_signal = signal / m - b
 
-            processed_signal_to_send.append((header, processed_signal))
+            processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
 
         return processed_signal_to_send
 
@@ -293,8 +282,8 @@ class EDFWorker():
         Method to plot the physical signal to a graph. Plots only the selected channels
         """
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
-        start_time = self.selected_sim_time_[0]*int(self.getSampleRate())
-        end_time = self.selected_sim_time_[1]*int(self.getSampleRate())
+        start_point = self.selected_sim_time_[0]*int(self.getSampleRate())
+        end_point = self.selected_sim_time_[1]*int(self.getSampleRate())
 
         signals_to_print = []
         # Get the header-signal pairs to print
@@ -313,7 +302,7 @@ class EDFWorker():
             # Set plot title
             axis[index][0].set_ylabel(header, rotation=0, labelpad=30)
             # Adjust axis range to better fit the signal
-            axis[index][0].set_xlim([0, end_time - start_time])
+            axis[index][0].set_xlim([0, end_point - start_point])
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()

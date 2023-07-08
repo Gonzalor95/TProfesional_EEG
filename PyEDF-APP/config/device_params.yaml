@@ -6,8 +6,9 @@ max_channels: 32
 bit_resolution: 16
 # Max digital value
 max_digital: 65535
-# Max physical value (in uV)
+# Min/max physical value (in uV)
 max_physical: 200
+min_physical: -200
 
 ### Generator interface: Configuration values
 
