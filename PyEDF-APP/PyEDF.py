@@ -28,8 +28,6 @@ from gui_elements.TestingSignalsDesignLogic import TestingSignalsDialog
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
     big_int_ = 9999999999
-    # Max amount of channels of the signal generator. Set in the config file
-    max_channels_ = 0
     # Flag to indicate whether the selected signal is a testing one or a real one
     is_testing_signal_ = False
 
@@ -41,13 +39,13 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.font_styles = FontStyles()
 
         # Read yaml config file and initialize values
-        self.readConfigFile()
+        self.device_config_ = self.readConfigFile()
         # EDF worker instance
-        self.edf_worker = EDFWorker()
+        self.edf_worker = EDFWorker(self.device_config_)
         # Serial communication worker instance
-        self.serial_comm_worker = SerialComWorker()
+        self.serial_comm_worker = SerialComWorker(self.device_config_)
         # Testing signals worker instance
-        self.testing_signals_worker = TestingSignalsWorker(self.max_channels_)
+        self.testing_signals_worker = TestingSignalsWorker(self.device_config_)
 
         # Add custom double range slider
         self.min_time_input = QLineEdit()
@@ -94,7 +92,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Load EDF file into worker and GUI
         if(self.edf_worker.readEDF(file_name)):
             # Check that the amount of channels doesn't exceed the configured one
-            if self.edf_worker.getNumberOfChannels() >= self.max_channels_:
+            if self.edf_worker.getNumberOfChannels() >= self.device_config_["max_channels"]:
                 print("Number of channels of the selected EDF file exceeds the max amount, please select a different EDF file")
                 self.edf_worker.resetWorker()
                 PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
@@ -283,11 +281,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         Method to read the yaml configuration file and load it
         """
         with open('config/device_params.yaml', 'r') as file:
-            device_params = yaml.safe_load(file)
             try:
-                self.max_channels_ = device_params["max_channels"]
-                self.max_physical_ = device_params["max_physical"]
-                self.bit_resolution_ = device_params["bit_resolution"]
+                return yaml.safe_load(file)
             except(KeyError):
                 PopUpWindow("Configuration file", "Error in configuration file",
                             QMessageBox.Abort, QMessageBox.Critical)

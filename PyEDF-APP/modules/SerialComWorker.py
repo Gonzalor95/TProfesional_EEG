@@ -6,17 +6,14 @@ import time
 from modules.utils import timeit
 
 
-"""
-Class to handle the serial communication between the PC and the EDF signal generator
-
-This class will be in charge of managing the ports and sending the data to the device
-"""
-
-CHANNEL_AMOUNT_CONFIG = 39
-SAMPLE_RATE_CONFIG = 40
-
 class SerialComWorker():
-    def __init__(self):
+    """
+    Class to handle the serial communication between the PC and the EDF signal generator
+
+    This class will be in charge of managing the ports and sending the data to the device
+    """
+    def __init__(self, config):
+        self.config_params_ = config
         print("Serial communication worker initialized")
 
     def listSerialPorts(self):
@@ -56,8 +53,8 @@ class SerialComWorker():
 
         Callback for the GUI interaction
         """
-        config_sample_rate_pkg = self.createConfigPackage_(SAMPLE_RATE_CONFIG, sample_rate)
-        config_channel_amount_pkg = self.createConfigPackage_(CHANNEL_AMOUNT_CONFIG, channels_amount)
+        config_sample_rate_pkg = self.createConfigPackage_(self.config_params_["config_sample_rate"], sample_rate)
+        config_channel_amount_pkg = self.createConfigPackage_(self.config_params_["config_channels_amount"], channels_amount)
         data_pkgs = [bytes_packages[i:i+64] for i in range(0,len(bytes_packages),64)]
 
         # Start serial connection

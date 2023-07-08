@@ -5,13 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from modules.ChannelToIntProtocol import ProtocolDict
 
-"""
-Class used to work with the EDF files
-"""
-
-DEVICE_MAX_DIGITAL_VALUE = 65535 # 134uV seems to be the max value we can represent.
-DEVICE_MAX_PHYSICAL_VALUE = 200 # 200uV
-
 # Structure type of class to hold the signal data
 class SignalData:
     physical_signals = []  # Used only for previews, as read from the .edf file
@@ -21,6 +14,9 @@ class SignalData:
 
 
 class EDFWorker():
+    """
+    Class used to work with the EDF files
+    """
     # Class variables
     # Flag to state if an EDF file is loaded in the system or not
     file_loaded_ = False
@@ -31,7 +27,8 @@ class EDFWorker():
     # Data structure to hold the .edf data
     signal_data_ = SignalData()
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config_params_ = config
         print("EDF Worker initialized")
 
     def resetWorker(self):
@@ -330,8 +327,8 @@ class EDFWorker():
             #     print(f"oiga : {[p for p in processed_signal if p<0]}")
             # processed_signal = processed_signal * DEVICE_MAX_PHYSICAL_VALUE / (physical_max - physical_min)
 
-            m = (DEVICE_MAX_PHYSICAL_VALUE*2)/DEVICE_MAX_DIGITAL_VALUE
-            b = DEVICE_MAX_PHYSICAL_VALUE/m - DEVICE_MAX_DIGITAL_VALUE
+            m = (self.config_params_["max_physical"] * 2) / self.config_params_["max_digital"]
+            b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
             processed_signal = signal / m - b
 
             processed_signal_to_send.append((header, processed_signal))

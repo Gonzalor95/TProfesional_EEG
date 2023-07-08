@@ -35,9 +35,9 @@ class TestingSignalsWorker():
     DEFAULT_TIME_SPAN = 60  # sec
     DEFAULT_SAMPLE_RATE = 2048  # points per second
 
-    def __init__(self, max_channels):
-        self.max_channels_ = max_channels
-        self.selected_channels_ = range(max_channels)
+    def __init__(self, config):
+        self.config_params_ = config
+        self.selected_channels_ = range(self.config_params_["max_channels"])
         self.selected_sim_time_ = ()
         self.signal_data_ = SignalData()
         print("Testing signals worker initialized")
@@ -60,7 +60,7 @@ class TestingSignalsWorker():
         """
         Getter for the number of channels in the file
         """
-        return self.max_channels_
+        return self.self.config_params_["max_channels"]
 
     def getDuration(self):
         """
