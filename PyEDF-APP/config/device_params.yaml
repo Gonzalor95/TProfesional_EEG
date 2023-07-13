@@ -16,6 +16,8 @@ min_physical: -200
 config_channels_amount: 39
 # Config value to send to modify the sample rate of the signal
 config_sample_rate: 40
+# This resets all DACs config and output levels (is like init them again)
+config_reset_all_dacs: 35
 
 ### Testing signals params
 # Maximun lenght [sec] for the testing signals

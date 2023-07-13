@@ -55,6 +55,7 @@ class SerialComWorker():
         """
         config_sample_rate_pkg = self.createConfigPackage_(self.config_params_["config_sample_rate"], sample_rate)
         config_channel_amount_pkg = self.createConfigPackage_(self.config_params_["config_channels_amount"], channels_amount)
+        config_reset_all_dacs_pkg = self.createConfigPackage_(self.config_params_["config_reset_all_dacs"], channels_amount)
         data_pkgs = [bytes_packages[i:i+64] for i in range(0,len(bytes_packages),64)]
 
         try:
@@ -71,6 +72,11 @@ class SerialComWorker():
             for byte_pkg in data_pkgs:
                 #for j in range(channels_amount):
                 serial_connection.write(b"".join(byte_pkg))
+
+
+            # When simulation ended, we reset outputs and configs of DACs:
+            serial_connection.write(serial.to_bytes(config_reset_all_dacs_pkg))
+            
 
             # End serial connection
             serial_connection.close()

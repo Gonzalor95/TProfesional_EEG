@@ -174,8 +174,8 @@ int main(void)
   {
 
 	  // Measure TIMs
-	  /*
-	  if(DAC_load_flag){
+
+	  //if(DAC_load_flag){
 		  if(i%2){
 			  data = 0x0;
 		  }else{
@@ -184,8 +184,8 @@ int main(void)
 		  send_data_to_dac_channel(&(list_of_dacs[dac_tag]), &(dac_channel), data);
 		  i++;
 		  DAC_load_flag = 0;
-	  }
-	  */
+	  //}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -596,8 +596,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				if(!is_queue_empty(&data_queue)){
 
 					dequeue_data(&config, &data, &data_queue);
-					// A config value of [0, 31] means writing to a DAC
-					if (config < MAX_DAC_CHANNEL_WORD){
+
+					 if (config > MAX_DAC_CHANNEL_WORD){
+						 // A config value > 32 means a device configuration
+						 send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count, &data_queue);
+					 }
+					 // A config value of [0, 31] means writing to a DAC
+					 else if (config < MAX_DAC_CHANNEL_WORD){
 						parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
 						// Send the data to the corresponding channel of the corresponding DAC
 						send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);

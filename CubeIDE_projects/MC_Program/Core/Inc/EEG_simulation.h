@@ -29,8 +29,8 @@ Azul = DAC 2 =SYNC = PA4
 #define DAC_CONFIG_LDAC_HIGH 0xA001			 // (DEFAULT) DAR reg. are latched and the input registers can change without affecting the contents of the DAC reg
 #define DAC_CONFIG_LDAC_SINGLE_UPDATE 0xA003 // Causes a single pulse on LDAC, updating the DAC registers once.
 // Reset:0b 111?-xxxx-xxxx-xxxx
-#define DAC_CONFIG_RESET_DATA 0xE			  // All outputs to zero
-#define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF // reset all DAC
+#define DAC_CONFIG_RESET_DATA 0xE000			  // All outputs to zero
+#define DAC_CONFIG_RESET_DATA_AND_CONTROL 0xF000 // reset all DAC
 
 // Gain of output and reference selection
 
@@ -117,6 +117,7 @@ typedef enum
 	// LDAC Config
 	CONF_LDAC_LOW = 34,
 	// RESET Config
+	CONF_RESET = 35,
 	// Power-down Config
 	CONF_SIMULATION_CHANNEL_COUNT = 39,
 	CONF_SAMPLE_RATE = 40
@@ -251,7 +252,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel);
  * @param[in] list_of_dacs DACs to send the config to
  * @param[in] dacs_count Amount of DACs in the list
  */
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count);
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count, Data_Queue * data_queue );
 
 /**
  * @brief Sends a word to the DAC, used for the configs

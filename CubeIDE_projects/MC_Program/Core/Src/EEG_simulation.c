@@ -10,6 +10,8 @@
 uint32_t sample_rate = SAMPLE_RATE;
 uint32_t simulation_channel_count = SIMULATION_CHANNEL_COUNT;
 uint8_t delay_flag = 0;
+extern uint8_t start_simulation_flag;
+
 
 void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler)
 {
@@ -113,7 +115,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 	return DAC_Channel_Masks[*dac_channel];
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count, Data_Queue * data_queue )
 {
 	HAL_StatusTypeDef status = HAL_OK;
 
@@ -123,6 +125,12 @@ HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint1
 		break;
 	case CONF_LDAC_LOW:
 		//TODO: Complete with other configs
+	case CONF_RESET:
+		// TODO: reset dacs
+		 reset_dacs_config(*(list_of_dacs), dacs_count);
+		 init_data_queue(data_queue);
+		 start_simulation_flag = 0;
+		break;
 	case CONF_SAMPLE_RATE:
 		config_sample_rate_delay(*data);
 		break;
