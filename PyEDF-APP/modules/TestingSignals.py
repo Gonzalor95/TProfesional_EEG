@@ -195,7 +195,13 @@ class TestingSignalsWorker():
         m = (self.config_params_["max_physical"] - ( -self.config_params_["max_physical"] )) / (self.config_params_["max_digital"]-(0))
         b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
         digital = self.signal_data_.physical_signal / m - b
-        self.signal_data_.digital_signal = digital
+
+        #self.signal_data_.digital_signal = digital
+        #TODO: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail
+        self.signal_data_.digital_signal =  ((self.signal_data_.physical_signal * 0.0125) +2.5) * (65536/5)
+
+
+        
 
     def plotSignal_(self, signal):
         """

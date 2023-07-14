@@ -174,8 +174,8 @@ int main(void)
   {
 
 	  // Measure TIMs
-
-	  //if(DAC_load_flag){
+	  /*
+	  if(DAC_load_flag){
 		  if(i%2){
 			  data = 0x0;
 		  }else{
@@ -184,7 +184,7 @@ int main(void)
 		  send_data_to_dac_channel(&(list_of_dacs[dac_tag]), &(dac_channel), data);
 		  i++;
 		  DAC_load_flag = 0;
-	  //}
+	  }*/
 
     /* USER CODE END WHILE */
 
