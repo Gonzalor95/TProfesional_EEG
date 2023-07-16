@@ -194,6 +194,11 @@ class EDFWorker():
             b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
             processed_signal = signal / m - b
 
+            #self.signal_data_.digital_signal = digital
+            #XXX: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail.
+            # creo que le falta un * 2
+            processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
+
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
 
         return processed_signal_to_send
