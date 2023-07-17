@@ -70,6 +70,7 @@ Data_Queue data_queue;
 uint32_t TIM3_step_count = 0; // LDAC TIM
 uint8_t DAC_load_flag = 0;
 uint8_t start_simulation_flag = 0;
+uint8_t reset_queue_and_dacs = 0;
 
 extern uint32_t sample_rate;
 extern uint32_t simulation_channel_count;
@@ -586,7 +587,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		DAC_Channel DAC_channel = CHANNEL_H;
 
 
-		if(DAC_load_flag){
+		if(DAC_load_flag) {
 			DAC_load_flag = 0;
 			for(int i = 0; i < simulation_channel_count ; i++){
 				if(DAC_load_flag){
@@ -597,25 +598,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 					dequeue_data(&config, &data, &data_queue);
 
-					 if (config > MAX_DAC_CHANNEL_WORD){
-						 // A config value > 32 means a device configuration
-						 send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count, &data_queue);
-					 }
 					 // A config value of [0, 31] means writing to a DAC
-					 else if (config < MAX_DAC_CHANNEL_WORD){
+					 if (config < MAX_DAC_CHANNEL_WORD){
 						parse_tag_and_channel_from_config(&config, &DAC_tag, &DAC_channel);
 						// Send the data to the corresponding channel of the corresponding DAC
 						send_data_to_dac_channel(&(list_of_dacs[DAC_tag]), &DAC_channel, data);
-					}
+					 }
 
 				}else{
 					break; //TODO revisar
 				}
 			}
+
+		// Check if queue is empty and reset flag is true
+		} else if(reset_queue_and_dacs && is_queue_empty(&data_queue)){
+			reset_dacs_config(list_of_dacs, &dacs_count);
+			init_data_queue(&data_queue);
+
+			start_simulation_flag = 0;
+			reset_queue_and_dacs = 0;
 		}
 
+		//TIM2_step_count++;
 
-	}else if(htim == &htim3){
+
+	} else if(htim == &htim3){
 
 		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag.
 		if(TIM3_step_count == sample_rate && start_simulation_flag ){

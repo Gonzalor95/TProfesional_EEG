@@ -294,12 +294,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
 
 	  parse_receiving_buffer(protocolWord, &config, &data);
-	  while(is_queue_full(&data_queue)){
-	  			  start_simulation_flag = 1; //first iteration, fill the queue
-	  }
-	  enqueue_data(config,data,&data_queue);
 
-/*
 	  // If it is a configuration word, just send it. Queue is only for data
 	  if (config > MAX_DAC_CHANNEL_WORD){
 		  // A config value > 32 means a device configuration
@@ -311,7 +306,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 		  }
 		  enqueue_data(config,data,&data_queue);
 	  }
-	  */
+
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);
