@@ -49,11 +49,22 @@ Azul = DAC 2 =SYNC = PA4
 /**
  * @brief Structure of FIFO data queue
  */
+/*
 typedef struct Data_Queue{
 	int front;	// = 0
 	int rear; 	// = DATA_QUEUE_CAPACITY - 1;
 	int size; 	// = 0;
 	uint16_t capacity;	// = DATA_QUEUE_CAPACITY;
+    uint16_t array[DATA_QUEUE_CAPACITY][2];
+    	// [*][0] = config
+    	// [*][1] = data
+} Data_Queue;
+*/
+
+typedef struct Data_Queue{
+    size_t head;
+    size_t tail;
+    size_t size;
     uint16_t array[DATA_QUEUE_CAPACITY][2];
     	// [*][0] = config
     	// [*][1] = data

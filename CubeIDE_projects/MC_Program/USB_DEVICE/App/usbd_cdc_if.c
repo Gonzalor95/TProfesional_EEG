@@ -57,6 +57,7 @@
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
 extern uint8_t start_simulation_flag;
+extern uint8_t reset_queue_and_dacs;
 //extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
 

@@ -591,7 +591,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			DAC_load_flag = 0;
 			for(int i = 0; i < simulation_channel_count ; i++){
 				if(DAC_load_flag){
-					flush_discard_channels(&data_queue, simulation_channel_count-i);
+					//flush_discard_channels(&data_queue, simulation_channel_count-i);
 					break;
 				}
 				if(!is_queue_empty(&data_queue)){
@@ -613,7 +613,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		// Check if queue is empty and reset flag is true
 		} else if(reset_queue_and_dacs && is_queue_empty(&data_queue)){
 			reset_dacs_config(list_of_dacs, &dacs_count);
-			init_data_queue(&data_queue);
+			//init_data_queue(&data_queue);
 
 			start_simulation_flag = 0;
 			reset_queue_and_dacs = 0;

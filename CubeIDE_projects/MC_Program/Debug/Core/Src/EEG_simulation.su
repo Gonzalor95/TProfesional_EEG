@@ -15,9 +15,9 @@
 ../Core/Src/EEG_simulation.c:201:6:test_send_pulse	48	static
 ../Core/Src/EEG_simulation.c:232:6:test_send_saw	48	static
 ../Core/Src/EEG_simulation.c:256:6:EEG_simulation_error_Handler	4	static,ignoring_inline_asm
-../Core/Src/EEG_simulation.c:265:6:init_data_queue	16	static
-../Core/Src/EEG_simulation.c:271:6:enqueue_data	16	static
-../Core/Src/EEG_simulation.c:278:6:dequeue_data	24	static
-../Core/Src/EEG_simulation.c:289:5:is_queue_full	16	static
-../Core/Src/EEG_simulation.c:293:5:is_queue_empty	16	static
-../Core/Src/EEG_simulation.c:297:6:flush_discard_channels	16	static
+../Core/Src/EEG_simulation.c:313:6:init_data_queue	24	static
+../Core/Src/EEG_simulation.c:323:6:enqueue_data	16	static
+../Core/Src/EEG_simulation.c:330:6:dequeue_data	24	static
+../Core/Src/EEG_simulation.c:342:5:is_queue_full	16	static
+../Core/Src/EEG_simulation.c:346:5:is_queue_empty	16	static
+../Core/Src/EEG_simulation.c:352:6:flush_discard_channels	16	static
