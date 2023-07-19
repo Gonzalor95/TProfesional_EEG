@@ -161,7 +161,7 @@ void trigger_LDAC()
  */
 void config_sample_rate_delay(const uint16_t data){
 	sample_rate = data;
-	sample_rate = round(10000/sample_rate) * 2;
+	sample_rate = round((10000/sample_rate) * 2);
 }
 
 void config_simulation_channel_count(const uint16_t data){
