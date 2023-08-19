@@ -10,6 +10,7 @@
 uint32_t sample_rate = SAMPLE_RATE;
 uint32_t simulation_channel_count = SIMULATION_CHANNEL_COUNT;
 uint8_t delay_flag = 0;
+extern uint8_t reset_queue_and_dacs;
 
 void init_dac_handler(const DAC_Tag dac_tag, const SPI_HandleTypeDef *hspi, const GPIO_TypeDef *GPIOx, const uint16_t GPIO_Pin, DAC_Handler *dac_handler)
 {
@@ -113,7 +114,7 @@ uint8_t get_dac_channel_addr_mask(const DAC_Channel *dac_channel)
 	return DAC_Channel_Masks[*dac_channel];
 }
 
-HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count)
+HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint16_t *data, const DAC_Handler *list_of_dacs[], const uint8_t *dacs_count, Data_Queue * data_queue )
 {
 	HAL_StatusTypeDef status = HAL_OK;
 
@@ -123,6 +124,10 @@ HAL_StatusTypeDef send_configuration_to_dacs(const uint16_t *config, const uint1
 		break;
 	case CONF_LDAC_LOW:
 		//TODO: Complete with other configs
+	case CONF_RESET:
+		// TODO: reset dacs
+		reset_queue_and_dacs = 1;
+		break;
 	case CONF_SAMPLE_RATE:
 		config_sample_rate_delay(*data);
 		break;
@@ -156,7 +161,7 @@ void trigger_LDAC()
  */
 void config_sample_rate_delay(const uint16_t data){
 	sample_rate = data;
-	sample_rate = round(10000/sample_rate) * 2;
+	sample_rate = round((10000/sample_rate) * 2);
 }
 
 void config_simulation_channel_count(const uint16_t data){
@@ -257,10 +262,16 @@ void EEG_simulation_error_Handler(void)
 }
 
 // Queue functions
+/*
 void init_data_queue(Data_Queue * data_queue){
 	data_queue->front = data_queue->size = 0;
 	data_queue->rear = DATA_QUEUE_CAPACITY - 1;
 	data_queue->capacity = DATA_QUEUE_CAPACITY;
+	for(int i = 0; i< DATA_QUEUE_CAPACITY; i++){
+		data_queue->array[i][0] = 0;
+		data_queue->array[i][1] = 0;
+	}
+
 }
 
 void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue){
@@ -286,7 +297,8 @@ int is_queue_full(Data_Queue * data_queue){
 }
 
 int is_queue_empty(Data_Queue * data_queue){
-	return (data_queue->size == 0);
+	//return ((data_queue->rear + 1) % data_queue->capacity == data_queue->front);
+	 return (data_queue->size == 0);
 }
 
 void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
@@ -295,3 +307,51 @@ void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
 	if(data_queue->size < 0)
 		init_data_queue(data_queue);
 }
+*/
+
+
+void init_data_queue(Data_Queue * data_queue){
+	data_queue->head = data_queue->tail = 0;
+	data_queue->size = DATA_QUEUE_CAPACITY;
+	for(int i = 0; i< DATA_QUEUE_CAPACITY; i++){
+		data_queue->array[i][0] = 0;
+		data_queue->array[i][1] = 0;
+	}
+
+}
+
+void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue){
+
+    data_queue->array[data_queue->head][0] = config;
+    data_queue->array[data_queue->head][1] = data;
+    data_queue->head = (data_queue->head + 1) % data_queue->size;
+}
+
+void dequeue_data(uint16_t * config, uint16_t * data, Data_Queue * data_queue){
+    if (!is_queue_empty(data_queue)) {
+        * config = data_queue->array[data_queue->tail][0];
+        * data   = data_queue->array[data_queue->tail][1];
+        data_queue->array[data_queue->tail][0] = 0;
+        data_queue->array[data_queue->tail][1] = 0;
+        data_queue->tail = (data_queue->tail + 1) % data_queue->size;
+
+    }
+
+}
+
+int is_queue_full(Data_Queue * data_queue){
+	return (((data_queue->head + 1) % data_queue->size) == data_queue->tail);
+}
+
+int is_queue_empty(Data_Queue * data_queue){
+	//return ((data_queue->rear + 1) % data_queue->capacity == data_queue->front);
+	 //return (data_queue->size == 0);
+	return (data_queue->tail == data_queue->head);
+}
+
+void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
+	return;
+}
+
+
+

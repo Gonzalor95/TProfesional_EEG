@@ -1,8 +1,24 @@
-# Configuration file with parameters of the generator
+### Generator parameters
 
 # Max number of channels allowed
 max_channels: 32
 # Resolution in bits
-bit_resolution: 16
-# Max physical value (in uV)
-max_physical: 150
+bit_resolution: 12
+# Max digital value
+max_digital: 4096
+# Min/max physical value (in uV)
+max_physical: 200
+min_physical: -200
+
+### Generator interface: Configuration values
+
+# Config value to send to modify the amount of channels in the generator
+config_channels_amount: 39
+# Config value to send to modify the sample rate of the signal
+config_sample_rate: 40
+# This resets all DACs config and output levels (is like init them again)
+config_reset_all_dacs: 35
+
+### Testing signals params
+# Maximun lenght [sec] for the testing signals
+max_sim_time: 600

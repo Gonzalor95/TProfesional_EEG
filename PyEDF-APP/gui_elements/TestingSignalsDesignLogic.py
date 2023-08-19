@@ -40,8 +40,8 @@ class TestingSignalsDialog(QDialog):
         if (self.ui.amplitude_input_line_edit.text().isnumeric()):
             self.selection_["amplitude"] = int(self.ui.amplitude_input_line_edit.text())
         else:
-            print("Invalid input amplitude in testing signal selection, defaulting to 20 uV")
-            self.selection_["amplitude"] = 20
+            print("Invalid input amplitude in testing signal selection, defaulting to 120 uV")
+            self.selection_["amplitude"] = 120
 
         if (self.ui.frecuency_input_line_edit.text().isnumeric()):
             self.selection_["frecuency"] = int(self.ui.frecuency_input_line_edit.text())
@@ -58,8 +58,8 @@ class TestingSignalsDialog(QDialog):
         if (self.ui.duration_input_line_edit.text().isnumeric()):
             self.selection_["duration"] = int(self.ui.duration_input_line_edit.text())
         else:
-            print("Invalid input duration in testing signal selection, defaulting to 60 sec")
-            self.selection_["duration"] = 60
+            print("Invalid input duration in testing signal selection, defaulting to 5 sec")
+            self.selection_["duration"] = 5
         self.done(1)
 
     def cancelButtonClicked(self):

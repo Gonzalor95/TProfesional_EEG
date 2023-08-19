@@ -28,8 +28,6 @@ from gui_elements.TestingSignalsDesignLogic import TestingSignalsDialog
 
 class EDFSimulator(QMainWindow, Ui_MainWindow):
     big_int_ = 9999999999
-    # Max amount of channels of the signal generator. Set in the config file
-    max_channels_ = 0
     # Flag to indicate whether the selected signal is a testing one or a real one
     is_testing_signal_ = False
 
@@ -41,13 +39,13 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.font_styles = FontStyles()
 
         # Read yaml config file and initialize values
-        self.readConfigFile()
+        self.device_config_ = self.readConfigFile()
         # EDF worker instance
-        self.edf_worker = EDFWorker()
+        self.edf_worker = EDFWorker(self.device_config_)
         # Serial communication worker instance
-        self.serial_comm_worker = SerialComWorker()
+        self.serial_comm_worker = SerialComWorker(self.device_config_)
         # Testing signals worker instance
-        self.testing_signals_worker = TestingSignalsWorker(self.max_channels_)
+        self.testing_signals_worker = TestingSignalsWorker(self.device_config_)
 
         # Add custom double range slider
         self.min_time_input = QLineEdit()
@@ -94,7 +92,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Load EDF file into worker and GUI
         if(self.edf_worker.readEDF(file_name)):
             # Check that the amount of channels doesn't exceed the configured one
-            if self.edf_worker.getNumberOfChannels() >= self.max_channels_:
+            if self.edf_worker.getNumberOfChannels() >= self.device_config_["max_channels"]:
                 print("Number of channels of the selected EDF file exceeds the max amount, please select a different EDF file")
                 self.edf_worker.resetWorker()
                 PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
@@ -214,6 +212,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         Callback method for the "run" button
         """
+        print("Run EDF simulator requested")
         if self.is_testing_signal_:
             headers_and_signals_to_send = self.testing_signals_worker.getSimulationSignals()
             sample_rate = self.testing_signals_worker.getSampleRate()
@@ -223,10 +222,11 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # It's up to each worker to return a "headers_and_signals" array ready for transmission, which means:
         # - Channel names present in the channel to int dictionary
         # - Signals in digital form, going from 0 to 4096 (12 bits) where 4096 represents 150mV
-        bytes_packages, channels_amount = to_bytes_packages(self.is_testing_signal_, headers_and_signals_to_send)
-        self.serial_comm_worker.beginTransmision(bytes_packages, channels_amount,
-                                                 sample_rate)
-        print("Run EDF simulator requested")
+        bytes_packages, channels_amount = to_bytes_packages(headers_and_signals_to_send)
+        if not self.serial_comm_worker.beginTransmision(bytes_packages, channels_amount,
+                                                        sample_rate):
+            PopUpWindow("Transmision", "A problem ocurred when transmitting to the device, try resetting it and trying again",
+                        QMessageBox.Abort, QMessageBox.Critical)
 
     def browseChannels(self):
         """
@@ -256,18 +256,23 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         raw_min_time_str = self.min_time_input.text()
         raw_max_time_str = self.max_time_input.text()
-        if validate_sim_time(raw_min_time_str, raw_max_time_str, self.edf_worker.getDuration()) == False:
+        duration = 0
+        if self.is_testing_signal_:
+            duration = self.device_config_["max_sim_time"]
+        else:
+            duration = self.edf_worker.getDuration()
+        if validate_sim_time(raw_min_time_str, raw_max_time_str, duration) == False:
             PopUpWindow("Simulation time selection", "Bad user input for the simulation time, try again",
                         QMessageBox.Abort, QMessageBox.Critical)
             return
-        # Set in both testing signal worker and edf worker
-        self.testing_signals_worker.setSelectedSimTime(
-            (int(raw_min_time_str), int(raw_max_time_str)))
-        if self.edf_worker.isFileLoaded():
-            self.edf_worker.setSelectedSimTime(
-                (int(raw_min_time_str), int(raw_max_time_str)))
-        self.selected_sim_time_value.setText(
-            raw_min_time_str + " - " + raw_max_time_str)
+        # Set in workers
+        if self.is_testing_signal_:
+            self.testing_signals_worker.setSelectedSimTime((int(raw_min_time_str), int(raw_max_time_str)))
+        else:
+            if self.edf_worker.isFileLoaded():
+                self.edf_worker.setSelectedSimTime(
+                    (int(raw_min_time_str), int(raw_max_time_str)))
+        self.selected_sim_time_value.setText(raw_min_time_str + " - " + raw_max_time_str)
 
     def centerMainWindow(self):
         """
@@ -283,11 +288,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         Method to read the yaml configuration file and load it
         """
         with open('config/device_params.yaml', 'r') as file:
-            device_params = yaml.safe_load(file)
             try:
-                self.max_channels_ = device_params["max_channels"]
-                self.max_physical_ = device_params["max_physical"]
-                self.bit_resolution_ = device_params["bit_resolution"]
+                return yaml.safe_load(file)
             except(KeyError):
                 PopUpWindow("Configuration file", "Error in configuration file",
                             QMessageBox.Abort, QMessageBox.Critical)

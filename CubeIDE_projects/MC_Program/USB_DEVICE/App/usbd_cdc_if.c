@@ -57,6 +57,7 @@
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
 extern uint8_t start_simulation_flag;
+extern uint8_t reset_queue_and_dacs;
 //extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
 
@@ -298,13 +299,15 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 	  // If it is a configuration word, just send it. Queue is only for data
 	  if (config > MAX_DAC_CHANNEL_WORD){
 		  // A config value > 32 means a device configuration
-		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count);
+
+		  send_configuration_to_dacs(&config,&data, &list_of_dacs, &dacs_count, &data_queue);
 	  }else{
 		  while(is_queue_full(&data_queue)){
 			  start_simulation_flag = 1; //first iteration, fill the queue
 		  }
 		  enqueue_data(config,data,&data_queue);
 	  }
+
   }
 
   memcpy(receiveBuffer, '\0', BUFFER_SIZE);
