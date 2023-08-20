@@ -55,10 +55,10 @@ original_signal_worker.readEDF("./edf_samples/common_mode_sample1.edf")
 original_signal_worker.setSelectedChannels(['Fp1', 'Fp2'])
 
 eeg_measure_worker = EDFWorker(config)
-eeg_measure_worker.readEDF("./edf_samples/data_analysis/TestEachBatchChannels.edf")
+eeg_measure_worker.readEDF("./edf_samples/data_analysis/EEG_CommonSample1.edf")
 eeg_measure_worker.setSelectedChannels(['Fp1', 'Fp2'])
 
-analyze_test_signal = True
+analyze_test_signal = False
 
 if analyze_test_signal:
 
@@ -108,43 +108,36 @@ if analyze_test_signal:
 # Plot edf signal vs original edf signal
 else:
 
-    sr_orig = 50000.0
-    sr_new = 20000.0
-    original_resampled = resampy.resample(original_signal_worker.signal_data_.physical_signals_and_channels[0][1], sr_orig, sr_new)
+    eeg_signal = eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
+    original_signal = original_signal_worker.signal_data_.physical_signals_and_channels[0][1]
 
-    original_signal_worker_time_axis = np.arange(0, original_signal_worker.getDuration(), 1/original_signal_worker.getSampleRate())
-    original_resampled_time_axis = np.arange(0, original_signal_worker.getDuration(), 1/201)
-    edf_signal_time_axis = np.arange(0, eeg_measure_worker.getDuration(), 1/eeg_measure_worker.getSampleRate())
-    
-    #plt.plot(eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1])
-    #plt.show()
-    #plt.plot(edf_signal_time_axis, (eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1]) - 186, 'r.', original_signal_worker_time_axis + 12, original_signal_worker.signal_data_.physical_signals_and_channels[0][1],'g.')
+    sr_new = 200 * 100 # for some reason, need to multiply by '100'
 
-    #plt.show()
+    eeg_signal_resampled = resampy.resample(eeg_signal, eeg_measure_worker.getSampleRate() * 100, sr_new)
+    original_signal_resampled = resampy.resample(original_signal, original_signal_worker.getSampleRate() * 100, sr_new)
 
+    eeg_signal_resampled = eeg_signal_resampled[17000:20000] * (-1)
 
+    padrange = int(abs(len(eeg_signal_resampled) - len(original_signal_resampled)))
 
-    y = eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1]
-    y = y[2680:6000]
-    
-    x = original_resampled#[0:(len(y) * 3)]
-    
-
-    print(len(x))
-    print(len(y))
-    print((len(x) - len(y)))
-
-    y = np.append(y-186, np.zeros(len(x) - len(y)))
-    y = y* (-1)
-    Cmatrix = np.correlate(x,y,'same')
-    
+    Cmatrix = np.correlate(eeg_signal_resampled,original_signal_resampled,'full')
     Cmatrix = Cmatrix/max(Cmatrix)
+    index = np.where(Cmatrix ==1)[0][0]
 
-    index = np.where(Cmatrix==1)[0][0]
-    print(index)
+    Cmatrix[index] = max(original_signal_resampled)
 
-    t_x = np.arange(0,len(x))
-    t_y = np.arange(0,len(y))
-    plt.plot(t_x, x,'r--',t_y+index, y, 'b')
+    time_step = 1/(sr_new/100)
+    time_axis = np.arange(0,original_signal_worker.getDuration(), time_step)
+    lag = (index - len(eeg_signal_resampled)) * time_step
+    print(lag)
+
+    eeg_signal_resampled = np.pad(eeg_signal_resampled, (0,padrange),'constant', constant_values=(0,0))
+
+
+    print(f"len(original_signal_resampled) = {len(original_signal_resampled)}")
+    print(f"len(time_axis) = {len(time_axis)}")
+    plt.plot(time_axis, original_signal_resampled, 'r', label="test_signal") 
+    plt.plot(time_axis+lag,eeg_signal_resampled, 'b--',label="eeg_measurement")
     plt.grid(True)
+    plt.legend()git 
     plt.show()
