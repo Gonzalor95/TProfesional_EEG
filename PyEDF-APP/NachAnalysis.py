@@ -3,11 +3,31 @@
 import os
 import resampy
 import numpy as np
+from scipy.signal import butter, lfilter, freqz
 import yaml
 from modules.EDFWorker import EDFWorker
 import matplotlib.pyplot as plt
 from modules.TestingSignals import TestingSignalsWorker
 import argparse
+
+
+def butter_lowpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='low', analog=False)
+
+def butter_highpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='high', analog=False)
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+def butter_highpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_highpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
 
 # This value came up magically, right?
 EEG_EDF_OFFSET = 187.538 # uV
@@ -76,10 +96,16 @@ sr_new = args.sample_rate*100 # for some reason, need to multiply by '100'
 print(f"Input signal length = {len(input_signal)}")
 print(f"Output signal length = {len(output_signal)}")
 
+
+# We can try to apply a filter to see if it improves
+#input_signal = butter_lowpass_filter(input_signal, 50, input_signal_worker.getSampleRate(), order=5)
+#input_signal = butter_highpass_filter(input_signal, 1, input_signal_worker.getSampleRate(), order=5)
+
 input_signal_resampled = resampy.resample(input_signal, input_signal_worker.getSampleRate(), args.sample_rate)
 output_signal_resampled = resampy.resample(output_signal, output_signal_worker.getSampleRate(), args.sample_rate)
 if not args.test_signal:
-    output_signal_resampled = output_signal_resampled[17000:20000] * (-1)
+    output_signal_resampled = output_signal_resampled[17000:20000]
+
 
 print(f"Resampled input signal length = {len(input_signal_resampled)}")
 print(f"Resampled output signal length = {len(output_signal_resampled)}")

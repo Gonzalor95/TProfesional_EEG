@@ -2,6 +2,7 @@
 
 import os
 import resampy
+from scipy.signal import butter, lfilter, freqz
 import numpy as np
 import yaml
 from modules.EDFWorker import EDFWorker
@@ -39,6 +40,25 @@ def readConfigFile():
 
 
 config = readConfigFile()
+
+
+def butter_lowpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='low', analog=False)
+
+def butter_highpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='high', analog=False)
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+def butter_highpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_highpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
 
 EEG_EDF_OFFSET = 187.538 # uV
 
@@ -116,7 +136,12 @@ else:
     eeg_signal_resampled = resampy.resample(eeg_signal, eeg_measure_worker.getSampleRate() * 100, sr_new)
     original_signal_resampled = resampy.resample(original_signal, original_signal_worker.getSampleRate() * 100, sr_new)
 
-    eeg_signal_resampled = eeg_signal_resampled[17000:20000] * (-1)
+    #original_signal_resampled = butter_lowpass_filter(original_signal_resampled, 50, 200, order=5)
+    original_signal_resampled = butter_highpass_filter(original_signal_resampled, 1, 200, order=5)
+    
+
+    bck_up_eeg_signal_resampled = eeg_signal_resampled
+    eeg_signal_resampled = eeg_signal_resampled#[17000:20000]
 
     padrange = int(abs(len(eeg_signal_resampled) - len(original_signal_resampled)))
 
@@ -127,17 +152,18 @@ else:
     Cmatrix[index] = max(original_signal_resampled)
 
     time_step = 1/(sr_new/100)
-    time_axis = np.arange(0,original_signal_worker.getDuration(), time_step)
+    time_axis_or = np.arange(0,original_signal_worker.getDuration(), time_step)
+    time_axis_eeg = np.arange(0,time_step*len(eeg_signal_resampled), time_step)
     lag = (index - len(eeg_signal_resampled)) * time_step
     print(lag)
 
-    eeg_signal_resampled = np.pad(eeg_signal_resampled, (0,padrange),'constant', constant_values=(0,0))
+    #eeg_signal_resampled = np.pad(eeg_signal_resampled, (0,padrange),'constant', constant_values=(0,0))
 
 
     print(f"len(original_signal_resampled) = {len(original_signal_resampled)}")
-    print(f"len(time_axis) = {len(time_axis)}")
-    plt.plot(time_axis, original_signal_resampled, 'r', label="test_signal") 
-    plt.plot(time_axis+lag,eeg_signal_resampled, 'b--',label="eeg_measurement")
+    print(f"len(time_axis) = {len(time_axis_eeg)}")
+    plt.plot(time_axis_or+abs(lag)+10-1.0613, original_signal_resampled, 'r', label="test_signal") 
+    plt.plot(time_axis_eeg,eeg_signal_resampled, 'b--',label="eeg_measurement")
     plt.grid(True)
-    plt.legend()git 
+    plt.legend()
     plt.show()
