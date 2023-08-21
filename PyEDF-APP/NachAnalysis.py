@@ -32,6 +32,47 @@ def butter_highpass_filter(data, cutoff, fs, order=5):
 # This value came up magically, right?
 EEG_EDF_OFFSET = 187.538 # uV
 
+# Parameters to correlate from a chunk of the received signal
+SIGNAL_WINDOW_OFFSET = 12000
+SIGNAL_WINDOW_SIZE = 4000
+
+def plot_signal_comparison(s1, s2, title, input_lag=0):
+    input_time_axis = np.arange(0, len(s1))
+    output_time_axis = np.arange(0, len(s2))
+    plt.plot(input_time_axis, s1, 'r', label="Input signal") 
+    plt.plot(output_time_axis - input_lag, s2, 'b--', label="Output signal")
+    plt.grid(True)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+def calculate_mse_for_signal_window(s1, s2, lag, window_size):
+    s1 = s1[-lag:window_size-lag]
+    mse = (np.square(s1 - s2)).mean(axis=None)
+    print(f"Mean Square Error is: {mse}")
+    return mse
+
+def get_correlation_offset(input_signal, output_signal):
+    """
+    Correlate a chunk of the measured signal with the full input signal.
+    Additionally plots a graph that shows where the chunk of signal fits the most.
+    Calculates the MSE between the signals in the range of most correlation
+    Returns the offset that places the chunk of measured signal where it correlates the most with the input one 
+    """
+    windowed_output_signal = output_signal[SIGNAL_WINDOW_OFFSET:SIGNAL_WINDOW_OFFSET+SIGNAL_WINDOW_SIZE]
+    Cmatrix = np.correlate(windowed_output_signal, input_signal, 'full')
+    Cmatrix = Cmatrix/max(Cmatrix)
+    index = np.where(Cmatrix ==1)[0][0]
+
+    Cmatrix[index] = max(input_signal)
+
+    input_lag = index - len(input_signal)
+    # Plot correlation analysis
+    plot_signal_comparison(input_signal, windowed_output_signal, "Signal correlation analysis", input_lag)
+    # Calculate MSE for current window with corresponding chunk of original signal
+    calculate_mse_for_signal_window(input_signal_resampled, windowed_output_signal, input_lag, SIGNAL_WINDOW_SIZE)
+    return input_lag
+    
 def pad_shortest_signal(s1, s2, padrange):
     if len(s1) > len(s2):
         s2 = np.pad(s2, (0, padrange), 'constant', constant_values=(0,0))
@@ -64,37 +105,32 @@ args = parser.parse_args()
 config = readConfigFile()
 
 if args.test_signal and args.measured_signal == "EEG_CommonSample1":
-    args.measured_signal = "0000008"
+    args.measured_signal = "Sen1Hz"
 
 input_signal_filepath = os.path.join(".", "edf_samples", f"{args.input_signal}.edf")
-# Prepare signal
+output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
+
+# Prepare signal workers
 if args.test_signal:
     input_signal_worker = TestingSignalsWorker(config)
-    input_signal_worker.generateTestingSignal("Sinusoidal", 5, 199, 500, 5)
+    input_signal_worker.generateTestingSignal("Sinusoidal", 10, 199, 500, 3)
     input_signal_worker.setSelectedSimTime([0,5])
-    # input_signal_worker.setSelectedChannels(['Fp1','Fp2'])
     input_signal_worker.setSelectedChannels(args.channels)
 else:
     input_signal_worker = EDFWorker(config)
     input_signal_worker.readEDF(input_signal_filepath)
-    # input_signal_worker.setSelectedChannels(['Fp1', 'Fp2'])
     input_signal_worker.setSelectedChannels(args.channels)
 
-output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
 output_signal_worker = EDFWorker(config)
 output_signal_worker.readEDF(output_signal_filepath)
-# output_signal_worker.setSelectedChannels(['Fp1', 'Fp2'])
 output_signal_worker.setSelectedChannels(args.channels)
-input_signal_name = args.input_signal if not args.test_signal else 'Test Signal' 
-print(f"Analyzing {input_signal_name} vs {args.measured_signal}.")
 
+# Keep first channel for EDF files and correct voltage offset
 output_signal = output_signal_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
 input_signal = input_signal_worker.signal_data_.physical_signal if args.test_signal else input_signal_worker.signal_data_.physical_signals_and_channels[0][1]
 
-sr_new = args.sample_rate*100 # for some reason, need to multiply by '100'
-
-print(f"Input signal length = {len(input_signal)}")
-print(f"Output signal length = {len(output_signal)}")
+print(f"Input signal original length = {len(input_signal)}")
+print(f"Output signal original length = {len(output_signal)}")
 
 
 # We can try to apply a filter to see if it improves
@@ -103,43 +139,18 @@ print(f"Output signal length = {len(output_signal)}")
 
 input_signal_resampled = resampy.resample(input_signal, input_signal_worker.getSampleRate(), args.sample_rate)
 output_signal_resampled = resampy.resample(output_signal, output_signal_worker.getSampleRate(), args.sample_rate)
-if not args.test_signal:
-    output_signal_resampled = output_signal_resampled[17000:20000]
-
 
 print(f"Resampled input signal length = {len(input_signal_resampled)}")
-print(f"Resampled output signal length = {len(output_signal_resampled)}")
+print(f"Resampled Output signal length = {len(output_signal_resampled)}")
 
-## If not same size, we pad the shortest with zeros:
-padrange = int(abs(len(output_signal_resampled) - len(input_signal_resampled)))
+input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
 
-print(f"Padrange is: {padrange}")
+output_time_axis = np.arange(0, len(output_signal_resampled)) #input_signal_worker.getDuration(), time_step)
+input_time_axis = np.arange(0, len(input_signal_resampled))
 
-input_signal_resampled, output_signal_resampled = pad_shortest_signal(input_signal_resampled, output_signal_resampled, padrange)
+print(f"Before plotting we have:\nInput time axis length: \t{len(input_time_axis)}\nOutput time axis length: \t{len(output_time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\n")
 
-print(f"After padding resampled input signal length = {len(input_signal_resampled)}")
-print(f"After padding resampled output signal length = {len(output_signal_resampled)}")
+input_signal_name = args.input_signal if not args.test_signal else 'Test Signal'
+plot_title = f"{input_signal_name} Vs {args.measured_signal}"
 
-Cmatrix = np.correlate(output_signal_resampled, input_signal_resampled, 'full')
-Cmatrix = Cmatrix/max(Cmatrix)
-index = np.where(Cmatrix ==1)[0][0]
-
-Cmatrix[index] = max(input_signal_resampled)
-
-time_step = 1/args.sample_rate # need to get rid of the 100
-time_axis = np.arange(0, input_signal_worker.getDuration(), time_step)
-# time_axis = np.arange(0, output_signal_worker.getDuration(), time_step)
-
-
-input_lag = (index - len(input_signal_resampled)) * time_step
-output_lag = (index - len(output_signal_resampled)) * time_step
-print(f"Input lag is: {input_lag}. Output lag is: {output_lag}")
-
-print(f"Before plotting we have:\nTime axis length: \t{len(time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\nOutput lag: \t{output_lag}\n")
-
-plt.plot(time_axis+input_lag, input_signal_resampled, 'r', label="Input signal") 
-plt.plot(time_axis, output_signal_resampled, 'b--', label="Measured signal")
-plt.grid(True)
-plt.title(f"{input_signal_name} Vs {args.measured_signal}")
-plt.legend()
-plt.show()
+plot_signal_comparison(input_signal_resampled, output_signal_resampled, plot_title, input_lag+SIGNAL_WINDOW_OFFSET)
