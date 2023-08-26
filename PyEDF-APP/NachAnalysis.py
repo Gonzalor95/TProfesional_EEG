@@ -2,8 +2,10 @@
 
 import os
 import resampy
+import math
 import numpy as np
 from scipy.signal import butter, lfilter, freqz
+from scipy import stats
 import yaml
 from modules.EDFWorker import EDFWorker
 import matplotlib.pyplot as plt
@@ -27,7 +29,24 @@ def butter_highpass_filter(data, cutoff, fs, order=5):
     y = lfilter(b, a, data)
     return y
 
+def SMA_filter(data, window_size):
+    moving_averages = []
+    i=0
+    # Loop through the array t o
+    #consider every window of size 3
+    while i < len(data) - window_size + 1:
+    
+        # Calculate the average of current window
+        window_average = round(np.sum(data[i:i+window_size]) / window_size, 2)
+        
+        # Store the average of current
+        # window in moving average list
+        moving_averages.append(window_average)
+        
+        # Shift window to right by one position
+        i += 1
 
+    return moving_averages
 
 # This value came up magically, right?
 EEG_EDF_OFFSET = 187.538 # uV
@@ -98,14 +117,22 @@ print(f"Output signal length = {len(output_signal)}")
 
 
 # We can try to apply a filter to see if it improves
-#input_signal = butter_lowpass_filter(input_signal, 50, input_signal_worker.getSampleRate(), order=5)
-#input_signal = butter_highpass_filter(input_signal, 1, input_signal_worker.getSampleRate(), order=5)
+#input_signal = butter_lowpass_filter(input_signal, 70, input_signal_worker.getSampleRate(), order=5)
+#output_signal = butter_lowpass_filter(output_signal, 70, output_signal_worker.getSampleRate(), order=5)
+
+#input_signal = butter_highpass_filter(input_signal, 0.1, input_signal_worker.getSampleRate(), order=5)
+#output_signal = butter_highpass_filter(output_signal, 0.1, output_signal_worker.getSampleRate(), order=5)
 
 input_signal_resampled = resampy.resample(input_signal, input_signal_worker.getSampleRate(), args.sample_rate)
 output_signal_resampled = resampy.resample(output_signal, output_signal_worker.getSampleRate(), args.sample_rate)
-if not args.test_signal:
-    output_signal_resampled = output_signal_resampled[17000:20000]
 
+
+
+if not args.test_signal:
+    output_signal_resampled = output_signal_resampled[13000:15000]
+
+#plt.plot(output_signal_resampled)
+#plt.show()
 
 print(f"Resampled input signal length = {len(input_signal_resampled)}")
 print(f"Resampled output signal length = {len(output_signal_resampled)}")
@@ -115,7 +142,7 @@ padrange = int(abs(len(output_signal_resampled) - len(input_signal_resampled)))
 
 print(f"Padrange is: {padrange}")
 
-input_signal_resampled, output_signal_resampled = pad_shortest_signal(input_signal_resampled, output_signal_resampled, padrange)
+#input_signal_resampled, output_signal_resampled = pad_shortest_signal(input_signal_resampled, output_signal_resampled, padrange)
 
 print(f"After padding resampled input signal length = {len(input_signal_resampled)}")
 print(f"After padding resampled output signal length = {len(output_signal_resampled)}")
@@ -127,19 +154,52 @@ index = np.where(Cmatrix ==1)[0][0]
 Cmatrix[index] = max(input_signal_resampled)
 
 time_step = 1/args.sample_rate # need to get rid of the 100
-time_axis = np.arange(0, input_signal_worker.getDuration(), time_step)
-# time_axis = np.arange(0, output_signal_worker.getDuration(), time_step)
 
 
-input_lag = (index - len(input_signal_resampled)) * time_step
-output_lag = (index - len(output_signal_resampled)) * time_step
+
+input_lag = (index - len(input_signal_resampled))# * time_step
+output_lag = (index - len(output_signal_resampled))# * time_step
 print(f"Input lag is: {input_lag}. Output lag is: {output_lag}")
 
-print(f"Before plotting we have:\nTime axis length: \t{len(time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\nOutput lag: \t{output_lag}\n")
+#print(f"Before plotting we have:\nTime axis length: \t{len(time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\nOutput lag: \t{output_lag}\n")
 
-plt.plot(time_axis+input_lag, input_signal_resampled, 'r', label="Input signal") 
-plt.plot(time_axis, output_signal_resampled, 'b--', label="Measured signal")
+input_signal_resampled = input_signal_resampled[abs(input_lag):2000+abs(input_lag)]
+
+time_axis_in = np.arange(0,len(input_signal_resampled)) #* time_step, time_step )#input_signal_worker.getDuration(), time_step)
+time_axis_out = np.arange(0,len(output_signal_resampled))#  *time_step, time_step )#output_signal_worker.getDuration(), time_step)
+
+plt.plot(time_axis_in, input_signal_resampled, 'r', label="Input signal") 
+plt.plot(time_axis_out, output_signal_resampled, 'b', label="Measured signal")
+plt.plot(abs(input_signal_resampled-output_signal_resampled),'g', label="Error")
+mse = (np.square(input_signal_resampled - output_signal_resampled)).mean(axis=None)
+
+
+pctError = abs(np.mean(100 * abs(input_signal_resampled - output_signal_resampled) / input_signal_resampled))
+
+
+print(f"mse = {mse}")
+print(f"rmse = {math.sqrt(mse)}")
+print(f"pctError = {pctError} %")
+
 plt.grid(True)
 plt.title(f"{input_signal_name} Vs {args.measured_signal}")
 plt.legend()
 plt.show()
+
+
+rest =stats.ttest_ind(input_signal_resampled, output_signal_resampled)
+print(rest)
+
+
+
+input_filtered = SMA_filter(input_signal_resampled, 100)
+output_filtered = SMA_filter(output_signal_resampled, 100)
+
+plt.plot(input_filtered, 'r', label="Input signal") 
+plt.plot(output_filtered, 'b--', label="Measured signal")
+plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
+plt.legend()
+plt.show()
+
+#np.savetxt('input_signal_resampled_fitted.dat', input_signal_resampled)
+#np.savetxt('output_signal_resampled_fitted.dat', output_signal_resampled)
