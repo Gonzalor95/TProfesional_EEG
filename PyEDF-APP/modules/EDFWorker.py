@@ -27,6 +27,8 @@ class EDFWorker():
     selected_channels_ = []
     # Selected simulation time
     selected_sim_time_ = ()
+    # Selected sample rate
+    selected_sample_rate_ = 0
     # Data structure to hold the .edf data
     signal_data_ = SignalData()
 
@@ -41,6 +43,7 @@ class EDFWorker():
         self.file_loaded_ = False
         self.selected_channels_ = []
         self.selected_sim_time_ = ()
+        self.selected_sample_rate_ = 0
         self.digital_signals_generated_ = False
         self.signal_data_ = SignalData()
 
@@ -57,6 +60,8 @@ class EDFWorker():
         try:
             physical_signals, signal_headers, header = pyedflib.highlevel.read_edf(file_full_path, verbose=True)
             self.fillSignalData_(physical_signals, signal_headers)
+            # Set sample rate
+            self.selected_sample_rate_ = signal_headers[0]["sample_rate"]
             # Set the simulation time
             self.selected_sim_time_ = (int(0), int(self.getDuration()))
             # Set the selected channels to all
@@ -109,7 +114,13 @@ class EDFWorker():
         """
         Getter for the signal sample rate
         """
-        return self.signal_data_.signal_headers[0]["sample_rate"]
+        return self.selected_sample_rate_
+
+    def setSampleRate(self, selected_sample_rate):
+        """
+        Setter for the signal sample rate
+        """
+        self.selected_sample_rate_ = selected_sample_rate
 
     def getSignalDimension(self):
         """
@@ -287,8 +298,8 @@ class EDFWorker():
         Method to plot the physical signal to a graph. Plots only the selected channels
         """
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
-        start_point = self.selected_sim_time_[0]*int(self.getSampleRate())
-        end_point = self.selected_sim_time_[1]*int(self.getSampleRate())
+        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
 
         signals_to_print = []
         # Get the header-signal pairs to print

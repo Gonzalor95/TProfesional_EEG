@@ -66,6 +66,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.set_sim_time_button.clicked.connect(self.simTimeChanged)
         self.preview_button.clicked.connect(self.previewEDF)
         self.run_button.clicked.connect(self.runEDFSimulator)
+        self.sample_rate_config_set_button.clicked.connect(self.setSampleRate)
 
         # Show welcome screen
         welcome_dialog = WelcomeDialog(self.serial_comm_worker)
@@ -108,6 +109,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                 (int(0), int(self.edf_worker.getDuration())))
             # Set selected channels to ALL
             self.selected_channels_value.setText("-".join(self.edf_worker.getChannels()))
+            # Set selected sample rate to original
+            self.sample_rate_config_selected.setText(str(self.edf_worker.getSampleRate()))
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
                 delete_box_from_layout(
@@ -252,7 +255,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
 
     def simTimeChanged(self):
         """
-        Callback method for the slider changed
+        Callback method for a sim time change
         """
         raw_min_time_str = self.min_time_input.text()
         raw_max_time_str = self.max_time_input.text()
@@ -273,6 +276,27 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                 self.edf_worker.setSelectedSimTime(
                     (int(raw_min_time_str), int(raw_max_time_str)))
         self.selected_sim_time_value.setText(raw_min_time_str + " - " + raw_max_time_str)
+
+    def setSampleRate(self):
+        """
+        Callback method for the "set sample rate" button
+        """
+        try:
+            new_sample_rate = int(self.sample_rate_config_input.text())
+        except:
+            PopUpWindow("Sample rate selection", "Invalid value for the sample rate, try again",
+                        QMessageBox.Abort, QMessageBox.Critical)
+            return
+        if self.is_testing_signal_:
+            print("todo")
+        else:
+            if self.edf_worker.isFileLoaded():
+                if new_sample_rate > self.edf_worker.getSampleRate():
+                    PopUpWindow("Sample rate selection", "Sample rate cannot be set to a higher value, try again",
+                        QMessageBox.Abort, QMessageBox.Critical)
+                else:
+                    self.edf_worker.setSampleRate(new_sample_rate)
+                    self.sample_rate_config_selected.setText(str(new_sample_rate))
 
     def centerMainWindow(self):
         """
@@ -305,6 +329,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         self.configuration_title_label.setFont(self.font_styles.title_font)
         self.selected_channels_key.setFont(self.font_styles.info_key_font)
         self.selected_sim_time_key.setFont(self.font_styles.info_key_font)
+        self.sample_rate_config_key.setFont(self.font_styles.info_key_font)
 
     def setInitialSelection(self, initial_selection):
         """
