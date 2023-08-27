@@ -173,12 +173,12 @@ if not args.test_signal:
 print(f"Resampled input signal length = {len(input_signal_resampled)}")
 print(f"Resampled Output signal length = {len(output_signal_resampled)}")
 
-input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
+#input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
 
 output_time_axis = np.arange(0, len(output_signal_resampled)) #input_signal_worker.getDuration(), time_step)
 input_time_axis = np.arange(0, len(input_signal_resampled))
 
-print(f"Before plotting we have:\nInput time axis length: \t{len(input_time_axis)}\nOutput time axis length: \t{len(output_time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\n")
+print(f"Before plotting we have:\nInput time axis length: \t{len(input_time_axis)}\nOutput time axis length: \t{len(output_time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\n")#Input lag: \t{input_lag}\n")
 
 input_signal_name = args.input_signal if not args.test_signal else 'Test Signal'
 plot_title = f"{input_signal_name} Vs {args.measured_signal}"
