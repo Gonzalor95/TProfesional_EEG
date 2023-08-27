@@ -106,7 +106,7 @@
     <item>
      <widget class="QLineEdit" name="duration_input_line_edit">
       <property name="text">
-       <string>60</string>
+       <string>5</string>
       </property>
      </widget>
     </item>
@@ -150,7 +150,7 @@
        </size>
       </property>
       <property name="text">
-       <string>20</string>
+       <string>120</string>
       </property>
      </widget>
     </item>
@@ -191,7 +191,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>2048</string>
+       <string>200</string>
       </property>
      </widget>
     </item>
