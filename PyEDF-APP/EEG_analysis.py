@@ -9,7 +9,8 @@ from modules.EDFWorker import EDFWorker
 import matplotlib.pyplot as plt
 from modules.TestingSignals import TestingSignalsWorker
 
-"""Analisis de las señales.
+""" Como hacer el Analisis de las señales.
+
 Pasar lo leido por el EEG a formato EDF:
     1. Copian el archivo .eeg
     2. abren el EDFBrowser y en el panel superior elegir "Tools > Convert Binary/raw data to EDF"
@@ -26,7 +27,39 @@ Pasar lo leido por el EEG a formato EDF:
         Physical dimension uV
         sample type I16
     4. Para corregir el nombre de los canales, abrir el EDFBrowser y poner "Tools > Header editor repair" y cambiar los nombres
+
+    =================================
+    ================================= 
+
+    Receta de como deberiamos analizar cada batch de datos:
+
+        **Input = Esta señal siempre va a ser la que enviamos al EEG
+        **Output = Esta señal es la que mide el EEG.
+
+
+    1. Obtener la "Input" signal:
+        a. Si es una señal de testing (senoidal, cuadrada, triangular), la tenemos que fabricar con el EDF worker de "TestingSignals.py"
+        b. Si es una señal de EDF, tenemos que usar el EDFWorker y sacar la señal que queramos.
+
+    2. Obtener la "Output" signal: 
+        a. Se deberia obtener de PYEDF-APP/edf_samples/data_analysis/<file_name>.edf
+        b. El canal seleccionado a analizar, se le tiene que aplicar el offset de 187,538uV.
+
+    3. Aplicar el filtrado digital que queramos con el sample_rate original. Vimos que si reesampleamos y aplicamos el filtro despues del resampleo, empeora el error.
+
+    4. Resamplear. Normalmente lo hacemos a 200Hz ya que es el sample_rate del EEG.
+
+    5. De la "Output" lo mas seguro es que tengamos que plotear una vez y determinar una seccion donde analizar los datos, porque siempre pasa que en los bordes
+    hay problemas. Determinamos los indices de dicha seccion y quedarnos con esa ventana:
+        output = output[index:index+window_size]
+
+    6. Usando la correlación cruzada, buscar esa ventana de "Output" en la "Input".
+
 """
+
+
+
+### OLD SCRIPT
 
 def readConfigFile():
     """
@@ -39,6 +72,7 @@ def readConfigFile():
             print(f"Error: {e}")
 
 
+curr_script_dir = os.path.dirname(os.path.realpath(__file__))
 config = readConfigFile()
 
 
