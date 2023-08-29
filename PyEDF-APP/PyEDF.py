@@ -129,6 +129,9 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                 self.information_labels_layout.addLayout(h_box)
             # Set the flag to indicate that the signal loaded is not a testing signal
             self.is_testing_signal_ = False
+            # Enable sample rate configs
+            self.sample_rate_config_set_button.setDisabled(False)
+            self.sample_rate_config_input.setDisabled(False)
         else:
             print("Error when trying to load the EDF file")
             PopUpWindow("EDF file selection", "Error when trying to load the selected EDF file, please try again",
@@ -195,6 +198,9 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
                 self.information_labels_layout.addLayout(h_box)
             # Set the flag to indicate that the signal loaded is a testing signal
             self.is_testing_signal_ = True
+            # Disable sample rate configs
+            self.sample_rate_config_set_button.setDisabled(True)
+            self.sample_rate_config_input.setDisabled(True)
         else:
             print("No testing signal selected")
 
