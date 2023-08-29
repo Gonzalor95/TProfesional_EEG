@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import pyedflib
+import resampy
 import numpy as np
 import matplotlib.pyplot as plt
 from modules.ChannelToIntProtocol import ProtocolDict
@@ -72,21 +73,6 @@ class EDFWorker():
             self.signal_data_ = signal_data_copy
             return False
 
-    def generateDigitalSignals(self, physical_signals, signal_headers):
-        """
-        Method to generate the digital signals from the physical ones
-        """
-        digital_signals = np.empty([1, len(physical_signals[1])])
-        for i in range(physical_signals.shape[0]):
-            # Iterate backwards to get the correct order when stacking
-            digital_signal = pyedflib.highlevel.phys2dig(physical_signals[-1-i], signal_headers[-1 - i]["digital_min"],
-                                                         signal_headers[-1 - i]["digital_max"], signal_headers[-1 - i]["physical_min"], signal_headers[-1 - i]["physical_max"])
-            digital_signals = np.vstack((digital_signals, digital_signal))
-        # Re-arrange the rows because they got disordered when stacking
-        for i in range(int(physical_signals.shape[0] / 2)):
-            digital_signals[[i, -1-i]] = digital_signals[[-1-i, i]]
-        return digital_signals
-
     def cleanChannelNames(self, channels):
         """
         Algorithm to remove any unwanted characters from the edf header files
@@ -110,11 +96,17 @@ class EDFWorker():
         """
         return self.signal_data_.physical_signals.shape[0]
 
-    def getSampleRate(self):
+    def getSelectedSampleRate(self):
         """
-        Getter for the signal sample rate
+        Getter for the selected signal sample rate
         """
         return self.selected_sample_rate_
+
+    def getOriginalSampleRate(self):
+        """
+        Getter for the original signal sample rate
+        """
+        return self.signal_data_.signal_headers[0]["sample_rate"]
 
     def setSampleRate(self, selected_sample_rate):
         """
@@ -147,7 +139,7 @@ class EDFWorker():
         """
         Getter for the measurement duration in seconds
         """
-        return int(int(self.signal_data_.physical_signals.shape[1]) / int(self.getSampleRate()))
+        return int(int(self.signal_data_.physical_signals.shape[1]) / int(self.getOriginalSampleRate()))
 
     def getSelectedSimTime(self):
         """
@@ -167,7 +159,7 @@ class EDFWorker():
         Currently returns: Number of channels, dimension, sample_rate and duration.
         """
         signal_info_dict = {}
-        signal_info_dict["Sample rate"] = self.getSampleRate()
+        signal_info_dict["Sample rate"] = self.getOriginalSampleRate()
         signal_info_dict["Dimension"] = self.getSignalDimension()
         signal_info_dict["Number of channels"] = self.getNumberOfChannels()
         signal_info_dict["Duration [s]"] = self.getDuration()
@@ -195,19 +187,22 @@ class EDFWorker():
                     signals_to_send.append(pair)
 
         # Pre-processing of the edf signal
-        # 1. Make it go from (-edf_physical_min, edf_physical_max) to (0, our_digital_max)
-        processed_signal_to_send = []
+        # 1. Resample if needed. Selected sample rate should never be > original sample rate
+        resampled_signals_to_send = []
+        if self.getSelectedSampleRate() < self.getOriginalSampleRate():
+            for pair in signals_to_send:
+                resampled_signals_to_send.append((pair[0], resampy.resample(pair[1], self.getOriginalSampleRate(), self.getSelectedSampleRate())))
+            signals_to_send = resampled_signals_to_send
 
-        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
-        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
+        # 2. Make it go from (-edf_physical_min, edf_physical_max) to (0, our_digital_max)
+        processed_signal_to_send = []
+        start_point = self.selected_sim_time_[0] * int(self.getSelectedSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSelectedSampleRate())
         for header,signal in signals_to_send:
             m = (self.config_params_["max_physical"] - self.config_params_["min_physical"]) / self.config_params_["max_digital"]
             b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
             processed_signal = signal / m - b
-
-            #self.signal_data_.digital_signal = digital
             #XXX: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail.
-            # creo que le falta un * 2
             processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
 
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
@@ -226,7 +221,7 @@ class EDFWorker():
         """
         Method to create the digital signal and header pair
         """
-        digital_signals = self.generateDigitalSignals(physical_signals, signal_headers)
+        digital_signals = self.generateDigitalSignals_(physical_signals, signal_headers)
         channels = [header["label"] for header in signal_headers]
         clean_channels = self.cleanChannelNames(channels)
 
@@ -242,6 +237,20 @@ class EDFWorker():
         self.signal_data_.physical_signals_and_channels = self.parseHeadersAndSignals_(raw_headers_and_physical_signals)
         self.signal_data_.digital_signals_and_channels = self.parseHeadersAndSignals_(raw_headers_and_digital_signals)
 
+    def generateDigitalSignals_(self, physical_signals, signal_headers):
+        """
+        Method to generate the digital signals from the physical ones
+        """
+        digital_signals = np.empty([1, len(physical_signals[1])])
+        for i in range(physical_signals.shape[0]):
+            # Iterate backwards to get the correct order when stacking
+            digital_signal = pyedflib.highlevel.phys2dig(physical_signals[-1-i], signal_headers[-1 - i]["digital_min"],
+                                                         signal_headers[-1 - i]["digital_max"], signal_headers[-1 - i]["physical_min"], signal_headers[-1 - i]["physical_max"])
+            digital_signals = np.vstack((digital_signals, digital_signal))
+        # Re-arrange the rows because they got disordered when stacking
+        for i in range(int(physical_signals.shape[0] / 2)):
+            digital_signals[[i, -1-i]] = digital_signals[[-1-i, i]]
+        return digital_signals
 
     def parseHeadersAndSignals_(self, raw_headers_and_signals):
         """
@@ -249,8 +258,6 @@ class EDFWorker():
         """
         clean_headers_and_signals = []
         if self.areSignalsBipolar_(raw_headers_and_signals):
-            # TODO
-            print("Implement this? -> Probably not possible")
             raise Exception("EDF file is in bipolar mode")
         else:
             reference_signal_set = False
@@ -298,8 +305,8 @@ class EDFWorker():
         Method to plot the physical signal to a graph. Plots only the selected channels
         """
         _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
-        start_point = self.selected_sim_time_[0] * int(self.getSampleRate())
-        end_point = self.selected_sim_time_[1] * int(self.getSampleRate())
+        start_point = self.selected_sim_time_[0] * int(self.getSelectedSampleRate())
+        end_point = self.selected_sim_time_[1] * int(self.getSelectedSampleRate())
 
         signals_to_print = []
         # Get the header-signal pairs to print
@@ -307,6 +314,12 @@ class EDFWorker():
             for header, signal in self.signal_data_.physical_signals_and_channels:
                 if (header == channel):
                     signals_to_print.append((header, signal))
+
+        resampled_signals_to_print = []
+        if self.getSelectedSampleRate() < self.getOriginalSampleRate():
+            for pair in signals_to_print:
+                resampled_signals_to_print.append((pair[0], resampy.resample(pair[1], self.getOriginalSampleRate(), self.getSelectedSampleRate())))
+            signals_to_print = resampled_signals_to_print
 
         for index in range(len(self.selected_channels_)):
             header, signal = signals_to_print[index]

@@ -110,7 +110,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             # Set selected channels to ALL
             self.selected_channels_value.setText("-".join(self.edf_worker.getChannels()))
             # Set selected sample rate to original
-            self.sample_rate_config_selected.setText(str(self.edf_worker.getSampleRate()))
+            self.sample_rate_config_selected.setText(str(self.edf_worker.getOriginalSampleRate()))
             # Delete info h layouts in the info v layout (not the title)
             for widget_index in range(self.information_labels_layout.count()):
                 delete_box_from_layout(
@@ -221,7 +221,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             sample_rate = self.testing_signals_worker.getSampleRate()
         else:
             headers_and_signals_to_send = self.edf_worker.getSimulationSignals()
-            sample_rate = self.edf_worker.getSampleRate()
+            sample_rate = self.edf_worker.getSelectedSampleRate()
         # It's up to each worker to return a "headers_and_signals" array ready for transmission, which means:
         # - Channel names present in the channel to int dictionary
         # - Signals in digital form, going from 0 to 4096 (12 bits) where 4096 represents 150mV
@@ -291,8 +291,8 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
             print("todo")
         else:
             if self.edf_worker.isFileLoaded():
-                if new_sample_rate > self.edf_worker.getSampleRate():
-                    PopUpWindow("Sample rate selection", "Sample rate cannot be set to a higher value, try again",
+                if new_sample_rate > self.edf_worker.getOriginalSampleRate():
+                    PopUpWindow("Sample rate selection", "Sample rate cannot be higher than the original",
                         QMessageBox.Abort, QMessageBox.Critical)
                 else:
                     self.edf_worker.setSampleRate(new_sample_rate)
