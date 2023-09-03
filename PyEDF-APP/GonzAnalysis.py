@@ -1,171 +1,266 @@
 #!/usr/bin/python
 
 import os
-from modules import EEGAnalysisUtilities
+import resampy
+import math
+import numpy as np
+from scipy.signal import butter, lfilter, freqz
+from scipy import stats
+import yaml
+from modules.EDFWorker import EDFWorker
 import matplotlib.pyplot as plt
-
-"""Analisis de las señales.
-Pasar lo leido por el EEG a formato EDF:
-    1. Copian el archivo .eeg
-    2. abren el EDFBrowser y en el panel superior elegir "Tools > Convert Binary/raw data to EDF"
-    3. La configuracion tiene que ser:
-        Samplefrequency = 200Hz
-        Number of signals = 32 (dependera como se configuro el EEG ese dia)
-        Sample size (16 bits (2 bytes))
-        Offset = 0 (dejarlo asi, porque arruina la señal. Igual el cero pareciera estar en 187,538uV)
-        Encoding 2's complement
-        Endianness: little endian
-        Data blocksize = 0
-        Skip bytes = 1
-        Physical maximun 3000uV
-        Physical dimension uV
-        sample type I16
-    4. Para corregir el nombre de los canales, abrir el EDFBrowser y poner "Tools > Header editor repair" y cambiar los nombres
-"""
+from modules.TestingSignals import TestingSignalsWorker
+import argparse
 
 
-input_signal = EEGAnalysisUtilities.getTestingSignal(amplitude=134.6,duration=10,resample = 200)
-output_signal = EEGAnalysisUtilities.generate_output_signal("TestEachBatchChannels",['Fp1', 'Fp2'])
+def butter_lowpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='low', analog=False)
 
-output_signal = output_signal[8200:9400]
+def butter_highpass(cutoff, fs, order=5):
+    return butter(order, cutoff, fs=fs, btype='high', analog=False)
 
-#input_signal, output_signal = EEGAnalysisUtilities.get_correlation_offset(input_signal=input_signal,output_signal=output_signal)
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
 
-print(input_signal)
-print(output_signal)
+def butter_highpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_highpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
 
-plt.plot(output_signal,'b--')
-plt.plot(input_signal,'r')
-plt.show()
 
-"""
+def slew_rate_filtering(data, slew_rate=10):
+    """slew rate: uV"""
+
+    index = np.arange(1,len(data)-1)
+
+    for i in index:
+        m = data[i]-data[i-1]
+
+        if abs(m) < slew_rate:
+            data[i] = data[i]
+        else:
+            data[i] = data[i-1] + slew_rate * m / abs(m)
+
+        i = i + 1
+    
+    return data
+
+
+def SMA_filter(data, window_size):
+    moving_averages = []
+    i=0
+    # Loop through the array t o
+    #consider every window of size 3
+    while i < len(data) - window_size + 1:
+    
+        # Calculate the average of current window
+        window_average = round(np.sum(data[i:i+window_size]) / window_size, 2)
+        
+        # Store the average of current
+        # window in moving average list
+        moving_averages.append(window_average)
+        
+        # Shift window to right by one position
+        i += 1
+
+    return moving_averages
+
+# This value came up magically, right?
+EEG_EDF_OFFSET = 187.538 # uV
+
+# Parameters to correlate from a chunk of the received signal
+SIGNAL_WINDOW_OFFSET = 12000
+SIGNAL_WINDOW_SIZE = 4000
+
+def plot_signal_comparison(s1, s2, title, input_lag=0):
+    input_time_axis = np.arange(0, len(s1))
+    output_time_axis = np.arange(0, len(s2))
+    plt.plot(input_time_axis, s1, 'r', label="Input signal") 
+    plt.plot(output_time_axis - input_lag, s2, 'b--', label="Output signal")
+    plt.grid(True)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+def calculate_mse_for_signal_window(s1, s2, lag, window_size):
+    s1 = s1[-lag:window_size-lag]
+    mse = (np.square(s1 - s2)).mean(axis=None)
+    print(f"Mean Square Error is: {mse}")
+    return mse
+
+def get_correlation_offset(input_signal, output_signal):
+    """
+    Correlate a chunk of the measured signal with the full input signal.
+    Additionally plots a graph that shows where the chunk of signal fits the most.
+    Calculates the MSE between the signals in the range of most correlation
+    Returns the offset that places the chunk of measured signal where it correlates the most with the input one 
+    """
+    windowed_output_signal = output_signal[SIGNAL_WINDOW_OFFSET:SIGNAL_WINDOW_OFFSET+SIGNAL_WINDOW_SIZE]
+    Cmatrix = np.correlate(windowed_output_signal, input_signal, 'full')
+    Cmatrix = Cmatrix/max(Cmatrix)
+    index = np.where(Cmatrix ==1)[0][0]
+
+    Cmatrix[index] = max(input_signal)
+
+    input_lag = index - len(input_signal)
+    # Plot correlation analysis
+    plot_signal_comparison(input_signal, windowed_output_signal, "Signal correlation analysis", input_lag)
+    # Calculate MSE for current window with corresponding chunk of original signal
+    calculate_mse_for_signal_window(input_signal_resampled, windowed_output_signal, input_lag, SIGNAL_WINDOW_SIZE)
+    return input_lag
+    
+def pad_shortest_signal(s1, s2, padrange):
+    if len(s1) > len(s2):
+        s2 = np.pad(s2, (0, padrange), 'constant', constant_values=(0,0))
+    else:
+        s1 = np.pad(s1, (0, padrange), 'constant', constant_values=(0,0))
+    return s1, s2
+
+def readConfigFile():
+    """
+    Method to read the yaml configuration file and load it
+    """
+    with open('./config/device_params.yaml', 'r') as file:
+        try:
+            return yaml.safe_load(file)
+        except Exception as e:
+            print(f"Error: {e}")
+
+parser = argparse.ArgumentParser(
+                    prog='EEG_Analysis',
+                    description='Tool to analyze and compare sent and measured signal using the PyEDF tool'
+                    )
+parser.add_argument('-i', '--input_signal', type=str, default="common_mode_sample1", help="Sample signal filename. Must be present in the 'edf_samples' directory")
+parser.add_argument('-t','--test_signal', action="store_true", help="Use a sinusoidal test signal instead of a real EEG measurement")
+parser.add_argument('-s', '--sample_rate', type=int, default=200, help="Set the sample rate at which the signals to be analyzed")
+parser.add_argument('-c', '--channels', type=list, default=['Fp1', 'Fp2'], help="List of channels to show in the plot.")
+parser.add_argument('-m', '--measured_signal', type=str, default="EEG_CommonSample1", help="Measured signal to be analyzed together with input signal")
+
+args = parser.parse_args()
+
+config = readConfigFile()
 
 if args.test_signal and args.measured_signal == "EEG_CommonSample1":
     args.measured_signal = "Sen1Hz"
 
-input_signal_filepath = os.path.join(curr_script_dir, "edf_samples", f"{args.input_signal}.edf")
-output_signal_filepath = os.path.join(curr_script_dir, "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
+input_signal_filepath = os.path.join(".", "edf_samples", f"{args.input_signal}.edf")
+output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
 
 # Prepare signal workers
-args.test_signal = True
-
-
-EEG_EDF_OFFSET = 187.538 # uV
-
-
-
-test_signal_worker = TestingSignalsWorker(config)
-test_signal_worker.generateTestingSignal("Sinusoidal", 5, 132, 500, 5)
-test_signal_worker.setSelectedSimTime([0,5])
-test_signal_worker.setSelectedChannels(['Fp1','Fp2'])
-
-
-original_signal_worker = EDFWorker(config)
-original_signal_worker.readEDF("./edf_samples/common_mode_sample1.edf")
-original_signal_worker.setSelectedChannels(['Fp1', 'Fp2'])
-
-eeg_measure_worker = EDFWorker(config)
-eeg_measure_worker.readEDF("./edf_samples/data_analysis/TestEachBatchChannels.edf")
-eeg_measure_worker.setSelectedChannels(['Fp1', 'Fp2'])
-
-analyze_test_signal = True
-
-if analyze_test_signal:
-
-    eeg_signal = eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
-    test_signal = test_signal_worker.signal_data_.physical_signal
-
-    sr_new = 200 * 100 # for some reason, need to multiply by '100'
-
-    print(f"len eeg_signal = {len(eeg_signal)}")
-    print(f"len test_signal = {len(test_signal)}")
-
-    eeg_signal_resampled = resampy.resample(eeg_signal, eeg_measure_worker.getSampleRate() * 100, sr_new)
-    test_signal_resampled = resampy.resample(test_signal, test_signal_worker.getSampleRate() * 100, sr_new)
-
-    print(f"len eeg_signal_resampled = {len(eeg_signal_resampled)}")
-    print(f"len test_signal_resampled = {len(test_signal_resampled)}")
-
-    ## If not same size, we pad the shortest with zeros:
-
-    padrange = int((len(eeg_signal_resampled) - len(test_signal_resampled))/2)
-
-    #test_signal_resampled = np.pad(test_signal_resampled, (padrange,padrange),'constant', constant_values=(0,0))
-
-    print(f"len eeg_signal_resampled = {len(eeg_signal_resampled)}")
-    print(f"len test_signal_resampled padded = {len(test_signal_resampled)}")
-
-    time_step = 1/(sr_new/100) # need to get rid of the 100
-    time_axis = np.arange(0,eeg_measure_worker.getDuration(), time_step)
-
-    Cmatrix = np.correlate(eeg_signal_resampled,test_signal_resampled,'full')
-    Cmatrix = Cmatrix/max(Cmatrix)
-    index = np.where(Cmatrix ==1)[0][0]
-
-    Cmatrix[index] = max(test_signal_resampled)
-
-    lag = (index - len(test_signal_resampled))+1 #* time_step
-    print(lag)
-
-    eeg_signal_resampled = eeg_signal_resampled[lag:lag+1000]
-    test_signal_resampled = test_signal_resampled#[100:900]
-
-    mse = (np.square(eeg_signal_resampled - test_signal_resampled)).mean(axis=None)
-
-    print(f"mse = {mse}")
-
-    #test_signal_resampled = np.pad(test_signal_resampled, (0,padrange*2),'constant', constant_values=(0,0))
-
-    #plt.plot(time_axis+lag, test_signal_resampled, 'r', label="test_signal") 
-    #plt.plot(time_axis,eeg_signal_resampled, 'b--',label="eeg_measurement")
-    plt.plot(test_signal_resampled, 'r', label="test_signal") 
-    plt.plot(eeg_signal_resampled, 'b--',label="eeg_measurement")
-    plt.plot(eeg_signal_resampled-test_signal_resampled, 'g--', label="Error")
-    plt.grid(True)
-    plt.legend()
-    plt.show()
-
-# Plot edf signal vs original edf signal
+if args.test_signal:
+    input_signal_worker = TestingSignalsWorker(config)
+    input_signal_worker.generateTestingSignal("Sinusoidal", 10, 199, 500, 3)
+    input_signal_worker.setSelectedSimTime([0,5])
+    input_signal_worker.setSelectedChannels(args.channels)
 else:
+    input_signal_worker = EDFWorker(config)
+    input_signal_worker.readEDF(input_signal_filepath)
+    input_signal_worker.setSelectedChannels(args.channels)
 
-    eeg_signal = eeg_measure_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
-    original_signal = original_signal_worker.signal_data_.physical_signals_and_channels[0][1]
+output_signal_worker = EDFWorker(config)
+output_signal_worker.readEDF(output_signal_filepath)
+output_signal_worker.setSelectedChannels(args.channels)
 
-    sr_new = 200 * 100 # for some reason, need to multiply by '100'
+# Keep first channel for EDF files and correct voltage offset
+output_signal = output_signal_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
+input_signal = input_signal_worker.signal_data_.physical_signal if args.test_signal else input_signal_worker.signal_data_.physical_signals_and_channels[0][1]
 
-    eeg_signal_resampled = resampy.resample(eeg_signal, eeg_measure_worker.getSampleRate() * 100, sr_new)
-    original_signal_resampled = resampy.resample(original_signal, original_signal_worker.getSampleRate() * 100, sr_new)
-
-    #original_signal_resampled = butter_lowpass_filter(original_signal_resampled, 50, 200, order=5)
-    original_signal_resampled = butter_highpass_filter(original_signal_resampled, 1, 200, order=5)
-    
-
-    bck_up_eeg_signal_resampled = eeg_signal_resampled
-    eeg_signal_resampled = eeg_signal_resampled#[17000:20000]
-
-    padrange = int(abs(len(eeg_signal_resampled) - len(original_signal_resampled)))
-
-    Cmatrix = np.correlate(eeg_signal_resampled,original_signal_resampled,'full')
-    Cmatrix = Cmatrix/max(Cmatrix)
-    index = np.where(Cmatrix ==1)[0][0]
-
-    Cmatrix[index] = max(original_signal_resampled)
-
-    time_step = 1/(sr_new/100)
-    time_axis_or = np.arange(0,original_signal_worker.getDuration(), time_step)
-    time_axis_eeg = np.arange(0,time_step*len(eeg_signal_resampled), time_step)
-    lag = (index - len(eeg_signal_resampled)) * time_step
-    print(lag)
-
-    #eeg_signal_resampled = np.pad(eeg_signal_resampled, (0,padrange),'constant', constant_values=(0,0))
+print(f"Input signal original length = {len(input_signal)}")
+print(f"Output signal original length = {len(output_signal)}")
 
 
-    print(f"len(original_signal_resampled) = {len(original_signal_resampled)}")
-    print(f"len(time_axis) = {len(time_axis_eeg)}")
-    plt.plot(time_axis_or+abs(lag)+10-1.0613, original_signal_resampled, 'r', label="test_signal") 
-    plt.plot(time_axis_eeg,eeg_signal_resampled, 'b--',label="eeg_measurement")
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+# We can try to apply a filter to see if it improves
+input_signal = butter_lowpass_filter(input_signal, 30, input_signal_worker.getSampleRate(), order=1)
+#output_signal = butter_lowpass_filter(output_signal, 70, output_signal_worker.getSampleRate(), order=5)
 
-"""
+input_signal = butter_highpass_filter(input_signal, 0.8, input_signal_worker.getSampleRate(), order=1)
+#output_signal = butter_highpass_filter(output_signal, 0.1, output_signal_worker.getSampleRate(), order=5)
+
+input_signal = slew_rate_filtering(input_signal, 2)
+
+input_signal_resampled = resampy.resample(input_signal, input_signal_worker.getSampleRate(), args.sample_rate)
+output_signal_resampled = resampy.resample(output_signal, output_signal_worker.getSampleRate(), args.sample_rate)
+
+
+
+if not args.test_signal:
+    output_signal_resampled = output_signal_resampled[13000:15000]
+
+#plt.plot(output_signal_resampled)
+#plt.show()
+
+print(f"Resampled input signal length = {len(input_signal_resampled)}")
+print(f"Resampled Output signal length = {len(output_signal_resampled)}")
+
+#input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
+
+output_time_axis = np.arange(0, len(output_signal_resampled)) #input_signal_worker.getDuration(), time_step)
+input_time_axis = np.arange(0, len(input_signal_resampled))
+
+print(f"Before plotting we have:\nInput time axis length: \t{len(input_time_axis)}\nOutput time axis length: \t{len(output_time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\n")#Input lag: \t{input_lag}\n")
+
+input_signal_name = args.input_signal if not args.test_signal else 'Test Signal'
+plot_title = f"{input_signal_name} Vs {args.measured_signal}"
+
+Cmatrix = np.correlate(output_signal_resampled, input_signal_resampled, 'full')
+Cmatrix = Cmatrix/max(Cmatrix)
+index = np.where(Cmatrix ==1)[0][0]
+
+Cmatrix[index] = max(input_signal_resampled)
+
+time_step = 1/args.sample_rate # need to get rid of the 100
+
+
+
+input_lag = (index - len(input_signal_resampled))# * time_step
+output_lag = (index - len(output_signal_resampled))# * time_step
+print(f"Input lag is: {input_lag}. Output lag is: {output_lag}")
+
+#print(f"Before plotting we have:\nTime axis length: \t{len(time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\nOutput lag: \t{output_lag}\n")
+
+input_signal_resampled = input_signal_resampled[abs(input_lag):2000+abs(input_lag)]
+
+time_axis_in = np.arange(0,len(input_signal_resampled)) #* time_step, time_step )#input_signal_worker.getDuration(), time_step)
+time_axis_out = np.arange(0,len(output_signal_resampled))#  *time_step, time_step )#output_signal_worker.getDuration(), time_step)
+
+plt.plot(time_axis_in, input_signal_resampled, 'r', label="Input signal") 
+plt.plot(time_axis_out, output_signal_resampled, 'b', label="Measured signal")
+
+mse = (np.square(input_signal_resampled - output_signal_resampled)).mean(axis=None)
+
+
+pctError = abs(np.mean(100 * abs(input_signal_resampled - output_signal_resampled) / input_signal_resampled))
+
+
+print(f"mse = {mse}")
+print(f"rmse = {math.sqrt(mse)}")
+print(f"pctError = {pctError} %")
+
+plt.grid(True)
+plt.title(f"{input_signal_name} Vs {args.measured_signal}")
+plt.legend()
+plt.show()
+
+plt.title(f"Error")
+plt.plot(abs(input_signal_resampled-output_signal_resampled),'g', label="Error")
+plt.legend()
+plt.show()
+
+rest =stats.ttest_ind(input_signal_resampled, output_signal_resampled)
+print(rest)
+
+
+
+input_filtered = SMA_filter(input_signal_resampled, 100)
+output_filtered = SMA_filter(output_signal_resampled, 100)
+
+plt.plot(input_filtered, 'r', label="Input signal") 
+plt.plot(output_filtered, 'b--', label="Measured signal")
+plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
+plt.legend()
+#plt.show()
+
+#np.savetxt('input_signal_resampled_fitted.dat', input_signal_resampled)
+#np.savetxt('output_signal_resampled_fitted.dat', output_signal_resampled)
