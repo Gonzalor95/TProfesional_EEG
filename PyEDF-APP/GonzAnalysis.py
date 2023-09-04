@@ -181,9 +181,6 @@ def get_testing_signal(signal_type = 'Sinusoidal', frecuency = 5, amplitude = 20
 
 
 def select_data_window(data, start_index= 13000, end_index= 15000):
-    start_index = 13000
-    end_index = 15000
-    window_size = end_index - start_index
     data = data[start_index:end_index]
     return data
 
@@ -231,6 +228,27 @@ def get_mse(input_signal, output_signal):
     """
     return (np.square(input_signal - output_signal)).mean(axis=None)
 
+def check_gain_for_output(input_signal, output_signal):
+    """
+    Get gain that reduces mse
+    """
+
+    gains = np.arange(start = 0.5, stop = 1.5, step = 0.0001)
+    
+    mse = get_mse(input_signal, output_signal)
+    for gain in gains:
+        aux = output_signal * gain
+
+        current_mse = get_mse(input_signal, aux)
+
+        if current_mse < mse:
+            print(f"best gain = {gain} with mse = {current_mse}")
+            best_gain = gain
+            mse = current_mse
+
+    return best_gain
+
+
 """
 =================================================================================
 ====================================  MAIN   ====================================
@@ -260,12 +278,6 @@ input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq 
 #input_signal = slew_rate_filter(input_signal, 10)
 
 #############
-############# Scaling
-
-#input_signal = normalize_min_max(input_signal)
-#output_signal = normalize_min_max(output_signal)
-
-#############
 ############# Resampling
 
 new_sample_rate = 200
@@ -278,42 +290,70 @@ output_signal_resampled = resampy.resample(output_signal, output_edfworker.getSa
 ############# Correlation
 
 # We select a window from the output signal to avoid parts that do not correspond to anything
-output_signal_resampled = select_data_window(output_signal_resampled, start_index= 13000, end_index= 15000)
+output_signal_resampled = select_data_window(output_signal_resampled, start_index= 5000, end_index= 39000)
+
+
+#############
+############# Scaling:
+## Tiene que ser despues de select_data_window() porque sino agarra los picos raros que se toman en los extremos
+#input_signal_resampled = normalize_min_max(input_signal_resampled)
+#output_signal_resampled = normalize_min_max(output_signal_resampled)
+
 input_signal_resampled = get_correlated_input_signal(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
 
 #############
 ############# Calculations over signals:
+gain = check_gain_for_output(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
+
+output_signal_resampled = output_signal_resampled * gain
+
 mse = get_mse(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
 
-print(f"mse = {mse}")
 
-rest = stats.ttest_ind(input_signal_resampled, output_signal_resampled)
-print(rest)
+
+print(f"mse = {mse}")
+print(f"gain = {mse}")
+
+# Just curiosity:
+# rest = stats.ttest_ind(input_signal_resampled, output_signal_resampled)
+#print(rest)
 
 
 #############
 ############# Plotting
 
+
+### Time Axis:
+
 plot_time_axis = True
 time_step = 1/new_sample_rate if plot_time_axis else 1
+xlabel = 'Time [seg]' if plot_time_axis else ''
 
-time_axis_in  = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
-time_axis_out = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
+#time_axis_in  = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
+#time_axis_out = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
+time_axis = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
 
-plt.plot(time_axis_in, input_signal_resampled, 'r', label="Input signal") 
-plt.plot(time_axis_out, output_signal_resampled, 'b', label="Measured signal")
+### Plot:
 
-plt.grid(True)
-plt.title(f"{input_signal_file_name} Vs {output_signal_file_name}")
-plt.legend()
+figure, axis = plt.subplots(2, 1)
+
+#figure.suptitle(f"{input_signal_file_name} Vs {output_signal_file_name}")
+
+axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input signal") 
+axis[0].plot(time_axis, output_signal_resampled, 'b', label="Measured signal")
+axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name} (Señal Completa) con Gain = {gain}")
+axis[0].set_xlim([0, time_axis[-1]])
+axis[0].legend()
+axis[0].grid()
+
+
+axis[1].plot(time_axis, abs(input_signal_resampled - output_signal_resampled),'g', label="Error=Input-Measured")
+axis[1].set_title(f"ECM = {mse}")
+axis[1].set_xlim([0, time_axis[-1]])
+axis[1].legend()
+axis[1].grid()
+
 plt.show()
-
-plt.title(f"Error")
-plt.plot(abs(input_signal_resampled - output_signal_resampled),'g', label="Error")
-plt.legend()
-plt.show()
-
-
 
 
 input_filtered = SMA_filter(input_signal_resampled, 100)
