@@ -4,7 +4,7 @@ import os
 import resampy
 import math
 import numpy as np
-from scipy.signal import butter, lfilter
+from scipy.signal import butter, lfilter, spectrogram, periodogram
 from scipy import stats
 import yaml
 from modules.EDFWorker import EDFWorker
@@ -266,13 +266,13 @@ output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_fil
 
 ##
 ## PREVIEW SIGNALS BEFORE WORKING:
-plt.plot(input_signal)
-plt.plot(output_signal)
-plt.show()
+#plt.plot(input_signal)
+#plt.plot(output_signal)
+#plt.show()
 
 #############
 ############# FILTERS
-input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
+input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 25, fs = input_edfworker.getSampleRate(), order = 5)
 input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
 
 #input_signal = slew_rate_filter(input_signal, 10)
@@ -290,7 +290,7 @@ output_signal_resampled = resampy.resample(output_signal, output_edfworker.getSa
 ############# Correlation
 
 # We select a window from the output signal to avoid parts that do not correspond to anything
-output_signal_resampled = select_data_window(output_signal_resampled, start_index= 5000, end_index= 39000)
+output_signal_resampled = select_data_window(output_signal_resampled, start_index= 13000, end_index= 15000)
 
 
 #############
@@ -303,16 +303,16 @@ input_signal_resampled = get_correlated_input_signal(input_signal=input_signal_r
 
 #############
 ############# Calculations over signals:
-gain = check_gain_for_output(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
+#gain = check_gain_for_output(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
 
-output_signal_resampled = output_signal_resampled * gain
+#output_signal_resampled = output_signal_resampled * gain
 
 mse = get_mse(input_signal=input_signal_resampled, output_signal=output_signal_resampled)
 
 
 
 print(f"mse = {mse}")
-print(f"gain = {mse}")
+#print(f"gain = {mse}")
 
 # Just curiosity:
 # rest = stats.ttest_ind(input_signal_resampled, output_signal_resampled)
@@ -341,13 +341,13 @@ figure, axis = plt.subplots(2, 1)
 
 axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input signal") 
 axis[0].plot(time_axis, output_signal_resampled, 'b', label="Measured signal")
-axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name} (Señal Completa) con Gain = {gain}")
+axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name}")
 axis[0].set_xlim([0, time_axis[-1]])
 axis[0].legend()
 axis[0].grid()
 
 
-axis[1].plot(time_axis, abs(input_signal_resampled - output_signal_resampled),'g', label="Error=Input-Measured")
+axis[1].plot(time_axis, input_signal_resampled - output_signal_resampled-1,'g', label="Error=Input-Measured")
 axis[1].set_title(f"ECM = {mse}")
 axis[1].set_xlim([0, time_axis[-1]])
 axis[1].legend()
@@ -356,14 +356,52 @@ axis[1].grid()
 plt.show()
 
 
-input_filtered = SMA_filter(input_signal_resampled, 100)
-output_filtered = SMA_filter(output_signal_resampled, 100)
+#############
+############# SMA Filtering:
 
-plt.plot(input_filtered, 'r', label="Input signal") 
-plt.plot(output_filtered, 'b--', label="Measured signal")
-plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
-plt.legend()
+
+#input_filtered = SMA_filter(input_signal_resampled, 100)
+#output_filtered = SMA_filter(output_signal_resampled, 100)
+
+#plt.plot(input_filtered, 'r', label="Input signal") 
+#plt.plot(output_filtered, 'b--', label="Measured signal")
+#plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
+#plt.legend()
 #plt.show()
+
+
+#############
+############# Saving Signals
 
 #np.savetxt('input_signal_resampled_fitted.dat', input_signal_resampled)
 #np.savetxt('output_signal_resampled_fitted.dat', output_signal_resampled)
+
+
+
+#############
+############# Frequency analysis
+
+
+
+f_i, t_i, Sxx_i = spectrogram(input_signal_resampled, fs=new_sample_rate,scaling='density')
+f_o, t_o, Sxx_o = spectrogram(output_signal_resampled, fs=new_sample_rate,scaling='density')
+
+Sxx = Sxx_i - Sxx_o
+
+#plt.pcolormesh(t_i, f_i, Sxx_i, shading='gouraud')
+#plt.title(f"Input")
+#plt.ylabel('Frequency [Hz]')
+#plt.xlabel('Time [sec]')
+#plt.show()
+
+
+f, Pxx_den_i = periodogram(input_signal_resampled, fs=new_sample_rate,)
+f, Pxx_den_o = periodogram(output_signal_resampled, fs=new_sample_rate,)
+
+plt.semilogy(f, Pxx_den_i,'r-', label="Input")
+plt.semilogy(f, Pxx_den_o,'b', label="Output")
+plt.ylim([1e-7, 1e2])
+plt.xlabel('frequency [Hz]')
+plt.ylabel('PSD [V**2/Hz]')
+plt.legend()
+plt.show()
