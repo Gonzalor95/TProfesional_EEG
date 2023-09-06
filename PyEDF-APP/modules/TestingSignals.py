@@ -3,7 +3,7 @@
 from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
-from modules.ChannelToIntProtocol import ProtocolDict
+from ChannelToIntProtocol import ProtocolDict
 
 
 class SignalData:

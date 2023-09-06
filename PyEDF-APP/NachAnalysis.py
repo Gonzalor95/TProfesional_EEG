@@ -12,41 +12,54 @@ import matplotlib.pyplot as plt
 from modules.TestingSignals import TestingSignalsWorker
 import argparse
 
+from abc import ABC
 
-def butter_lowpass(cutoff, fs, order=5):
-    return butter(order, cutoff, fs=fs, btype='low', analog=False)
+class Filter(ABC):
 
-def butter_highpass(cutoff, fs, order=5):
-    return butter(order, cutoff, fs=fs, btype='high', analog=False)
+    def __init__(self, data = None, fs = None, order = None, cutoff = None, window_size = None):
+        self.data = data
+        self.fs = fs
+        self.order = order
+        self.cutoff = cutoff
+        self.window_size = window_size
 
-def butter_lowpass_filter(data, cutoff, fs, order=5):
-    b, a = butter_lowpass(cutoff, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
+    def apply_filter(self):
+        raise NotImplementedError()
 
-def butter_highpass_filter(data, cutoff, fs, order=5):
-    b, a = butter_highpass(cutoff, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
+class Butter(Filter):
+    def __init__(self, data, fs, order, cutoff, high_pass):
+        super().__init__(data, fs, order, cutoff)
+        self.high_pass = high_pass
 
-def SMA_filter(data, window_size):
-    moving_averages = []
-    i=0
-    # Loop through the array t o
-    #consider every window of size 3
-    while i < len(data) - window_size + 1:
-    
-        # Calculate the average of current window
-        window_average = round(np.sum(data[i:i+window_size]) / window_size, 2)
+    def butter_(self):
+        return butter(self.order, self.cutoff, fs=self.fs, btype='high' if self.high_pass else 'low', analog=False)
+
+    def apply_filter(self):
+        b, a = self.butter_()
+        return lfilter(b, a, self.data)
+
+class MSA(Filter):
+    def __init__(self, data, window_size):
+        super().__init__(data, window_size)
+
+    def apply_filter(self):
+        moving_averages = []
+        i=0
+        # Loop through the array t o
+        #consider every window of size 3
+        while i < len(self.data) - self.window_size + 1:
         
-        # Store the average of current
-        # window in moving average list
-        moving_averages.append(window_average)
-        
-        # Shift window to right by one position
-        i += 1
+            # Calculate the average of current window
+            window_average = round(np.sum(self.data[i:i+self.window_size]) / self.window_size, 2)
+            
+            # Store the average of current
+            # window in moving average list
+            moving_averages.append(window_average)
+            
+            # Shift window to right by one position
+            i += 1
 
-    return moving_averages
+        return moving_averages
 
 # This value came up magically, right?
 EEG_EDF_OFFSET = 187.538 # uV
@@ -99,11 +112,12 @@ def pad_shortest_signal(s1, s2, padrange):
         s1 = np.pad(s1, (0, padrange), 'constant', constant_values=(0,0))
     return s1, s2
 
-def readConfigFile():
+def readConfigFile(root_dir):
     """
     Method to read the yaml configuration file and load it
     """
-    with open('./config/device_params.yaml', 'r') as file:
+    config_path = os.path.join(root_dir, "config", "device_params.yaml")
+    with open(config_path, 'r') as file:
         try:
             return yaml.safe_load(file)
         except Exception as e:
@@ -120,29 +134,41 @@ parser.add_argument('-c', '--channels', type=list, default=['Fp1', 'Fp2'], help=
 parser.add_argument('-m', '--measured_signal', type=str, default="EEG_CommonSample1", help="Measured signal to be analyzed together with input signal")
 
 args = parser.parse_args()
-
-config = readConfigFile()
+curr_script_dir = os.path.dirname(os.path.realpath(__file__))
+config = readConfigFile(curr_script_dir)
 
 if args.test_signal and args.measured_signal == "EEG_CommonSample1":
     args.measured_signal = "Sen1Hz"
 
-input_signal_filepath = os.path.join(".", "edf_samples", f"{args.input_signal}.edf")
-output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
+input_signal_filepath = os.path.join(curr_script_dir, "edf_samples", f"{args.input_signal}.edf")
+output_signal_filepath = os.path.join(curr_script_dir, "edf_samples", "data_analysis", f"{args.measured_signal}.edf")
 
-# Prepare signal workers
-if args.test_signal:
-    input_signal_worker = TestingSignalsWorker(config)
-    input_signal_worker.generateTestingSignal("Sinusoidal", 10, 199, 500, 3)
-    input_signal_worker.setSelectedSimTime([0,5])
-    input_signal_worker.setSelectedChannels(args.channels)
-else:
-    input_signal_worker = EDFWorker(config)
-    input_signal_worker.readEDF(input_signal_filepath)
-    input_signal_worker.setSelectedChannels(args.channels)
+def generate_input_signal(input_signal: str, is_testing: bool, channels: list, t_signal_type= "Sinusoidal", t_freq=1, t_amp=199, t_sr=500, t_dur=5):
+    curr_script_dir = os.path.dirname(os.path.realpath(__file__))
+    config = readConfigFile(curr_script_dir)
+    # Prepare signal workers
+    if is_testing:
+        # We generate a test sinusoidal signal of 10 Hz frequency, 199 uV amplitude, 500 Hz sample rate and 5 second duration
+        input_signal_worker = TestingSignalsWorker(config)
+        input_signal_worker.generateTestingSignal(t_signal_type, t_freq, t_amp, t_sr, t_dur)
+        input_signal_worker.setSelectedSimTime([0, t_dur])
+        input_signal_worker.setSelectedChannels(channels)
+    else:
+        input_signal_filepath = os.path.join(curr_script_dir, "edf_samples", f"{input_signal}.edf")
+        input_signal_worker = EDFWorker(config)
+        input_signal_worker.readEDF(input_signal_filepath)
+        input_signal_worker.setSelectedChannels(channels)
+    return  input_signal_worker.signal_data_.physical_signal if is_testing else input_signal_worker.signal_data_.physical_signals_and_channels[0][1]
 
-output_signal_worker = EDFWorker(config)
-output_signal_worker.readEDF(output_signal_filepath)
-output_signal_worker.setSelectedChannels(args.channels)
+def generate_output_signal(signal_filepath, channels):
+    curr_script_dir = os.path.dirname(os.path.realpath(__file__))
+    config = readConfigFile(curr_script_dir)
+
+    output_signal_filepath = os.path.join(curr_script_dir, "edf_samples", "data_analysis", f"{signal_filepath}.edf")
+    output_signal_worker = EDFWorker(config)
+    output_signal_worker.readEDF(output_signal_filepath)
+    output_signal_worker.setSelectedChannels(channels)
+    return output_signal_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
 
 # Keep first channel for EDF files and correct voltage offset
 output_signal = output_signal_worker.signal_data_.physical_signals_and_channels[0][1] - EEG_EDF_OFFSET
@@ -153,31 +179,28 @@ print(f"Output signal original length = {len(output_signal)}")
 
 
 # We can try to apply a filter to see if it improves
-#input_signal = butter_lowpass_filter(input_signal, 70, input_signal_worker.getSampleRate(), order=5)
+input_signal = butter_lowpass_filter(input_signal, 30, input_signal_worker.getSampleRate(), order=2)
 #output_signal = butter_lowpass_filter(output_signal, 70, output_signal_worker.getSampleRate(), order=5)
 
-#input_signal = butter_highpass_filter(input_signal, 0.1, input_signal_worker.getSampleRate(), order=5)
+input_signal = butter_highpass_filter(input_signal, 0.8, input_signal_worker.getSampleRate(), order=2)
 #output_signal = butter_highpass_filter(output_signal, 0.1, output_signal_worker.getSampleRate(), order=5)
 
 input_signal_resampled = resampy.resample(input_signal, input_signal_worker.getSampleRate(), args.sample_rate)
 output_signal_resampled = resampy.resample(output_signal, output_signal_worker.getSampleRate(), args.sample_rate)
 
-
-
 if not args.test_signal:
     output_signal_resampled = output_signal_resampled[13000:15000]
 
-#plt.plot(output_signal_resampled)
-#plt.show()
+plt.plot(output_signal_resampled)
+plt.show()
 
 print(f"Resampled input signal length = {len(input_signal_resampled)}")
 print(f"Resampled Output signal length = {len(output_signal_resampled)}")
 
-#input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
+input_lag = get_correlation_offset(input_signal_resampled, output_signal_resampled)
 
 output_time_axis = np.arange(0, len(output_signal_resampled)) #input_signal_worker.getDuration(), time_step)
 input_time_axis = np.arange(0, len(input_signal_resampled))
-
 print(f"Before plotting we have:\nInput time axis length: \t{len(input_time_axis)}\nOutput time axis length: \t{len(output_time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\n")#Input lag: \t{input_lag}\n")
 
 input_signal_name = args.input_signal if not args.test_signal else 'Test Signal'
@@ -193,9 +216,9 @@ time_step = 1/args.sample_rate # need to get rid of the 100
 
 
 
-input_lag = (index - len(input_signal_resampled))# * time_step
-output_lag = (index - len(output_signal_resampled))# * time_step
-print(f"Input lag is: {input_lag}. Output lag is: {output_lag}")
+# input_lag = (index - len(input_signal_resampled))# * time_step
+# output_lag = (index - len(output_signal_resampled))# * time_step
+# print(f"Input lag is: {input_lag}. Output lag is: {output_lag}")
 
 #print(f"Before plotting we have:\nTime axis length: \t{len(time_axis)}\nInput signal length: \t{len(input_signal_resampled)}\nOutput signal length: \t{len(output_signal_resampled)}\nInput lag: \t{input_lag}\nOutput lag: \t{output_lag}\n")
 
