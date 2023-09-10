@@ -4,7 +4,7 @@ import os
 import resampy
 import math
 import numpy as np
-from scipy.signal import butter, lfilter, spectrogram, periodogram
+from scipy.signal import butter, lfilter, spectrogram, periodogram, filtfilt
 from scipy import stats
 import yaml
 from modules.EDFWorker import EDFWorker
@@ -272,7 +272,7 @@ output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_fil
 
 #############
 ############# FILTERS
-input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 25, fs = input_edfworker.getSampleRate(), order = 5)
+input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
 input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
 
 #input_signal = slew_rate_filter(input_signal, 10)
@@ -360,14 +360,17 @@ plt.show()
 ############# SMA Filtering:
 
 
-#input_filtered = SMA_filter(input_signal_resampled, 100)
-#output_filtered = SMA_filter(output_signal_resampled, 100)
+input_filtered = SMA_filter(input_signal_resampled, 30)
+output_filtered = SMA_filter(output_signal_resampled, 30)
 
-#plt.plot(input_filtered, 'r', label="Input signal") 
-#plt.plot(output_filtered, 'b--', label="Measured signal")
-#plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
-#plt.legend()
-#plt.show()
+
+
+plt.plot(input_filtered, 'r', label="Input signal") 
+plt.plot(output_filtered, 'b--', label="Measured signal")
+plt.plot([input_filtered[i] - output_filtered[i] for i in range(len(input_filtered))], 'g', label="Error")
+plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
+plt.legend()
+plt.show()
 
 
 #############
