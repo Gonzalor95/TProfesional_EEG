@@ -6,6 +6,33 @@ import matplotlib.pyplot as plt
 from modules.ChannelToIntProtocol import ProtocolDict
 
 
+
+
+
+#################### INVERSE FILTER
+
+from scipy.signal import butter, iirnotch, filtfilt, sosfiltfilt
+
+#CALL:
+#signal_inverse_filter = inverse_filter(data = signal, stopband = [0.8, 30], fs = sampling_rate)
+def inverse_filter(data = [], stopband = [0.8, 30], fs = 1):
+
+    sos = butter(N = 1, Wn = stopband, fs = fs, btype = 'bandstop', analog = False, output='sos')
+    bw = stopband[1] - stopband[0] # =  29.2
+    w0 = stopband[0] + (stopband[1] - stopband[0])/2 # 0.8 + ( 14.6 ) = 15.4
+
+    Q = w0/bw 
+    b, a = iirnotch(w0 = w0, Q = Q, fs=fs)
+
+    gain = 1.41 # 3db
+
+    data = data * gain
+    #y = filtfilt(b, a, data) # Notch
+    y = sosfiltfilt(sos, data) # Butter bandstop
+
+    return y
+##########################
+
 class SignalData:
     """
     Structure type of class to hold the signal data
@@ -198,6 +225,7 @@ class EDFWorker():
             #XXX: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail.
             # creo que le falta un * 2
             processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
+            #processed_signal = inverse_filter(data = processed_signal, stopband = [0.8, 30], fs = self.getSampleRate())
 
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
 

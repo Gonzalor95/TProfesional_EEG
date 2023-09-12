@@ -86,9 +86,9 @@ duration = 15
 
 t, signal = generate_sinusoidal_waves_matching_time(amplitude, duration, frequencies, sampling_rate)
 
-#signal_inverse_filter = inverse_filter(data = signal, stopband = [0.8, 30], fs = sampling_rate)
+signal_inverse_filter = inverse_filter(data = signal, stopband = [0.8, 30], fs = sampling_rate)
 
-#signal_inverse_filter = signal_inverse_filter + signal
+signal_inverse_filter = signal_inverse_filter + signal
 
 signal_filtered = signal
 signal_filtered = butterworth_filter(signal_filtered, btype='high', cutoff_freq = 0.8, fs = sampling_rate, order = 1)
@@ -102,7 +102,7 @@ fig, ax = plt.subplots()
 ax.plot(t, signal, 'b--', label='Input')
 ax.plot(t, signal_filtered, 'r', label='Filtered')
 #ax.plot( signal_deconvolve, 'r', label='Deconvolve')
-#ax.plot(t, signal_inverse_filter, 'g--', label='Inverse Filter')
+ax.plot(t, signal_inverse_filter, 'g--', label='Inverse Filter')
 #ax.plot(t, signal_reconstructed, 'y--', label='Reconstructed')
 
 i = 0
