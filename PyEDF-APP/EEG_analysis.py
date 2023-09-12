@@ -2,7 +2,7 @@
 
 import os
 import resampy
-from scipy.signal import butter, lfilter, freqz
+from scipy.signal import butter, lfilter, firwin
 import numpy as np
 import yaml
 from modules.EDFWorker import EDFWorker
@@ -99,7 +99,7 @@ EEG_EDF_OFFSET = 187.538 # uV
 
 
 test_signal_worker = TestingSignalsWorker(config)
-test_signal_worker.generateTestingSignal("Sinusoidal", 5, 132, 500, 5)
+test_signal_worker.generateTestingSignal("Square", 10, 200, 200, 5)
 test_signal_worker.setSelectedSimTime([0,5])
 test_signal_worker.setSelectedChannels(['Fp1','Fp2'])
 
@@ -109,10 +109,10 @@ original_signal_worker.readEDF("./edf_samples/common_mode_sample1.edf")
 original_signal_worker.setSelectedChannels(['Fp1', 'Fp2'])
 
 eeg_measure_worker = EDFWorker(config)
-eeg_measure_worker.readEDF("./edf_samples/data_analysis/EEG_CommonSample1.edf")
+eeg_measure_worker.readEDF("./edf_samples/data_analysis/TestPulse_10Hz.edf")
 eeg_measure_worker.setSelectedChannels(['Fp1', 'Fp2'])
 
-analyze_test_signal = False
+analyze_test_signal = True
 
 if analyze_test_signal:
 

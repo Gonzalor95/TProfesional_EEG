@@ -290,7 +290,7 @@ output_signal_resampled = resampy.resample(output_signal, output_edfworker.getSa
 ############# Correlation
 
 # We select a window from the output signal to avoid parts that do not correspond to anything
-output_signal_resampled = select_data_window(output_signal_resampled, start_index= 13000, end_index= 15000)
+output_signal_resampled = select_data_window(output_signal_resampled, start_index= 5000, end_index= 30000)
 
 
 #############
