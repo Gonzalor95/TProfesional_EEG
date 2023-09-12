@@ -4,6 +4,7 @@ from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
 from modules.ChannelToIntProtocol import ProtocolDict
+from modules.utils import generate_sinusoidal_waves_matching_time
 
 
 class SignalData:
@@ -186,7 +187,17 @@ class TestingSignalsWorker():
         Method to generate a triangular signal
         """
         time = np.arange(0, duration, 1 / sample_rate)
-        return amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
+
+        ## Triangular
+        #output = amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
+
+        #Resp en frequencia:
+        frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
+        duration = 5
+        t, output = generate_sinusoidal_waves_matching_time(amplitude = amplitude, duration = duration, frequencies = frequencies, sample_rate = sample_rate)
+        
+        return output
+        
 
     def createDigitalSignal_(self):
         """

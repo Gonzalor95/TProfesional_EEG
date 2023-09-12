@@ -2,6 +2,7 @@ from gui_elements.PopUpWindow import PopUpWindow
 from PyQt5.QtWidgets import *
 from modules.ChannelToIntProtocol import ProtocolDict
 from functools import wraps
+import numpy as np
 import time
 
 def timeit(func):
@@ -91,3 +92,16 @@ def to_bytes_packages(headers_and_signals_to_send):
         for j in range(amount_of_channels):
             bytes_packages.append(b"".join([processed_headers_and_signals[j][0], processed_headers_and_signals[j][1][i]]))
     return bytes_packages, amount_of_channels
+
+
+def generate_sinusoidal_waves_matching_time(amplitude, duration, frequencies, sample_rate):
+        """
+        Generates a single signal that contains all frequencies. Each repeated for a duration specified by parameter.
+        """
+        t = np.linspace(0, duration*len(frequencies), duration * len(frequencies) * sample_rate, endpoint=False)
+        signal = np.array([])
+
+        for frequency in frequencies:
+            cycle = amplitude * np.sin(10 * np.pi * frequency * np.linspace(0, duration, duration * sample_rate, endpoint=False))
+            signal = np.append(signal, cycle)
+        return t, signal
