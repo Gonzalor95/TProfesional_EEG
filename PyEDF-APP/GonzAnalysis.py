@@ -127,7 +127,27 @@ def SMA_filter(data, window_size):
         # Shift window to right by one position
         i += 1
 
-    return moving_averages
+    return np.array(moving_averages)
+
+def get_optimized_window_size_for_SMA(input, output):
+
+    window_sizes = list(range(10, 50))
+
+    mse = 9999999
+    for w_s in window_sizes:
+
+        input_filt = SMA_filter(input, w_s)
+        output_filt = SMA_filter(output, w_s)
+
+        current_mse = get_mse(input_signal=input_filt,output_signal=output_filt)
+
+        window_size = w_s 
+
+        if current_mse < mse:
+            mse = current_mse
+            window_size = w_s
+
+    return window_size
 
 def normalize_min_max(y):
     """Scales the whole signal between y = [0:1]"""
@@ -273,9 +293,9 @@ output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_fil
 
 ##
 ## PREVIEW SIGNALS BEFORE WORKING:
-plt.plot(input_signal)
-plt.plot(output_signal)
-plt.show()
+#plt.plot(input_signal)
+#plt.plot(output_signal)
+#plt.show()
 #############
 ############# FILTERS
 #input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
@@ -337,25 +357,32 @@ xlabel = 'Time [seg]' if plot_time_axis else ''
 
 #time_axis_in  = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
 #time_axis_out = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
-time_axis = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
+
+
 
 ### Plot:
 
+time_axis = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
 figure, axis = plt.subplots(2, 1)
 
 #figure.suptitle(f"{input_signal_file_name} Vs {output_signal_file_name}")
 
-axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input signal") 
-axis[0].plot(time_axis, output_signal_resampled, 'b', label="Measured signal")
-axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name}")
+axis[0].plot(time_axis,input_signal_resampled, 'r--', label="Input") 
+axis[0].plot(time_axis, output_signal_resampled, 'b--', label="Output")
+#axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name}")
+axis[0].set_title(f"Señal de Prueba Vs Señal Medida")
 axis[0].set_xlim([0, time_axis[-1]])
+axis[0].set_xlabel("Tiempo [seg]")
+axis[0].set_ylabel("Tensión [uV]")
 axis[0].legend()
 axis[0].grid()
 
 
-axis[1].plot(time_axis, input_signal_resampled - output_signal_resampled-1,'g', label="Error=Input-Measured")
-axis[1].set_title(f"ECM = {mse}")
+axis[1].plot(time_axis, input_signal_resampled - output_signal_resampled,'g', label="Error= Input - Output")
+axis[1].set_title(f"ECM = {mse:.2f}")
 axis[1].set_xlim([0, time_axis[-1]])
+axis[1].set_xlabel("Tiempo [seg]")
+axis[1].set_ylabel("Tensión [uV]")
 axis[1].legend()
 axis[1].grid()
 
@@ -366,19 +393,35 @@ plt.show()
 ############# SMA Filtering:
 
 
-input_filtered = SMA_filter(input_signal_resampled, 30)
-output_filtered = SMA_filter(output_signal_resampled, 30)
+SMA_sample_count = get_optimized_window_size_for_SMA(input_signal_resampled, output_signal_resampled)
+input_filtered = SMA_filter(input_signal_resampled, SMA_sample_count)
+output_filtered = SMA_filter(output_signal_resampled, SMA_sample_count)
+
+mse = get_mse(input_signal=input_filtered, output_signal=output_filtered)
+
+time_axis = np.arange(start = 0, stop = len(input_filtered) * time_step, step = time_step)
+
+figure, axis = plt.subplots(2, 1)
+
+axis[0].plot(time_axis, input_filtered, 'r', label="Input") 
+axis[0].plot(time_axis, output_filtered, 'b--', label="Output")
+axis[0].set_title(f"Señal de Prueba Vs Señal Medida (utilizando filtro SMA de {SMA_sample_count} puntos)")
+axis[0].set_xlim([0, time_axis[-1]])
+axis[0].set_xlabel("Tiempo [seg]")
+axis[0].set_ylabel("Tensión [uV]")
+axis[0].legend()
+axis[0].grid()
 
 
+axis[1].plot(time_axis, [input_filtered[i] - output_filtered[i] for i in range(len(input_filtered))], 'g', label="Error")
+axis[1].set_xlim([0, time_axis[-1]])
+axis[1].set_title(f"ECM = {mse:.2f}")
+axis[1].set_xlabel("Tiempo [seg]")
+axis[1].set_ylabel("Tensión [uV]")
+axis[1].legend()
+axis[1].grid()
 
-plt.plot(input_filtered, 'r', label="Input signal") 
-plt.plot(output_filtered, 'b--', label="Measured signal")
-plt.plot([input_filtered[i] - output_filtered[i] for i in range(len(input_filtered))], 'g', label="Error")
-plt.title(f"Input filtered with SMA Vs Output filtered with SMA")
-plt.legend()
 plt.show()
-
-
 #############
 ############# Saving Signals
 
@@ -407,10 +450,10 @@ Sxx = Sxx_i - Sxx_o
 f, Pxx_den_i = periodogram(input_signal_resampled, fs=new_sample_rate,)
 f, Pxx_den_o = periodogram(output_signal_resampled, fs=new_sample_rate,)
 
-plt.semilogy(f, Pxx_den_i,'r-', label="Input")
-plt.semilogy(f, Pxx_den_o,'b', label="Output")
-plt.ylim([1e-7, 1e2])
-plt.xlabel('frequency [Hz]')
-plt.ylabel('PSD [V**2/Hz]')
-plt.legend()
-plt.show()
+#plt.semilogy(f, Pxx_den_i,'r-', label="Input")
+#plt.semilogy(f, Pxx_den_o,'b', label="Output")
+#plt.ylim([1e-7, 1e2])
+#plt.xlabel('frequency [Hz]')
+#plt.ylabel('PSD [V**2/Hz]')
+#plt.legend()
+#plt.show()
