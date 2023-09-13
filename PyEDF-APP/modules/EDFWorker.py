@@ -225,7 +225,10 @@ class EDFWorker():
             #XXX: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail.
             # creo que le falta un * 2
             processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
-            #processed_signal = inverse_filter(data = processed_signal, stopband = [0.8, 30], fs = self.getSampleRate())
+            
+            #### INVERSE FILTER
+            #inv_filtered_signal = inverse_filter(data = processed_signal, stopband = [0.8, 30], fs = self.getSampleRate())
+            #processed_signal = inv_filtered_signal + processed_signal
 
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
 

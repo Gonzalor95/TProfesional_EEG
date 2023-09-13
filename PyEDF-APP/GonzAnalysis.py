@@ -163,7 +163,7 @@ def get_signal_and_edf_worker_from_edf(signal_filepath, channel, is_output = Fal
             signal = tuple[1]
 
     if is_output:
-        signal = signal - EEG_EDF_OFFSET
+        signal = (signal - EEG_EDF_OFFSET) * 1.09
 
     return signal, edf_worker
 
@@ -204,6 +204,7 @@ def get_correlated_input_signal(input_signal, output_signal):
     
     mse = 9999999999999
     for i in aux:
+        print(f"i = {i}")
         lag_index = (index + i)
         input_lag = (lag_index  - len(input_signal))
 
@@ -212,7 +213,7 @@ def get_correlated_input_signal(input_signal, output_signal):
 
         current_mse = get_mse(input_signal=aux_signal,output_signal=output_signal)
 
-        #print(f"mse = {current_mse} with input_lag = {input_lag}")
+        print(f"mse = {current_mse} with input_lag = {input_lag}")
 
         if current_mse < mse:
             mse = current_mse
@@ -256,24 +257,29 @@ def check_gain_for_output(input_signal, output_signal):
 """
 
 input_signal_file_name = "common_mode_sample1"
-output_signal_file_name = "EEG_CommonSample1"
+#output_signal_file_name = "EEG_CommonSample1"
+output_signal_file_name = "Sen200uV"
+
+
 
 input_signal_filepath = os.path.join(".", "edf_samples", f"{input_signal_file_name}.edf")
 output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_signal_file_name}.edf")
 
-input_signal, input_edfworker = get_signal_and_edf_worker_from_edf(signal_filepath=input_signal_filepath, channel='Fp1', is_output=False)
+input_signal, input_edfworker = get_testing_signal(signal_type = 'Sinusoidal', frecuency = 5, amplitude = 200, sample_rate = 500, duration = 5*10)
+#input_signal, input_edfworker = get_signal_and_edf_worker_from_edf(signal_filepath=input_signal_filepath, channel='Fp1', is_output=False)
 output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_filepath=output_signal_filepath, channel='Fp1', is_output=True)
+
+
 
 ##
 ## PREVIEW SIGNALS BEFORE WORKING:
-#plt.plot(input_signal)
-#plt.plot(output_signal)
-#plt.show()
-
+plt.plot(input_signal)
+plt.plot(output_signal)
+plt.show()
 #############
 ############# FILTERS
-input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
-input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
+#input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
+#input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
 
 #input_signal = slew_rate_filter(input_signal, 10)
 
@@ -290,7 +296,7 @@ output_signal_resampled = resampy.resample(output_signal, output_edfworker.getSa
 ############# Correlation
 
 # We select a window from the output signal to avoid parts that do not correspond to anything
-output_signal_resampled = select_data_window(output_signal_resampled, start_index= 5000, end_index= 30000)
+output_signal_resampled = select_data_window(output_signal_resampled, start_index= 400, end_index= 700)
 
 
 #############

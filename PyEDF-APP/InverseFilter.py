@@ -21,7 +21,7 @@ def inverse_filter(data = [], stopband = [0.8, 30], fs = 1):
 
     data = data * gain
     y = filtfilt(b, a, data) # Notch
-    y = sosfiltfilt(sos, data) # Butter bandstop
+    #y = sosfiltfilt(sos, data) # Butter bandstop
 
     return y
 
@@ -78,7 +78,7 @@ def butterworth_filter(data= [], btype='low', cutoff_freq = 1, fs = 1, order = 1
 
 
 
-frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
+frequencies = [0.003,0.008, 0.03, 0.08, 0.3, 0.8, 3, 8, 30, 80, 300, 800]
 
 amplitude = 10
 sampling_rate = 2000
@@ -88,7 +88,7 @@ t, signal = generate_sinusoidal_waves_matching_time(amplitude, duration, frequen
 
 signal_inverse_filter = inverse_filter(data = signal, stopband = [0.8, 30], fs = sampling_rate)
 
-signal_inverse_filter = signal_inverse_filter + signal
+signal_inverse_filter = signal_inverse_filter #+ signal
 
 signal_filtered = signal
 signal_filtered = butterworth_filter(signal_filtered, btype='high', cutoff_freq = 0.8, fs = sampling_rate, order = 1)
@@ -99,7 +99,7 @@ signal_filtered = butterworth_filter(signal_filtered, btype='low', cutoff_freq =
 
 fig, ax = plt.subplots()
 
-ax.plot(t, signal, 'b--', label='Input')
+#ax.plot(t, signal, 'b--', label='Input')
 ax.plot(t, signal_filtered, 'r', label='Filtered')
 #ax.plot( signal_deconvolve, 'r', label='Deconvolve')
 ax.plot(t, signal_inverse_filter, 'g--', label='Inverse Filter')
