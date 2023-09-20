@@ -27,8 +27,8 @@ def inverse_filter(data = [], stopband = [0.8, 30], fs = 1):
     gain = 1.41 # 3db
 
     data = data * gain
-    #y = filtfilt(b, a, data) # Notch
-    y = sosfiltfilt(sos, data) # Butter bandstop
+    y = filtfilt(b, a, data) # Notch
+    #y = sosfiltfilt(sos, data) # Butter bandstop
 
     return y
 ##########################
