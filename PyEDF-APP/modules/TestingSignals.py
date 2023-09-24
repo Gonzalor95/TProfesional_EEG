@@ -193,6 +193,7 @@ class TestingSignalsWorker():
 
         #Resp en frequencia:
         frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
+        
         duration = 5
         t, output = generate_sinusoidal_waves_matching_time(amplitude = amplitude, duration = duration, frequencies = frequencies, sample_rate = sample_rate)
         

@@ -78,11 +78,12 @@ def butterworth_filter(data= [], btype='low', cutoff_freq = 1, fs = 1, order = 1
 
 
 
-frequencies = [0.003,0.008, 0.03, 0.08, 0.3, 0.8, 3, 8, 30, 80, 300, 800]
+#frequencies = [0.003,0.008, 0.03, 0.08, 0.3, 0.8, 3, 8, 30, 80, 300, 800]
+frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
 
 amplitude = 10
 sampling_rate = 2000
-duration = 15
+duration = 10
 
 t, signal = generate_sinusoidal_waves_matching_time(amplitude, duration, frequencies, sampling_rate)
 
@@ -99,18 +100,26 @@ signal_filtered = butterworth_filter(signal_filtered, btype='low', cutoff_freq =
 
 fig, ax = plt.subplots()
 
-#ax.plot(t, signal, 'b--', label='Input')
-ax.plot(t, signal_filtered, 'r', label='Filtered')
+ax.plot(t, signal, 'b', label='Input')
+#ax.plot(t, signal_filtered, 'r', label='Filtered')
 #ax.plot( signal_deconvolve, 'r', label='Deconvolve')
-ax.plot(t, signal_inverse_filter, 'g--', label='Inverse Filter')
+#ax.plot(t, signal_inverse_filter, 'g--', label='Inverse Filter')
 #ax.plot(t, signal_reconstructed, 'y--', label='Reconstructed')
 
 i = 0
 for f in frequencies: 
-    ax.annotate(f"{f}Hz", xy=(i*duration, amplitude + 0.01), xytext=(i*duration, amplitude + 0.02)
+    ax.annotate(f"{f*5}Hz", xy=(i*duration, amplitude + 0.01), xytext=(i*duration, amplitude + 0.02)
                 #arrowprops=dict(facecolor='black', shrink=0.05),
                 )
     i = i + 1
 
 plt.legend()
+plt.show()
+
+f, t, Sxx = spectrogram(signal, fs=sampling_rate,scaling='density')
+
+plt.pcolormesh(t, f, Sxx, shading='gouraud')
+plt.title(f"Input")
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
 plt.show()
