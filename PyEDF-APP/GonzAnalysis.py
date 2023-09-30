@@ -215,7 +215,7 @@ def select_best_data_window(input_signal, output_signal, window_size = 5):
     time_step = 1/sample_rate
     # start = window_size para evitar los bordes
     # Recorremos toda la input:
-    window_starts = np.arange(start = window_size, stop = len(input_signal) * time_step - window_size * 4, step = window_size)
+    window_starts = np.arange(start = window_size, stop = len(input_signal) * time_step - window_size, step = window_size)
 
     print(window_starts)
     mse = 9999999
@@ -228,9 +228,9 @@ def select_best_data_window(input_signal, output_signal, window_size = 5):
 
         current_mse = get_mse(input_signal=selected_input_signal,output_signal=selected_output_signal)
 
-        if current_mse < mse:
+        if True:#current_mse < mse:
             mse = current_mse
-            print(f"mse = {mse} for window = [{window_start} - {window_start + window_size} ] seg")
+            print(f"mse = {mse} = [{window_start} - {window_start + window_size} ] seg")
             best_window_start = window_start
 
     print(f"#####################best window start = {best_window_start} with mse = {mse}")
@@ -242,7 +242,7 @@ def get_correlated_input_signal(input_signal, output_signal):
     We suppose input > output
     """
 
-    print("Started get_correlated_input_signal()...")
+    #print("Started get_correlated_input_signal()...")
     
     # Find the correlation lag:
 
@@ -257,9 +257,9 @@ def get_correlated_input_signal(input_signal, output_signal):
 
     input_signal_duration = len(input_signal) / 200
     output_signal_duration = len(output_signal) / 200
-    print(f"Input signal duration = {input_signal_duration}")
-    print(f"Output signal duration = {output_signal_duration}")
-    print(f"Correlation returned index = {index}")
+    #print(f"Input signal duration = {input_signal_duration}")
+    #print(f"Output signal duration = {output_signal_duration}")
+    #print(f"Correlation returned index = {index}")
     
     mse = 9999999999999
     for i in aux:
@@ -283,7 +283,7 @@ def get_correlated_input_signal(input_signal, output_signal):
     window_start_time = len(input_signal[0:abs(input_lag)])/200
     window = [window_start_time, window_start_time+ output_signal_duration]
     #print(f"Selected window of input: [{window[0]} - {window[1]}] seg")
-    print(f"Latest mse = {mse} with saved_i = {saved_i}. ")
+    #print(f"Latest mse = {mse} with saved_i = {saved_i}. ")
     return correlated_input_signal, window
 
 def get_mse(input_signal, output_signal):
@@ -313,6 +313,7 @@ def check_gain_for_output(input_signal, output_signal):
     return best_gain
 
 
+
 """
 =================================================================================
 ====================================  ANALYSIS FUNCTIONS   ====================================
@@ -325,7 +326,7 @@ def general_analysis():
     """
 
     input_signal_file_name = "common_mode_sample1"
-    output_signal_file_name = "EEG_CommonSample1"
+    output_signal_file_name = "Reample_200Hz"
     #output_signal_file_name = "Sen200uV"
 
 
@@ -333,10 +334,12 @@ def general_analysis():
     input_signal_filepath = os.path.join(".", "edf_samples", f"{input_signal_file_name}.edf")
     output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_signal_file_name}.edf")
 
-    channel = 'Fp1'
+    channel = 'Fp2'
     #input_signal, input_edfworker = get_testing_signal(signal_type = 'Sinusoidal', frecuency = 5, amplitude = 200, sample_rate = 500, duration = 5*10)
     input_signal, input_edfworker = get_signal_and_edf_worker_from_edf(signal_filepath=input_signal_filepath, channel=channel, is_output=False)
     output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_filepath=output_signal_filepath, channel=channel, is_output=True)
+
+    #output_signal = output_signal[11000:22000]
 
 
 
@@ -371,6 +374,7 @@ def general_analysis():
 
     #############
     ############# FILTERS
+    input_signal_original = input_signal
     #input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
     #input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
 
@@ -381,6 +385,7 @@ def general_analysis():
 
     new_sample_rate = 200
 
+    input_signal_original_resampled = resampy.resample(input_signal_original, input_edfworker.getSampleRate(), new_sample_rate)
     input_signal_resampled = resampy.resample(input_signal, input_edfworker.getSampleRate(), new_sample_rate)
     output_signal_resampled = output_signal#resampy.resample(output_signal, output_edfworker.getSampleRate(), new_sample_rate)
 
@@ -405,7 +410,7 @@ def general_analysis():
     # Muestra B
     #selected_start_window = 60 # seg
     # Muestra C
-    selected_start_window = 150 # seg
+    selected_start_window = 70 # seg
 
     window = [selected_start_window, selected_start_window + sample_window_duration]
     start_index = selected_start_window * 200
@@ -416,7 +421,7 @@ def general_analysis():
     #window = [start_index / input_edfworker.getSampleRate(), end_index / input_edfworker.getSampleRate()]
     #print(f"Tomamos la ventana de tiempo entre {window[0]} y {window[1]} segundos ")
     input_signal_resampled = select_data_window(input_signal_resampled, start_index= start_index, end_index= end_index)
-    
+    input_signal_original_resampled = select_data_window(input_signal_original_resampled, start_index= start_index, end_index= end_index)
 
 
     #############
@@ -465,27 +470,38 @@ def general_analysis():
     time_axis = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
     figure, axis = plt.subplots(2, 1)
 
-    #figure.suptitle(f"{input_signal_file_name} Vs {output_signal_file_name}")
+    figure.suptitle(f"Prueba resampleada a 200Hz Vs Medida. Muestra entre [{window[0]} - {window[1]}] segs. Canal = {channel}")
 
-    axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input") 
+    axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input (200Hz)") 
     axis[0].plot(time_axis, output_signal_resampled, 'b--', label="Output")
-    #axis[0].set_title(f"{input_signal_file_name} Vs {output_signal_file_name}")
-    axis[0].set_title(f"Señal de Prueba Vs Señal Medida. Muestra entre [{window[0]} - {window[1]}] segs. Canal = {channel}")
     axis[0].set_xlim([0, time_axis[-1]])
-    axis[0].set_xlabel("Tiempo [seg]")
     axis[0].set_ylabel("Tensión [uV]")
     axis[0].legend()
     axis[0].grid()
 
-
-    axis[1].plot(time_axis, input_signal_resampled - output_signal_resampled,'g', label="Error= Input - Output")
+    axis[1].plot(time_axis, input_signal_resampled - output_signal_resampled,'g', label="Error = Input - Output")
     axis[1].set_title(f"ECM = {mse:.2f}")
     axis[1].set_xlim([0, time_axis[-1]])
-    axis[1].set_xlabel("Tiempo [seg]")
     axis[1].set_ylabel("Tensión [uV]")
     axis[1].legend()
     axis[1].grid()
 
+
+    #axis[2].plot(time_axis,input_signal_original_resampled, 'r', label="Input sin filtrar") 
+    #axis[2].plot(time_axis, output_signal_resampled, 'b--', label="Output")
+    #axis[2].set_xlim([0, time_axis[-1]])
+    #axis[2].set_ylabel("Tensión [uV]")
+    #axis[2].legend()
+    #axis[2].grid()
+#
+    #axis[3].plot(time_axis,input_signal_original_resampled - output_signal_resampled, 'g', label="Error sin filtro") 
+    #axis[3].set_title(f"ECM = {get_mse(input_signal=input_signal_original_resampled, output_signal=output_signal_resampled):.2f}")
+    #axis[3].set_xlim([0, time_axis[-1]])
+    #axis[3].set_ylabel("Tensión [uV]")
+    #axis[3].set_xlabel("Tiempo [seg]")
+    #axis[3].legend()
+    #axis[3].grid()
+#
     plt.show()
 
 
