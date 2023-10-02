@@ -598,8 +598,8 @@ def freq_response_analysis():
     time_step = 1/output_edfworker_SR1.getSampleRate()
     time_axis_SR1  = np.arange(start = 0, stop = len(output_SR1) * time_step, step = time_step)
     time_axis_SR1000  = np.arange(start = 0, stop = len(output_SR1000) * time_step, step = time_step)
-    #plt.plot(time_axis_SR1, output_SR1)
-    plt.plot(time_axis_SR1000, output_SR1000)
+    plt.plot(time_axis_SR1, output_SR1)
+    #plt.plot(time_axis_SR1000, output_SR1000)
     plt.plot()
     i = 0
     duration = 5

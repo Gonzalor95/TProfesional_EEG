@@ -59,6 +59,7 @@ class SNRAnalysis:
             self.all_signals.append(full_signal[30050:30549])#append(full_signal[29950:30549])
 
         elif self.frequency == 10:
+            self.amp_adjust = 199/162
             self.window_size = 400
             full_signal = eeg_utils.generate_output_signal("SNR_10Hz", [channel])
             self.all_signals.append(full_signal[3800:4571])
@@ -130,7 +131,7 @@ def equalize_signal_lengths(s1, s2):
     return s1[:min_len], s2[:min_len]
 
 
-snr_analysis = SNRAnalysis(frequency = 10)
+snr_analysis = SNRAnalysis(frequency = 1)
 
 snr_analysis.correlate_all_signals()
 
