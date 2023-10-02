@@ -585,12 +585,12 @@ def freq_response_analysis():
     frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
     
     
-
+    channel = 'Cz'
     output_SR1_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_FreqResponseSR1_file_name}.edf")
     output_SR1000_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_FreqResponseSR1000_file_name}.edf")
 
-    output_SR1, output_edfworker_SR1  = get_signal_and_edf_worker_from_edf(signal_filepath=output_SR1_filepath, channel='Fp1', is_output=True)
-    output_SR1000, output_edfworker_SR1000  = get_signal_and_edf_worker_from_edf(signal_filepath=output_SR1000_filepath, channel='Fp1', is_output=True)
+    output_SR1, output_edfworker_SR1  = get_signal_and_edf_worker_from_edf(signal_filepath=output_SR1_filepath, channel=channel, is_output=True)
+    output_SR1000, output_edfworker_SR1000  = get_signal_and_edf_worker_from_edf(signal_filepath=output_SR1000_filepath, channel=channel, is_output=True)
 
     output_SR1 = output_SR1[4777:]
     output_SR1000 = output_SR1000[5777:]
@@ -603,7 +603,7 @@ def freq_response_analysis():
     plt.plot()
     i = 0
     duration = 5
-    amplitude = 200
+    amplitude = 150
     for f in frequencies: 
         plt.annotate(f"{f*5}Hz", xy=(i*duration, amplitude + 0.01), xytext=(i*duration, amplitude + 0.02)
                 #arrowprops=dict(facecolor='black', shrink=0.05),
@@ -634,12 +634,11 @@ def freq_response_analysis():
     plt.show()
 
 
-
 """
 =================================================================================
 ====================================  Main   ====================================
 =================================================================================
 """
 
-general_analysis()
-#freq_response_analysis()
+#general_analysis()
+freq_response_analysis()
