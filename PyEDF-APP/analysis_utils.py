@@ -238,6 +238,11 @@ def generate_input_signal(
 def generate_output_signal(
     signal_filename, channels, filter: Filter = None, resample=False
 ):
+    """ 
+    Generates output signal. Returns single signal if channels is string or len(channels) == 1.
+    Else returns list of dict as:
+        ['Channel': <ch_name>, 'Signal': <ch_signal>]
+    """
     curr_script_dir = os.path.dirname(os.path.realpath(__file__))
     config = read_config_file(curr_script_dir)
 
@@ -247,18 +252,26 @@ def generate_output_signal(
     output_signal_worker = EDFWorker(config)
     output_signal_worker.readEDF(output_signal_filepath)
     output_signal_worker.setSelectedChannels(channels)
-    output_signal = (
-        output_signal_worker.signal_data_.physical_signals_and_channels[0][1]
-        - EEG_EDF_OFFSET
-    )
-    if filter:
-        filter.configure_filter(data=output_signal)
-        output_signal = filter.apply_filter()
-    if resample:
-        output_signal = resampy.resample(
-            output_signal, output_signal_worker.getSampleRate(), 200
-        )
-    return output_signal
+
+    output_signals_and_channels = []
+    for tuple in output_signal_worker.signal_data_.physical_signals_and_channels:
+        if (tuple[0] in channels):
+
+            ch = tuple[0]
+            output_signal = tuple[1]
+            output_signal = (output_signal - EEG_EDF_OFFSET)
+
+            if filter:
+                filter.configure_filter(data=output_signal)
+                output_signal = filter.apply_filter()
+            if resample:
+                output_signal = resampy.resample(
+                    output_signal, output_signal_worker.getSampleRate(), 200
+                )
+            output_signals_and_channels.append({'Channel': ch, 'Signal': output_signal})
+
+
+    return output_signals_and_channels if len(output_signals_and_channels) > 1 else output_signals_and_channels[0]['Signal'] 
 
 
 # # We can try to apply a filter to see if it improves
