@@ -274,6 +274,23 @@ def generate_output_signal(
     return output_signals_and_channels if len(output_signals_and_channels) > 1 else output_signals_and_channels[0]['Signal'] 
 
 
+def select_data_window_by_time(signal, sample_rate = 200, start_time = 0, end_time = 0.005):
+
+    assert (start_time < end_time), "Error: end_time must be greater than start_time"
+
+    time_step = 1 / sample_rate
+
+    signal = signal[int(start_time*sample_rate) : int(  end_time * sample_rate) ]
+
+    time_axis = np.arange(start = 0, stop = len(signal) * time_step, step = time_step)
+
+    return signal, time_axis
+
+def select_data_window_by_index(data, start_index= 0, end_index= 1):
+    assert (start_index < end_index), "Error: end_index must be greater than start_index"
+    data = data[start_index:end_index]
+    return data
+
 # # We can try to apply a filter to see if it improves
 # input_signal = butter_lowpass_filter(input_signal, 30, input_signal_worker.getSampleRate(), order=2)
 # #output_signal = butter_lowpass_filter(output_signal, 70, output_signal_worker.getSampleRate(), order=5)
