@@ -254,21 +254,22 @@ def generate_output_signal(
     output_signal_worker.setSelectedChannels(channels)
 
     output_signals_and_channels = []
-    for tuple in output_signal_worker.signal_data_.physical_signals_and_channels:
-        if (tuple[0] in channels):
+    for channel in channels:
+        for tuple in output_signal_worker.signal_data_.physical_signals_and_channels:
+            if (tuple[0] is channel):
+                ch = tuple[0]
+                output_signal = tuple[1]
+                output_signal = (output_signal - EEG_EDF_OFFSET)
 
-            ch = tuple[0]
-            output_signal = tuple[1]
-            output_signal = (output_signal - EEG_EDF_OFFSET)
-
-            if filter:
-                filter.configure_filter(data=output_signal)
-                output_signal = filter.apply_filter()
-            if resample:
-                output_signal = resampy.resample(
-                    output_signal, output_signal_worker.getSampleRate(), 200
-                )
-            output_signals_and_channels.append({'Channel': ch, 'Signal': output_signal})
+                if filter:
+                    filter.configure_filter(data=output_signal)
+                    output_signal = filter.apply_filter()
+                if resample:
+                    output_signal = resampy.resample(
+                        output_signal, output_signal_worker.getSampleRate(), 200
+                    )
+                output_signals_and_channels.append({'Channel': ch, 'Signal': output_signal})
+                break
 
 
     return output_signals_and_channels if len(output_signals_and_channels) > 1 else output_signals_and_channels[0]['Signal'] 
