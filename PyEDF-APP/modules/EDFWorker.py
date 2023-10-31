@@ -194,9 +194,6 @@ class EDFWorker():
             b = self.config_params_["max_physical"] / m - self.config_params_["max_digital"]
             processed_signal = signal / m - b
 
-            #self.signal_data_.digital_signal = digital
-            #XXX: Gonza - Aplico la antitransformada de Divisor + Rail-to-Rail.
-            # creo que le falta un * 2
             processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
 
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
@@ -238,8 +235,6 @@ class EDFWorker():
         """
         clean_headers_and_signals = []
         if self.areSignalsBipolar_(raw_headers_and_signals):
-            # TODO
-            print("Implement this? -> Probably not possible")
             raise Exception("EDF file is in bipolar mode")
         else:
             reference_signal_set = False
@@ -303,7 +298,7 @@ class EDFWorker():
             axis[index][0].plot(signal, color=([168/255, 193/255, 5/255]), linewidth=0.4)
             # Hide axis values
             axis[index][0].get_xaxis().set_ticks([])
-            # axis[index][0].get_yaxis().set_ticks([])
+            axis[index][0].get_yaxis().set_ticks([])
             # Set plot title
             axis[index][0].set_ylabel(header, rotation=0, labelpad=30)
             # Adjust axis range to better fit the signal
@@ -322,9 +317,7 @@ class EDFWorker():
         channel1 = channels[0]
         channel2 = channels[1]
 
-        # TODO: Temporarily fill A1 and A2 channels with a 0s to match the other signals and use as reference
+        # Fill A1 and A2 channels with a 0s to match the other signals and use as reference
         channel1 = np.zeros(len(signal))
         channel2 = np.zeros(len(signal))
         return [("A1", channel1), ("A2", channel2)]
-
-        # TODO: Get the actual values of A1 and A2 if present. This would replace the above TODO
