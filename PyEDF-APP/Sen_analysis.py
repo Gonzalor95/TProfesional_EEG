@@ -324,39 +324,40 @@ def check_gain_for_output(input_signal, output_signal):
 """
 GENERAL ANALYSIS: Aca hago un analisis general
 """
-input_signal_file_name = "common_mode_sample1"
-output_signal_file_name = "EEG_CommonSample1"
-#output_signal_file_name = "Sen200uV"
-input_signal_filepath = os.path.join(".", "edf_samples", f"{input_signal_file_name}.edf")
+#input_signal_file_name = "common_mode_sample1"
+#output_signal_file_name = "EEG_CommonSample1"
+output_signal_file_name = "Sen200uV"
+#input_signal_filepath = os.path.join(".", "edf_samples", f"{input_signal_file_name}.edf")
 output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_signal_file_name}.edf")
 channel = 'Fp1'
-#input_signal, input_edfworker = get_testing_signal(signal_type = 'Sinusoidal', frecuency = 5, amplitude = 200, sample_rate = 500, duration = 5*10)
-input_signal, input_edfworker = get_signal_and_edf_worker_from_edf(signal_filepath=input_signal_filepath, channel=channel, is_output=False)
+input_signal, input_edfworker = get_testing_signal(signal_type = 'Sinusoidal', frecuency = 5, amplitude = 200, sample_rate = 500, duration = 5*10)
+#input_signal, input_edfworker = get_signal_and_edf_worker_from_edf(signal_filepath=input_signal_filepath, channel=channel, is_output=False)
 output_signal, output_edfworker  = get_signal_and_edf_worker_from_edf(signal_filepath=output_signal_filepath, channel=channel, is_output=True)
 #output_signal = output_signal[11000:22000]
+output_signal = output_signal * 1.02 
 ##
 
 ## PREVIEW SIGNALS BEFORE WORKING:
-time_step_output = 1/output_edfworker.getSampleRate()
-time_step_input = 1/input_edfworker.getSampleRate()
-t_output = np.arange(start = 0, stop = len(output_signal) * time_step_output, step = time_step_output)
-t_input = np.arange(start = 0, stop = len(input_signal) * time_step_input, step = time_step_input)
-figure, axis = plt.subplots(2, 1)
-axis[0].plot(t_input,input_signal, 'r', label="Input") 
-axis[0].set_title(f"Señal de Input completa - Canal Fp1")
-axis[0].set_xlim([0, t_input[-1]])
-axis[0].set_xlabel("Tiempo [seg]")
-axis[0].set_ylabel("Tensión [uV]")
-axis[0].legend()
-axis[0].grid()
-axis[1].plot(t_output,output_signal, 'b', label="Output") 
-axis[1].set_title(f"Señal de Output completa - Canal Fp1")
-axis[1].set_xlim([0, t_output[-1]])
-axis[1].set_xlabel("Tiempo [seg]")
-axis[1].set_ylabel("Tensión [uV]")
-axis[1].legend()
-axis[1].grid()
-plt.show()
+#time_step_output = 1/output_edfworker.getSampleRate()
+#time_step_input = 1/input_edfworker.getSampleRate()
+#t_output = np.arange(start = 0, stop = len(output_signal) * time_step_output, step = time_step_output)
+#t_input = np.arange(start = 0, stop = len(input_signal) * time_step_input, step = time_step_input)
+#figure, axis = plt.subplots(2, 1)
+#axis[0].plot(t_input,input_signal, 'r', label="Input") 
+#axis[0].set_title(f"Señal de Input completa - Canal Fp1")
+#axis[0].set_xlim([0, t_input[-1]])
+#axis[0].set_xlabel("Tiempo [seg]")
+#axis[0].set_ylabel("Tensión [uV]")
+#axis[0].legend()
+#axis[0].grid()
+#axis[1].plot(t_output,output_signal, 'b', label="Output") 
+#axis[1].set_title(f"Señal de Output completa - Canal Fp1")
+#axis[1].set_xlim([0, t_output[-1]])
+#axis[1].set_xlabel("Tiempo [seg]")
+#axis[1].set_ylabel("Tensión [uV]")
+#axis[1].legend()
+#axis[1].grid()
+#plt.show()
 #############
 ############# FILTERS
 input_signal_original = input_signal
@@ -378,13 +379,13 @@ select_best_data_window(input_signal=input_signal_resampled,output_signal=output
 ############## NOTA IMPORTANTE: Tuve que dar vuelta la input y output aca porque asi obtenia la ventana que estabamos seleccionando con referencia a input
 #######################
 # We select a window from the output signal to avoid parts that do not correspond to anything
-sample_window_duration = 170 # seg
+sample_window_duration = 1 # seg
 # Muestra A
 #selected_start_window = 15 # seg
 # Muestra B
 #selected_start_window = 60 # seg
 # Muestra C
-selected_start_window = 5 # seg
+selected_start_window = 3 # seg
 window = [selected_start_window, selected_start_window + sample_window_duration]
 start_index = selected_start_window * 200
 end_index= (selected_start_window + sample_window_duration) * 200
@@ -411,6 +412,8 @@ print(f"mse = {mse}")
 # Just curiosity:
 # rest = stats.ttest_ind(input_signal_resampled, output_signal_resampled)
 #print(rest)
+
+error_signal = input_signal_resampled - output_signal_resampled
 #############
 ############# Plotting
 ### Time Axis:
@@ -421,86 +424,24 @@ xlabel = 'Time [seg]' if plot_time_axis else ''
 #time_axis_out = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
 ### Plot:
 time_axis = np.arange(start = 0, stop = len(input_signal_resampled) * time_step, step = time_step)
-figure, axis = plt.subplots(2, 1)
-figure.suptitle(f"Prueba resampleada a 200Hz Vs Medida. Muestra entre [{window[0]} - {window[1]}] segs. Canal = {channel}")
-axis[0].plot(time_axis,input_signal_resampled, 'r', label="Input (200Hz)") 
-#axis[0].plot(time_axis, output_signal_resampled, 'b--', label="Output")
-axis[0].set_xlim([0, time_axis[-1]])
-axis[0].set_ylabel("Tensión [uV]")
-axis[0].legend()
-axis[0].grid()
-axis[1].plot(time_axis, output_signal_resampled,'b', label="Error = Input - Output")
-axis[1].set_title(f"ECM = {mse:.2f}")
-axis[1].set_xlim([0, time_axis[-1]])
-axis[1].set_ylabel("Tensión [uV]")
-axis[1].legend()
-axis[1].grid()
-#axis[2].plot(time_axis,input_signal_original_resampled, 'r', label="Input sin filtrar") 
-#axis[2].plot(time_axis, output_signal_resampled, 'b--', label="Output")
-#axis[2].set_xlim([0, time_axis[-1]])
-#axis[2].set_ylabel("Tensión [uV]")
-#axis[2].legend()
-#axis[2].grid()
 
-#axis[3].plot(time_axis,input_signal_original_resampled - output_signal_resampled, 'g', label="Error sin filtro") 
-#axis[3].set_title(f"ECM = {get_mse(input_signal=input_signal_original_resampled, output_signal=output_signal_resampled):.2f}")
-#axis[3].set_xlim([0, time_axis[-1]])
-#axis[3].set_ylabel("Tensión [uV]")
-#axis[3].set_xlabel("Tiempo [seg]")
-#axis[3].legend()
-#axis[3].grid()
+plt.plot(time_axis,input_signal_resampled, 'r', label="Input") 
+plt.plot(time_axis, output_signal_resampled, 'b--', label="Output")
+plt.plot(time_axis, error_signal,'g', label="Error = Input - Output")
+plt.xlim([0, time_axis[-1]])
+plt.ylim([-200, 200])
+plt.ylabel("Tensión [uV]")
+plt.xlabel("Tiempo [seg]")
+plt.legend(loc='upper right')
+plt.grid()
+
+print(f"max Error = {max(error_signal)}")
+print(f"min Error = {min(error_signal)}")
+print(f"Error absoluto = {max([abs(max(error_signal)), abs(min(error_signal)) ]):.2f} uV")
+
 
 plt.show()
-#############
-############# SMA Filtering:
-#SMA_sample_count = get_optimized_window_size_for_SMA(input_signal_resampled, output_signal_resampled)
-#input_filtered = SMA_filter(input_signal_resampled, SMA_sample_count)
-#output_filtered = SMA_filter(output_signal_resampled, SMA_sample_count)
-#mse = get_mse(input_signal=input_filtered, output_signal=output_filtered)
-#time_axis = np.arange(start = 0, stop = len(input_filtered) * time_step, step = time_step)
-#figure, axis = plt.subplots(2, 1)
-#axis[0].plot(time_axis, input_filtered, 'r', label="Input") 
-#axis[0].plot(time_axis, output_filtered, 'b--', label="Output")
-#axis[0].set_title(f"Señal de Prueba Vs Señal Medida (utilizando filtro SMA de {SMA_sample_count} puntos)")
-#axis[0].set_xlim([0, time_axis[-1]])
-#axis[0].set_xlabel("Tiempo [seg]")
-#axis[0].set_ylabel("Tensión [uV]")
-#axis[0].legend()
-#axis[0].grid()
-#axis[1].plot(time_axis, [input_filtered[i] - output_filtered[i] for i in range(len(input_filtered))], 'g', label="Error")
-#axis[1].set_xlim([0, time_axis[-1]])
-#axis[1].set_title(f"ECM = {mse:.2f}")
-#axis[1].set_xlabel("Tiempo [seg]")
-#axis[1].set_ylabel("Tensión [uV]")
-#axis[1].legend()
-#axis[1].grid()
-#plt.show()
 
-
-
-#############
-############# Saving Signals
-#np.savetxt('input_signal_resampled_fitted.dat', input_signal_resampled)
-#np.savetxt('output_signal_resampled_fitted.dat', output_signal_resampled)
-#############
-############# Frequency analysis
-#f_i, t_i, Sxx_i = spectrogram(input_signal_resampled, fs=new_sample_rate,scaling='density')
-#f_o, t_o, Sxx_o = spectrogram(output_signal_resampled, fs=new_sample_rate,scaling='density')#
-#Sxx = Sxx_i - Sxx_o
-#plt.pcolormesh(t_i, f_i, Sxx_i, shading='gouraud')
-#plt.title(f"Input")
-#plt.ylabel('Frequency [Hz]')
-#plt.xlabel('Time [sec]')
-#plt.show()
-#f, Pxx_den_i = periodogram(input_signal_resampled, fs=new_sample_rate,)
-#f, Pxx_den_o = periodogram(output_signal_resampled, fs=new_sample_rate,)
-#plt.semilogy(f, Pxx_den_i,'r-', label="Input")
-#plt.semilogy(f, Pxx_den_o,'b', label="Output")
-#plt.ylim([1e-7, 1e2])
-#plt.xlabel('frequency [Hz]')
-#plt.ylabel('PSD [V**2/Hz]')
-#plt.legend()
-#plt.show()
 
 
 

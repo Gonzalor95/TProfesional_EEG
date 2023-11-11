@@ -292,6 +292,56 @@ def select_data_window_by_index(data, start_index= 0, end_index= 1):
     data = data[start_index:end_index]
     return data
 
+def get_correlated_input_signal(input_signal, output_signal):
+    """
+
+    We suppose input > output
+    """
+
+    #print("Started get_correlated_input_signal()...")
+    
+    # Find the correlation lag:
+
+    Cmatrix = np.correlate(output_signal, input_signal, 'full')
+    Cmatrix = Cmatrix/max(Cmatrix)
+
+    index = np.where(Cmatrix ==1)[0][0]  # usando el +1, bajo de mse=19 a 16
+
+    # Como a veces si hago index +- algun valor, busco el que da menor MSE:
+
+    aux = list(range(-10, 10))
+
+    input_signal_duration = len(input_signal) / 200
+    output_signal_duration = len(output_signal) / 200
+    #print(f"Input signal duration = {input_signal_duration}")
+    #print(f"Output signal duration = {output_signal_duration}")
+    #print(f"Correlation returned index = {index}")
+    
+    mse = 9999999999999
+    for i in aux:
+        #print(f"i = {i}")
+        lag_index = (index + i)
+        input_lag = (lag_index  - len(input_signal))
+
+        # We keep the correlated window part
+        aux_signal = input_signal[abs(input_lag):len(output_signal)+abs(input_lag)]
+
+        current_mse = calculate_mse(s1=aux_signal,s2=output_signal)
+
+        #print(f"mse = {current_mse} with input_lag = {input_lag}")
+
+        if current_mse < mse:
+            mse = current_mse
+            best_input_lag = input_lag
+            correlated_input_signal = aux_signal
+            saved_i = i
+
+    window_start_time = len(input_signal[0:abs(input_lag)])/200
+    window = [window_start_time, window_start_time+ output_signal_duration]
+    #print(f"Selected window of input: [{window[0]} - {window[1]}] seg")
+    #print(f"Latest mse = {mse} with saved_i = {saved_i}. ")
+    return correlated_input_signal, window
+
 # # We can try to apply a filter to see if it improves
 # input_signal = butter_lowpass_filter(input_signal, 30, input_signal_worker.getSampleRate(), order=2)
 # #output_signal = butter_lowpass_filter(output_signal, 70, output_signal_worker.getSampleRate(), order=5)
