@@ -5,6 +5,7 @@ import resampy
 import math
 import numpy as np
 from scipy.signal import butter, lfilter, spectrogram, periodogram, filtfilt, argrelextrema
+from scipy.interpolate import interp1d
 from scipy.fft import fft, fftfreq
 from scipy import stats
 import yaml
@@ -106,3 +107,56 @@ plt.ylabel("Amplitud [db]")
 plt.grid()
 plt.show()
 
+
+#s = output_signal
+#Fs = 200
+#t = time_axis
+#
+#fig = plt.figure(figsize=(7, 7), layout='constrained')
+#axs = fig.subplot_mosaic([["signal", "signal"],
+#                          ["magnitude", "log_magnitude"],
+#                          ["phase", "angle"]])
+#
+## plot time signal:
+#axs["signal"].set_title("Signal")
+#axs["signal"].plot(t, s, color='C0')
+#axs["signal"].set_xlabel("Time (s)")
+#axs["signal"].set_ylabel("Amplitude")
+#
+## plot different spectrum types:
+#axs["magnitude"].set_title("Magnitude Spectrum")
+#axs["magnitude"].magnitude_spectrum(s, Fs=Fs, color='C1')
+#
+#axs["log_magnitude"].set_title("Log. Magnitude Spectrum")
+#axs["log_magnitude"].magnitude_spectrum(s, Fs=Fs, scale='dB', color='C1')
+#
+#axs["phase"].set_title("Phase Spectrum ")
+#axs["phase"].phase_spectrum(s, Fs=Fs, color='C2')
+#
+#axs["angle"].set_title("Angle Spectrum")
+#axs["angle"].angle_spectrum(s, Fs=Fs, color='C2')
+#
+#plt.show()
+
+freqs=[   1, 2.5,    4,   5 ,   10,   15, 25  , 30 ]
+dbs = [3.85,9.83, 9.67, 9.87, 9.84, 8.94, 7.42, 0.5]
+
+
+func = interp1d(freqs, dbs,
+                axis=0,  # interpolate along columns
+                bounds_error=False,
+                kind='quadratic',
+                fill_value=(dbs[0], dbs[-1]))
+xnew = np.linspace(0, 30, 100)
+ynew = func(xnew)
+
+plt.plot(xnew, ynew)
+#plt.plot(xf,2.0/N * np.abs(output_signal_f[0:N//2]))
+plt.axvline(x = 0.8, color = 'y', label = '0.8Hz')
+
+plt.xlabel("Frecuencia [Hz]")
+plt.ylabel("Amplitud [db]")
+plt.xlim([1,30])
+plt.ylim([4, 12])
+plt.grid()
+plt.show()
