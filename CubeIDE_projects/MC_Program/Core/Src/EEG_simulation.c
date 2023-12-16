@@ -147,7 +147,6 @@ void trigger_LDAC()
 	// To trigger LDAC. Every pin 1 (LDAC) of the DACs must be set to low to update all channels at once
 	// LDAC_settings variable is declared as extern outside
 	// Setting LDAC Pin to 0 (zero/low)
-	// TODO: hardcode until figure extern problem HAL_GPIO_WritePin(LDAC_settings.GPIO_LDAC_control_port, LDAC_settings.GPIO_LDAC_control_pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
 	// Setting LDAC Pin to 1 (one/high)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
@@ -262,53 +261,6 @@ void EEG_simulation_error_Handler(void)
 }
 
 // Queue functions
-/*
-void init_data_queue(Data_Queue * data_queue){
-	data_queue->front = data_queue->size = 0;
-	data_queue->rear = DATA_QUEUE_CAPACITY - 1;
-	data_queue->capacity = DATA_QUEUE_CAPACITY;
-	for(int i = 0; i< DATA_QUEUE_CAPACITY; i++){
-		data_queue->array[i][0] = 0;
-		data_queue->array[i][1] = 0;
-	}
-
-}
-
-void enqueue_data(uint16_t config, uint16_t data, Data_Queue * data_queue){
-	data_queue->rear = (data_queue->rear + 1) % data_queue->capacity;
-	data_queue->array[data_queue->rear][0] = config;
-	data_queue->array[data_queue->rear][1] = data;
-	data_queue->size = data_queue->size + 1;
-}
-
-void dequeue_data(uint16_t * config, uint16_t * data, Data_Queue * data_queue){
-	if(!is_queue_empty(data_queue)){
-		*config = data_queue->array[data_queue->front][0];
-		*data = data_queue->array[data_queue->front][1];
-		data_queue->front = (data_queue->front + 1) % data_queue->capacity;
-		data_queue->size = data_queue->size - 1;
-	}else{
-		*data = *config = 0;
-	}
-}
-
-int is_queue_full(Data_Queue * data_queue){
-	return (data_queue->size == data_queue->capacity);
-}
-
-int is_queue_empty(Data_Queue * data_queue){
-	//return ((data_queue->rear + 1) % data_queue->capacity == data_queue->front);
-	 return (data_queue->size == 0);
-}
-
-void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
-	data_queue->front = (data_queue->front + discarded_channels) % data_queue->capacity;
-	data_queue->size = data_queue->size - discarded_channels;
-	if(data_queue->size < 0)
-		init_data_queue(data_queue);
-}
-*/
-
 
 void init_data_queue(Data_Queue * data_queue){
 	data_queue->head = data_queue->tail = 0;
@@ -344,14 +296,9 @@ int is_queue_full(Data_Queue * data_queue){
 }
 
 int is_queue_empty(Data_Queue * data_queue){
-	//return ((data_queue->rear + 1) % data_queue->capacity == data_queue->front);
-	 //return (data_queue->size == 0);
 	return (data_queue->tail == data_queue->head);
 }
 
 void flush_discard_channels(Data_Queue * data_queue, int discarded_channels){
 	return;
 }
-
-
-

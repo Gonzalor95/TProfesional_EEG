@@ -51,14 +51,20 @@ time_step = 1/sample_rate
 
 for key, time_checkpoint in signals_checkpoints.items():
 
-    figure, axis = plt.subplots(len(crossover_signals), 1)
+    figure, axis = plt.subplots(2, 1)
     figure.suptitle(f"Crossover para {key} uV")
-    for i in range(0,len(crossover_signals)):
+    for i in range(0,2):
         signal, time_axis = eeg_utils.select_data_window_by_time(crossover_signals[i]['Signal'], sample_rate, start_time = time_checkpoint[0], end_time = time_checkpoint[1])
         #signal = crossover_signals[i]['Signal']
+        print(max(signal))
         axis[i].plot(time_axis, signal)
-        axis[i].set_xlim([0, time_axis[-1]])
-        axis[i].set_ylabel(f"{crossover_signals[i]['Channel']}\nTensión [uV]")
+        axis[i].set_xlim([1,4])
+        axis[i].set_ylim([-150,150])
+        if (i == 0):
+            axis[i].set_ylabel("T7 \nTensión [uV]")
+        else:
+            axis[i].set_ylabel("F8, T8, P7 \nTensión [uV]")
+            
         axis[i].grid()
         if i == len(crossover_signals) - 1:
             axis[i].set_xlabel("Tiempo [seg]")

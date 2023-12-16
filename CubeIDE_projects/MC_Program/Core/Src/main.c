@@ -25,8 +25,8 @@
 
 #include "string.h"
 #include "EEG_simulation.h"
-// #include "usbd_cdc_if.h"
 #include <stdbool.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +66,6 @@ DAC_Handler *list_of_dacs;
 LDAC_Handler LDAC;
 Data_Queue data_queue;
 
-//uint32_t TIM2_step_count = 0; // Load data to DACs  TIM
 uint32_t TIM3_step_count = 0; // LDAC TIM
 uint8_t DAC_load_flag = 0;
 uint8_t start_simulation_flag = 0;
@@ -158,9 +157,6 @@ int main(void)
   // Data queue init
   init_data_queue(&data_queue);
 
-
-
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -173,20 +169,6 @@ int main(void)
   // Main loop
   while (1)
   {
-
-	  // Measure TIMs
-	  /*
-	  if(DAC_load_flag){
-		  if(i%2){
-			  data = 0x0;
-		  }else{
-			  data = 0xffff;
-		  }
-		  send_data_to_dac_channel(&(list_of_dacs[dac_tag]), &(dac_channel), data);
-		  i++;
-		  DAC_load_flag = 0;
-	  }*/
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -565,14 +547,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void timer_test(uint16_t us){
-
-
-	__HAL_TIM_SET_COUNTER(&htim2,0);
-	while(__HAL_TIM_GET_COUNTER(&htim2) <= us);
-
-}
-
 /**
   * @brief  Period elapsed callback in non-blocking mode for TIM2
   * @param  htim TIM handle
@@ -591,7 +565,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			DAC_load_flag = 0;
 			for(int i = 0; i < simulation_channel_count ; i++){
 				if(DAC_load_flag){
-					//flush_discard_channels(&data_queue, simulation_channel_count-i);
 					break;
 				}
 				if(!is_queue_empty(&data_queue)){
@@ -611,19 +584,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			}
 
 		// Check if queue is empty and reset flag is true
-		} else if(reset_queue_and_dacs && is_queue_empty(&data_queue)){
+		} 
+    else if(reset_queue_and_dacs && is_queue_empty(&data_queue))
+    {
 			reset_dacs_config(list_of_dacs, &dacs_count);
-			//init_data_queue(&data_queue);
-
 			start_simulation_flag = 0;
 			reset_queue_and_dacs = 0;
 		}
-
-		//TIM2_step_count++;
-
-
-	} else if(htim == &htim3){
-
+	} 
+  else if(htim == &htim3)
+  {
 		// Trigger LDAC if sample_rate count is reach. Reset counter and DAC_load_flag.
 		if(TIM3_step_count == sample_rate && start_simulation_flag ){
 			trigger_LDAC();

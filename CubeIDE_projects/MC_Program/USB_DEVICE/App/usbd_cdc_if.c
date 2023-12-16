@@ -50,15 +50,11 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-//extern DAC_Handler dac_handler_A;
-//extern DAC_Handler dac_handler_B;
-//extern DAC_Handler dac_handler_C;
-//extern DAC_Handler dac_handler_D;
+
 extern DAC_Handler *list_of_dacs;
 extern uint8_t dacs_count;
 extern uint8_t start_simulation_flag;
 extern uint8_t reset_queue_and_dacs;
-//extern LDAC_Handler LDAC;
 extern Data_Queue data_queue;
 
 /* USER CODE END PRIVATE_TYPES */

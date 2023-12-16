@@ -91,14 +91,14 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         """
         # Load EDF file into worker and GUI
         if(self.edf_worker.readEDF(file_name)):
-            # Check that the amount of channels doesn't exceed the configured one
-            if self.edf_worker.getNumberOfChannels() >= self.device_config_["max_channels"]:
-                print("Number of channels of the selected EDF file exceeds the max amount, please select a different EDF file")
-                self.edf_worker.resetWorker()
-                PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
-                            "please select a different EDF file",
-                            QMessageBox.Abort, QMessageBox.Warning)
-                return
+            # # Check that the amount of channels doesn't exceed the configured one
+            # if self.edf_worker.getNumberOfChannels() >= self.device_config_["max_channels"]:
+            #     print("Number of channels of the selected EDF file exceeds the max amount, please select a different EDF file")
+            #     self.edf_worker.resetWorker()
+            #     PopUpWindow("EDF file selection", "Number of channels of the selected EDF file exceeds the max amount, "
+            #                 "please select a different EDF file",
+            #                 QMessageBox.Abort, QMessageBox.Warning)
+            #     return
             # Place the file name in the dialog box
             self.current_file_name_label.setText(file_name)
             # Set the maximun time selector slider value to the signal duration

@@ -261,6 +261,7 @@ class EDFWorker():
 
         self.signal_data_.physical_signals_and_channels = self.parseHeadersAndSignals_(raw_headers_and_physical_signals)
         self.signal_data_.digital_signals_and_channels = self.parseHeadersAndSignals_(raw_headers_and_digital_signals)
+        self.test_channel_headers_and_signals = raw_headers_and_digital_signals
 
 
     def parseHeadersAndSignals_(self, raw_headers_and_signals):
@@ -317,7 +318,39 @@ class EDFWorker():
         """
         Method to plot the physical signal to a graph. Plots only the selected channels
         """
-        _, axis = plt.subplots(len(self.selected_channels_), squeeze=False)
+        self.test_channel_headers_and_signals = self.test_channel_headers_and_signals[:19]
+
+        printing_signals = []
+        max_val = 0
+        for index in range(len(self.test_channel_headers_and_signals)):
+            printing_signals.append((self.test_channel_headers_and_signals[index][0], self.test_channel_headers_and_signals[index][1][3960:5960]))
+            print(min(printing_signals[index][1]))
+            print(max(printing_signals[index][1]))
+
+        printing_signals_2 = []
+        printing_signals_2.append(printing_signals[0][1])
+        printing_signals_2.append(printing_signals[1][1])
+        printing_signals_2.append(printing_signals[2][1])
+        printing_signals_2.append(printing_signals[3][1])
+        printing_signals_2.append(printing_signals[10][1])
+        printing_signals_2.append(printing_signals[11][1])
+        printing_signals_2.append(printing_signals[12][1])
+        printing_signals_2.append(printing_signals[13][1])
+        printing_signals_2.append(printing_signals[4][1])
+        printing_signals_2.append(printing_signals[5][1])
+        printing_signals_2.append(printing_signals[14][1])
+        printing_signals_2.append(printing_signals[15][1])
+        printing_signals_2.append(printing_signals[6][1])
+        printing_signals_2.append(printing_signals[7][1])
+        printing_signals_2.append(printing_signals[8][1])
+        printing_signals_2.append(printing_signals[9][1])
+        printing_signals_2.append(printing_signals[16][1])
+        printing_signals_2.append(printing_signals[18][1])
+        printing_signals_2.append(printing_signals[17][1])
+
+        names = ["Fp1", "Fp2", "F3", "F4", "F7", "F8", "T7", "T8", "C3", "C4", "P7", "P8", "P3", "P4", "O1", "O2", "Fz", "Cz", "Pz"]
+
+        _, axis = plt.subplots(len(printing_signals), squeeze=False)
         start_point = self.selected_sim_time_[0]*int(self.getSampleRate())
         end_point = self.selected_sim_time_[1]*int(self.getSampleRate())
 
@@ -328,17 +361,19 @@ class EDFWorker():
                 if (header == channel):
                     signals_to_print.append((header, signal))
 
-        for index in range(len(self.selected_channels_)):
-            header, signal = signals_to_print[index]
+        for index in range(len(printing_signals)):
+            header, signal = printing_signals[index]
             # Plot
-            axis[index][0].plot(signal, color=([168/255, 193/255, 5/255]), linewidth=0.4)
+            axis[index][0].plot(printing_signals_2[index], color=([0, 0, 255/255]), linewidth=0.4)
             # Hide axis values
-            axis[index][0].get_xaxis().set_ticks([])
+            # axis[index][0].get_xaxis().set_ticks([])
             # axis[index][0].get_yaxis().set_ticks([])
             # Set plot title
-            axis[index][0].set_ylabel(header, rotation=0, labelpad=30)
+            axis[index][0].set_ylabel(names[index], rotation=0, labelpad=30)
             # Adjust axis range to better fit the signal
-            axis[index][0].set_xlim([0, end_point - start_point])
+            axis[index][0].set_xlim([0, 2000])
+            # Adjust axis range to better fit the signal
+            axis[index][0].set_ylim([min(printing_signals_2[index]), max(printing_signals_2[index])])
         plot_figure_manager = plt.get_current_fig_manager()
         plot_figure_manager.window.showMaximized()
         plt.show()

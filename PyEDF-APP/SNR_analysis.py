@@ -131,67 +131,67 @@ def equalize_signal_lengths(s1, s2):
     return s1[:min_len], s2[:min_len]
 
 
-snr_analysis = SNRAnalysis(frequency = 1)
+snr_analysis = SNRAnalysis(frequency = 5)
 
 snr_analysis.correlate_all_signals()
 
 
 
 
-figure, axis = plt.subplots(3, 1)
+figure, axis = plt.subplots(7, 1)
 
 time_step=1/200
 time_axis = np.arange(start = 0, stop = len(snr_analysis.correlated_sample_signals[5]) * time_step, step = time_step)
 
+voltages= ["200uV", "100uV", "50uV", "25uV", "10uV", "5uV", "2uV"]
 
-
-for i in range(0,3):
+for i in range(0,7):
     sample_signal = snr_analysis.correlated_sample_signals[i]
     signal = snr_analysis.correlated_signals[i] * snr_analysis.amp_adjust
-    axis[i].set_title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
-    axis[i].plot(time_axis, sample_signal, 'b', label='Input')
-    axis[i].plot(time_axis, signal, 'r', label='Output')
+    # axis[i].set_title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
+    axis[i].plot(time_axis, sample_signal, 'r', label='Input')
+    axis[i].plot(time_axis, signal, 'b', label='Output')
     axis[i].plot(time_axis, sample_signal- signal, 'g', label='Error=Input-Output')
     axis[i].set_xlim([0, time_axis[-1]])
-    axis[i].set_ylabel("Tensión [uV]")
+    axis[i].set_ylabel("Tensión: " + voltages[i])
+    axis[0].legend(loc="upper right")
     if i == 2:
         axis[i].set_xlabel("Tiempo [seg]")            
     axis[i].grid()
-    axis[i].legend()
     
 plt.show()
 
-figure, axis = plt.subplots(3, 1)
-for i in range(3,6):
-    sample_signal = snr_analysis.correlated_sample_signals[i]
-    signal = snr_analysis.correlated_signals[i] * snr_analysis.amp_adjust
+# figure, axis = plt.subplots(3, 1)
+# for i in range(3,6):
+#     sample_signal = snr_analysis.correlated_sample_signals[i]
+#     signal = snr_analysis.correlated_signals[i] * snr_analysis.amp_adjust
 
-    axis[i-3].set_title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
-    axis[i-3].plot(time_axis, sample_signal, 'b', label='Input')
-    axis[i-3].plot(time_axis, signal, 'r', label='Output')
-    axis[i-3].plot(time_axis, sample_signal- signal, 'g', label='Error=Input-Output')
-    axis[i-3].set_xlim([0, time_axis[-1]])
-    axis[i-3].set_ylabel("Tensión [uV]")
-    if (i-3) == 2:
-        axis[i-3].set_xlabel("Tiempo [seg]")    
-    axis[i-3].grid()
-    axis[i-3].legend()
+#     axis[i-3].set_title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
+#     axis[i-3].plot(time_axis, sample_signal, 'b', label='Input')
+#     axis[i-3].plot(time_axis, signal, 'r', label='Output')
+#     axis[i-3].plot(time_axis, sample_signal- signal, 'g', label='Error=Input-Output')
+#     axis[i-3].set_xlim([0, time_axis[-1]])
+#     axis[i-3].set_ylabel("Tensión [uV]")
+#     if (i-3) == 2:
+#         axis[i-3].set_xlabel("Tiempo [seg]")    
+#     axis[i-3].grid()
+#     axis[i-3].legend()
     
-plt.show()
+# plt.show()
 
 
-i= 6
-sample_signal = snr_analysis.correlated_sample_signals[i]
-signal = snr_analysis.correlated_signals[i] * snr_analysis.amp_adjust
-plt.title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
-plt.plot(time_axis, sample_signal, 'b', label='Input')
-plt.plot(time_axis, signal, 'r', label='Output')
-plt.plot(time_axis, sample_signal- signal, 'g', label='Error=Input-Output')
-plt.xlim([0, time_axis[-1]])
-plt.ylabel("Tensión [uV]")
-plt.xlabel("Tiempo [seg]")
-plt.grid()
-plt.legend()
+# i= 6
+# sample_signal = snr_analysis.correlated_sample_signals[i]
+# signal = snr_analysis.correlated_signals[i] * snr_analysis.amp_adjust
+# plt.title(f"Input vs Output ({snr_analysis.frequency}Hz) - SNR = {eeg_utils.calculate_log_snr(input=sample_signal, output=signal):.2f} dB")
+# plt.plot(time_axis, sample_signal, 'b', label='Input')
+# plt.plot(time_axis, signal, 'r', label='Output')
+# plt.plot(time_axis, sample_signal- signal, 'g', label='Error=Input-Output')
+# plt.xlim([0, time_axis[-1]])
+# plt.ylabel("Tensión [uV]")
+# plt.xlabel("Tiempo [seg]")
+# plt.grid()
+# plt.legend()
     
-plt.show()
+# plt.show()
 
