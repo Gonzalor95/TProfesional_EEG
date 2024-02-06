@@ -50,7 +50,7 @@ class EDFSimulator(QMainWindow, Ui_MainWindow):
         # Add custom double range slider
         self.min_time_input = QLineEdit()
         self.max_time_input = QLineEdit()
-        self.set_sim_time_button = QPushButton("Set time")
+        self.set_sim_time_button = QPushButton("Seleccionar tiempo")
         self.range_slider_layout.addWidget(self.min_time_input)
         self.range_slider_layout.addWidget(self.max_time_input)
         self.range_slider_layout.addWidget(self.set_sim_time_button)

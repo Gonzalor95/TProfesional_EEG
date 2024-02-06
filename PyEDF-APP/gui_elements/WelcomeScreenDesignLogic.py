@@ -38,8 +38,8 @@ class WelcomeDialog(QDialog):
         """
         self.ui.welcome_list.clear()
         self.state_ = self.states_[0]
-        self.ui.instructions_label.setText("Please, select an EDF file (you can choose a different one later on):")
-        self.ui.next_button.setText("Next")
+        self.ui.instructions_label.setText("Por favor, seleccione un archivo EDF (puede seleccionarlo luego):")
+        self.ui.next_button.setText("Siguiente")
         self.ui.back_button.setEnabled(False)
         edf_files_path = os.path.join(os.getcwd(), "edf_samples")
         for file in os.listdir(edf_files_path):
@@ -57,8 +57,8 @@ class WelcomeDialog(QDialog):
         """
         self.state_ = self.states_[1]
         self.ui.instructions_label.setText(
-            "Please, select an EDF generator device (you can choose a different one later on):")
-        self.ui.next_button.setText("Finish")
+            "Por favor, seleccione un dispositivo (puede seleccionarlo luego):")
+        self.ui.next_button.setText("Terminar")
         self.ui.skip_button.setEnabled(False)
         self.ui.back_button.setEnabled(True)
         self.ui.welcome_list.clear()

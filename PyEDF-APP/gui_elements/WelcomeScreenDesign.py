@@ -59,11 +59,11 @@ class Ui_WelcomeDialog(object):
     def retranslateUi(self, WelcomeDialog):
         _translate = QtCore.QCoreApplication.translate
         WelcomeDialog.setWindowTitle(_translate("WelcomeDialog", "Dialog"))
-        self.welcome_label.setText(_translate("WelcomeDialog", "Welcome!"))
-        self.instructions_label.setText(_translate("WelcomeDialog", "Please, select an EDF file (you can choose a different one later on):"))
-        self.back_button.setText(_translate("WelcomeDialog", "Back"))
-        self.skip_button.setText(_translate("WelcomeDialog", "Skip"))
-        self.next_button.setText(_translate("WelcomeDialog", "Next"))
+        self.welcome_label.setText(_translate("WelcomeDialog", "Bienvenido!"))
+        self.instructions_label.setText(_translate("WelcomeDialog", "Por favor, seleccione un archivo EDF (puede seleccionarlo luego):"))
+        self.back_button.setText(_translate("WelcomeDialog", "Anterior"))
+        self.skip_button.setText(_translate("WelcomeDialog", "Saltear"))
+        self.next_button.setText(_translate("WelcomeDialog", "Siguiente"))
 
 
 if __name__ == "__main__":
