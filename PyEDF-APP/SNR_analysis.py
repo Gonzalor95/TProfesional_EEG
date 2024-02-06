@@ -131,7 +131,7 @@ def equalize_signal_lengths(s1, s2):
     return s1[:min_len], s2[:min_len]
 
 
-snr_analysis = SNRAnalysis(frequency = 1)
+snr_analysis = SNRAnalysis(frequency = 5)
 
 snr_analysis.correlate_all_signals()
 

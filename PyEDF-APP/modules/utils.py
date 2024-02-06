@@ -98,10 +98,10 @@ def generate_sinusoidal_waves_matching_time(amplitude, duration, frequencies, sa
         """
         Generates a single signal that contains all frequencies. Each repeated for a duration specified by parameter.
         """
-        t = np.linspace(0, duration*len(frequencies), duration * len(frequencies) * sample_rate, endpoint=False)
+        t = np.arange(0, duration*len(frequencies), 1 / sample_rate)
         signal = np.array([])
 
         for frequency in frequencies:
-            cycle = amplitude * np.sin(10 * np.pi * frequency * np.linspace(0, duration, duration * sample_rate, endpoint=False))
+            cycle = amplitude * np.sin(2 * np.pi * frequency * np.arange(0, duration, 1/sample_rate))
             signal = np.append(signal, cycle)
         return t, signal

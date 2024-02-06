@@ -325,7 +325,7 @@ def check_gain_for_output(input_signal, output_signal):
 GENERAL ANALYSIS: Aca hago un analisis general
 """
 input_signal_file_name = "common_mode_sample1"
-output_signal_file_name = "EEG_CommonSample1"
+output_signal_file_name = "0000055"
 #output_signal_file_name = "Sen200uV"
 input_signal_filepath = os.path.join(".", "edf_samples", f"{input_signal_file_name}.edf")
 output_signal_filepath = os.path.join(".", "edf_samples", "data_analysis", f"{output_signal_file_name}.edf")

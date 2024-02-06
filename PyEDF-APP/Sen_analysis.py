@@ -12,50 +12,27 @@ from modules.EDFWorker import EDFWorker
 import matplotlib.pyplot as plt
 from modules.TestingSignals import TestingSignalsWorker
 
-"""
---------Conversion a formato EDF:
-
-Pasar lo leido por el EEG a formato EDF:
-    1. Copian el archivo .eeg
-    2. abren el EDFBrowser y en el panel superior elegir "Tools > Convert Binary/raw data to EDF"
-    3. La configuracion tiene que ser:
-        Samplefrequency = 200Hz
-        Number of signals = 32 (dependera como se configuro el EEG ese dia)
-        Sample size (16 bits (2 bytes))
-        Offset = 0 (dejarlo asi, porque arruina la señal. Igual el cero pareciera estar en 187,538uV)
-        Encoding 2's complement
-        Endianness: little endian
-        Data blocksize = 0
-        Skip bytes = 1
-        Physical maximun 3000uV
-        Physical dimension uV
-        sample type I16
-    4. Para corregir el nombre de los canales, abrir el EDFBrowser y poner "Tools > Header editor repair" y cambiar los nombres
-
---------Receta de como deberiamos analizar cada batch de datos:
-
-    **Input = Esta señal siempre va a ser la que enviamos al EEG
-    **Output = Esta señal es la que mide el EEG.
 
 
-    1. Obtener la "Input" signal:
-        a. Si es una señal de testing (senoidal, cuadrada, triangular), la tenemos que fabricar con el EDF worker de "TestingSignals.py"
-        b. Si es una señal de EDF, tenemos que usar el EDFWorker y sacar la señal que queramos.
+#print("freq is" + str(scipy.fftpack.fftfreq(sampled_data, dt )  ))
+#As far as I know, THD=sqrt(sum of square magnitude of
+#harmonics+noise)/Fundamental value (Is it correct?)So I'm
+#just summing up square of all frequency data obtained from FFT,
+#sqrt() them and dividing them with fundamental frequency value.
 
-    2. Obtener la "Output" signal: 
-        a. Se deberia obtener de PYEDF-APP/edf_samples/data_analysis/<file_name>.edf
-        b. El canal seleccionado a analizar, se le tiene que aplicar el offset de 187,538uV.
+def thd(signal):
+    abs_data = np.abs(fft(signal))
+    sq_sum=0.0
+    for r in range( len(abs_data)):
+       sq_sum = sq_sum + (abs_data[r])**2
 
-    3. Aplicar el filtrado digital que queramos con el sample_rate original. Vimos que si reesampleamos y aplicamos el filtro despues del resampleo, empeora el error.
+    sq_harmonics = sq_sum -(max(abs_data))**2.0
+    thd = 100*sq_harmonics**0.5 / max(abs_data)
 
-    4. Resamplear. Normalmente lo hacemos a 200Hz ya que es el sample_rate del EEG.
+    return thd
 
-    5. De la "Output" lo mas seguro es que tengamos que plotear una vez y determinar una seccion donde analizar los datos, porque siempre pasa que en los bordes
-    hay problemas. Determinamos los indices de dicha seccion y quedarnos con esa ventana:
-        output = output[index:index+window_size]
-
-    6. Usando la correlación cruzada, buscar esa ventana de "Output" en la "Input".
-"""
+    #print("Total Harmonic Distortion(in percent):")
+    #print(thd(abs_yf[1:int(len(abs_yf)/2) ]))
 
 
 # This value is the supposed offset consequence of the Data conversion to .EDF file
@@ -361,8 +338,8 @@ output_signal = output_signal * 1.02
 #############
 ############# FILTERS
 input_signal_original = input_signal
-input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
-input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
+#input_signal = butterworth_filter(data=input_signal,btype = 'low', cutoff_freq = 30, fs = input_edfworker.getSampleRate(), order = 1)
+#input_signal = butterworth_filter(data=input_signal,btype = 'high', cutoff_freq = 0.8, fs = input_edfworker.getSampleRate(), order = 1)
 #input_signal = slew_rate_filter(input_signal, 10)
 #############
 ############# Resampling
@@ -444,4 +421,34 @@ plt.show()
 
 
 
+print(thd(output_signal_resampled[1:int(len(output_signal_resampled)/2) ]))
 
+s = output_signal_resampled
+Fs = 200
+t = time_axis
+
+fig = plt.figure(figsize=(7, 7), layout='constrained')
+axs = fig.subplot_mosaic([["signal", "signal"],
+                          ["magnitude", "log_magnitude"],
+                          ["phase", "angle"]])
+
+# plot time signal:
+axs["signal"].set_title("Signal")
+axs["signal"].plot(t, s, color='C0')
+axs["signal"].set_xlabel("Time (s)")
+axs["signal"].set_ylabel("Amplitude")
+
+# plot different spectrum types:
+axs["magnitude"].set_title("Magnitude Spectrum")
+axs["magnitude"].magnitude_spectrum(s, Fs=Fs, color='C1')
+
+axs["log_magnitude"].set_title("Log. Magnitude Spectrum")
+axs["log_magnitude"].magnitude_spectrum(s, Fs=Fs, scale='dB', color='C1')
+
+axs["phase"].set_title("Phase Spectrum ")
+axs["phase"].phase_spectrum(s, Fs=Fs, color='C2')
+
+axs["angle"].set_title("Angle Spectrum")
+axs["angle"].angle_spectrum(s, Fs=Fs, color='C2')
+
+plt.show()

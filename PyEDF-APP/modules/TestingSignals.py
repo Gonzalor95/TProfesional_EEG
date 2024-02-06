@@ -192,9 +192,11 @@ class TestingSignalsWorker():
         #output = amplitude * signal.sawtooth(2*np.pi * frecuency * time, 0.5)
 
         #Resp en frequencia:
-        frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
+        #frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15] # 10 frecuencias
+        #frequencies = [20, 22, 25, 28, 30, 32, 34, 37, 40, 50]
+        frequencies = [0.1, 0.2, 0.5, 0.8, 1, 2, 3, 5, 10, 15, 20, 25, 28, 30, 35, 40, 50, 66,77,88] # poner duracion 200 sec
         
-        duration = 5
+        duration = 10
         t, output = generate_sinusoidal_waves_matching_time(amplitude = amplitude, duration = duration, frequencies = frequencies, sample_rate = sample_rate)
         
         return output

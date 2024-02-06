@@ -227,8 +227,12 @@ class EDFWorker():
             processed_signal = ((signal * 0.0125) +2.5) * (65536/5)
             
             #### INVERSE FILTER
-            #inv_filtered_signal = inverse_filter(data = processed_signal, stopband = [0.8, 30], fs = self.getSampleRate())
-            #processed_signal = inv_filtered_signal + processed_signal
+            inv_filtered_signal = inverse_filter(data = processed_signal, stopband = [0.8, 30], fs = self.getSampleRate())
+            processed_signal = inv_filtered_signal + processed_signal
+
+            for idx, value in enumerate(processed_signal):
+                if value > 199:
+                    processed_signal[idx] = 199
 
             processed_signal_to_send.append((header, processed_signal[start_point:end_point]))
 
