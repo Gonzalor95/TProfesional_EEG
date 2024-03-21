@@ -194,19 +194,19 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "EDF signal generator"))
-        self.browse_edf_button.setText(_translate("MainWindow", "Browse EDFs"))
-        self.browse_devices_button.setText(_translate("MainWindow", "Browse devices"))
-        self.testing_signals_button.setText(_translate("MainWindow", "Testing signals"))
-        self.current_file_label.setText(_translate("MainWindow", "Current signal: "))
-        self.current_device_label.setText(_translate("MainWindow", "Current device: "))
-        self.information_title_label.setText(_translate("MainWindow", "Signal information"))
-        self.configuration_title_label.setText(_translate("MainWindow", "Signal configuration"))
-        self.selected_channels_key.setText(_translate("MainWindow", "Selected channels: "))
-        self.channel_browse_button.setText(_translate("MainWindow", "Browse channels"))
-        self.selected_sim_time_key.setText(_translate("MainWindow", "Simulation time [s]: "))
-        self.preview_button.setText(_translate("MainWindow", "PREVIEW"))
-        self.run_button.setText(_translate("MainWindow", "RUN"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Generador de señales EDF"))
+        self.browse_edf_button.setText(_translate("MainWindow", "Seleccionar señal EDF"))
+        self.browse_devices_button.setText(_translate("MainWindow", "Seleccionar dispositivo"))
+        self.testing_signals_button.setText(_translate("MainWindow", "Señales de prueba"))
+        self.current_file_label.setText(_translate("MainWindow", "Señal elegida: "))
+        self.current_device_label.setText(_translate("MainWindow", "Dispositivo elegido: "))
+        self.information_title_label.setText(_translate("MainWindow", "Información de señal"))
+        self.configuration_title_label.setText(_translate("MainWindow", "Configuración de señal"))
+        self.selected_channels_key.setText(_translate("MainWindow", "Canales seleccionados: "))
+        self.channel_browse_button.setText(_translate("MainWindow", "Seleccionar canales"))
+        self.selected_sim_time_key.setText(_translate("MainWindow", "Tiempo de simulación [s]: "))
+        self.preview_button.setText(_translate("MainWindow", "VISTA PREVIA"))
+        self.run_button.setText(_translate("MainWindow", "EJECUTAR"))
 
 
 if __name__ == "__main__":

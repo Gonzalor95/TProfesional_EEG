@@ -57,7 +57,10 @@ class SerialComWorker():
         config_channel_amount_pkg = self.createConfigPackage_(self.config_params_["config_channels_amount"], channels_amount)
         config_reset_all_dacs_pkg = self.createConfigPackage_(self.config_params_["config_reset_all_dacs"], channels_amount)
         data_pkgs = [bytes_packages[i:i+64] for i in range(0,len(bytes_packages),64)]
-
+        print(f"Size of first byte_package: {len(bytes_packages[0])}")
+        print(f"Size of first data_pkgs: {len(data_pkgs[0])}")
+        print(f"Size of data_pkgs: {len(data_pkgs)}")
+        
         try:
             # Start serial connection
             serial_connection = serial.Serial(self.chosen_device_.name, baudrate=115200, bytesize=serial.EIGHTBITS, write_timeout=5)
